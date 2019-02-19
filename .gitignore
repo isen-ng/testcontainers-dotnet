@@ -1,0 +1,10 @@
+# dotnet stuff
+*.user
+bin
+obj
+
+# jetbrains
+.idea
+
+# OSX
+**/.DS_Store
