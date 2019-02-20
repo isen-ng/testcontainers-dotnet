@@ -52,6 +52,8 @@ namespace TestContainers.Containers
 
         string GetDockerHostIpAddress();
 
+        int GetMappedPort(int hostPort);
+
         Task<(string stdout, string stderr)> ExecuteCommand(params string[] command);
     }
 }

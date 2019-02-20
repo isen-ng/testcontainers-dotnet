@@ -6,7 +6,7 @@ using TestContainers.Containers;
 using TestContainers.Containers.Hosting;
 using Xunit;
 
-namespace Containers.Integration.Tests
+namespace Containers.Integration.Tests.Fixtures
 {
     public class GenericContainerFixture : IAsyncLifetime
     {
@@ -14,6 +14,8 @@ namespace Containers.Integration.Tests
 
         public KeyValuePair<string, string> InjectedEnvironmentVariable { get; } =
             new KeyValuePair<string, string>("MY_KEY", "my value");
+
+        public int ExposedPort { get; } = 1234;
 
         public GenericContainerFixture()
         {
@@ -25,6 +27,7 @@ namespace Containers.Integration.Tests
                 .ConfigureContainer((context, container) =>
                 {
                     container.Env[InjectedEnvironmentVariable.Key] = InjectedEnvironmentVariable.Value;
+                    container.ExposedPorts.Add(ExposedPort);
                 })
                 .Build();
         }

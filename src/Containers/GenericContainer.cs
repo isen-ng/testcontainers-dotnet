@@ -16,6 +16,12 @@ namespace TestContainers.Containers
 {
     public class GenericContainer : IContainer
     {
+        public const string HostMachineHostname = "host.docker.internal";
+
+        public const string HostMachineUrl = "http://" + HostMachineHostname;
+
+        private const string TcpExposedPortFormat = "{0}/tcp";
+
         private readonly ILogger _logger;
 
         protected IDockerClient DockerClient { get; }
@@ -89,6 +95,25 @@ namespace TestContainers.Containers
                     throw new InvalidOperationException("Docker client is using a unsupported transport: " +
                                                         dockerHostUri);
             }
+        }
+
+        public int GetMappedPort(int exposedPort)
+        {
+            if (ContainerInfo == null)
+            {
+                throw new InvalidOperationException($"Container must be started before mapped ports can be retrieved");
+            }
+
+            var tcpExposedPort = string.Format(TcpExposedPortFormat, exposedPort);
+
+            if (ContainerInfo.NetworkSettings.Ports.TryGetValue(tcpExposedPort, out var binding) &&
+                binding.Count > 0 &&
+                int.TryParse(binding[0].HostPort, out var mappedPort))
+            {
+                return mappedPort;
+            }
+
+            throw new InvalidOperationException($"ExposedPort[{exposedPort}] is not mapped");
         }
 
         public async Task<(string stdout, string stderr)> ExecuteCommand(params string[] command)
@@ -203,23 +228,25 @@ namespace TestContainers.Containers
             {
                 Image = DockerImageName,
                 Env = Env.Select(kvp => $"{kvp.Key}={kvp.Value}").ToList(),
-                ExposedPorts = ExposedPorts.ToDictionary(e => $"{e}/tcp", e => default(EmptyStruct)),
+                ExposedPorts = ExposedPorts.ToDictionary(e => string.Format(TcpExposedPortFormat, e),
+                    e => default(EmptyStruct)),
                 Tty = true,
                 AttachStderr = true,
-                AttachStdout = true
+                AttachStdout = true,
             };
 
-            var portBindings = new Dictionary<string, IList<PortBinding>>();
-            foreach (var exposed in ExposedPorts)
-            {
-                portBindings.Add($"{exposed}/tcp", new[] {new PortBinding {HostPort = exposed.ToString()}});
-            }
+            //var portBindings = new Dictionary<string, IList<PortBinding>>();
+//            foreach (var exposed in ExposedPorts)
+//            {
+//                portBindings.Add($"{exposed}/tcp", new[] {new PortBinding {HostPort = exposed.ToString()}});
+//            }
 
             return new CreateContainerParameters(config)
             {
                 HostConfig = new HostConfig
                 {
-                    PortBindings = portBindings
+                    //PortBindings = portBindings,
+                    PublishAllPorts = true
                 }
             };
         }

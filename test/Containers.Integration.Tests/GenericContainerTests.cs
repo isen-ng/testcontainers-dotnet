@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.Net.Sockets;
 using System.Threading.Tasks;
+using Containers.Integration.Tests.Fixtures;
 using TestContainers.Containers;
 using Xunit;
 
@@ -71,6 +73,38 @@ namespace Containers.Integration.Tests
             }
         }
 
-        // todo: exposed ports tests
+        public class ExposedPortsTests : GenericContainerTests
+        {
+            private readonly int _exposedPort;
+
+            public ExposedPortsTests(GenericContainerFixture fixture)
+                : base(fixture)
+            {
+                _exposedPort = fixture.ExposedPort;
+            }
+
+            [Fact]
+            public void ShouldBeAvailableWhenTheyAreSet()
+            {
+                // arrange
+                var mappedPort = Container.GetMappedPort(_exposedPort);
+
+                // act
+                var tcpClient = new TcpClient("localhost", mappedPort);
+
+                // assert
+                Assert.True(tcpClient.Connected);
+            }
+
+            [Fact]
+            public void ShouldNotBeAbleToConnectToUnexposedPort()
+            {
+                // act
+                var ex = Record.Exception(() => new TcpClient("localhost", _exposedPort));
+
+                // assert
+                Assert.IsAssignableFrom<SocketException>(ex);
+            }
+        }
     }
 }
