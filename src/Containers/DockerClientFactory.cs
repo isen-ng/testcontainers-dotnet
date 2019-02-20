@@ -8,7 +8,8 @@ namespace TestContainers.Containers
     {
         private static DockerClientFactory Instance { get; }
 
-        static DockerClientFactory() {
+        static DockerClientFactory()
+        {
             Instance = new DockerClientFactory();
         }
 
@@ -23,7 +24,7 @@ namespace TestContainers.Containers
         {
             return _configuration.CreateClient();
         }
-        
+
         private static DockerClientConfiguration BuildDockerConfigBasedOnOs()
         {
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
@@ -31,12 +32,12 @@ namespace TestContainers.Containers
                 return new DockerClientConfiguration(new Uri("unix:///var/run/docker.sock"));
             }
 
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX) || 
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX) ||
                 RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
             {
                 return new DockerClientConfiguration(new Uri("unix:///var/run/docker.sock"));
             }
-            
+
             throw new InvalidOperationException("OS is not supported for testcontainers-dotnet");
         }
     }

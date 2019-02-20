@@ -1,63 +1,76 @@
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
 using TestContainers.Containers;
-using TestContainers.Containers.Hosting;
 using Xunit;
 
 namespace Containers.Integration.Tests
 {
-    public class GenericContainerTests : IAsyncLifetime
+    public class GenericContainerTests : IClassFixture<GenericContainerFixture>
     {
-        private readonly IContainer _container;
+        private readonly GenericContainerFixture _fixture;
 
-        public GenericContainerTests()
+        protected IContainer Container => _fixture.Container;
+
+        public GenericContainerTests(GenericContainerFixture fixture)
         {
-            _container = new ContainerBuilder<GenericContainer>()
-                .ConfigureHostConfiguration(builder => builder.AddInMemoryCollection())
-                .ConfigureAppConfiguration((context, builder) => builder.AddInMemoryCollection())
-                .ConfigureDockerImageName("alpine:3.5")
-                .ConfigureLogging(builder => builder.AddConsole())
-                .Build();
+            _fixture = fixture;
         }
 
-        public Task InitializeAsync()
+        public class ExecuteCommandTests : GenericContainerTests
         {
-            return _container.StartAsync();
+            public ExecuteCommandTests(GenericContainerFixture fixture)
+                : base(fixture)
+            {
+            }
+
+            [Fact]
+            public async Task ShouldReturnSuccessfulResponseInStdOut()
+            {
+                // arrange
+                const string hello = "hello-world";
+
+                // act
+                var (stdout, stderr) = await Container.ExecuteCommand("echo", hello);
+
+                // assert
+                Assert.Equal(hello, stdout.TrimEnd(Environment.NewLine.ToCharArray()));
+                Assert.True(string.IsNullOrEmpty(stderr));
+            }
+
+            [Fact]
+            public async Task ShouldReturnFailureResponseInStdErr()
+            {
+                // act
+                var (stdout, stderr) = await Container.ExecuteCommand("sh", "echo");
+
+                // assert
+                Assert.True(string.IsNullOrEmpty(stdout));
+                Assert.False(string.IsNullOrEmpty(stderr));
+            }
         }
 
-        public Task DisposeAsync()
+        public class EnvironmentVariablesTests : GenericContainerTests
         {
-            return _container.StopAsync();
+            private readonly KeyValuePair<string, string> _injectedEnvironmentVariable;
+
+            public EnvironmentVariablesTests(GenericContainerFixture fixture)
+                : base(fixture)
+            {
+                _injectedEnvironmentVariable = fixture.InjectedEnvironmentVariable;
+            }
+
+            [Fact]
+            public async Task ShouldBeAvailableWhenTheyAreSet()
+            {
+                // act
+                var (stdout, _) = await Container.ExecuteCommand("sh", "-c", "echo $MY_KEY");
+
+                // assert
+                Assert.Equal(_injectedEnvironmentVariable.Value, stdout.TrimEnd(Environment.NewLine.ToCharArray()));
+            }
         }
 
-        [Fact]
-        public async Task ShouldReturnSuccessfulResponseInStdOut()
-        {
-            // arrange
-            const string hello = "hello-world";
-            
-            // act
-            var (stdout, stderr) = await _container.ExecuteCommand("echo", hello);
-            
-            // assert
-            Assert.Equal(hello, stdout.TrimEnd(Environment.NewLine.ToCharArray()));
-            Assert.True(string.IsNullOrEmpty(stderr));
-        }
-        
-        [Fact]
-        public async Task ShouldReturnFailureResponseInStdErr()
-        {
-            // act
-            var (stdout, stderr) = await _container.ExecuteCommand("sh", "echo");
-            
-            // assert
-            Assert.True(string.IsNullOrEmpty(stdout));
-            Assert.False(string.IsNullOrEmpty(stderr));
-        }
-        
-        // todo: environment variables tests
         // todo: exposed ports tests
     }
 }

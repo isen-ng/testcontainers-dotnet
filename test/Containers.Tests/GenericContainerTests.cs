@@ -19,7 +19,7 @@ namespace Containers.Tests
             var dockerClientMock = _dockerClientMock.MockDockerClient;
 
             var loggerMock = new Mock<ILoggerFactory>();
-            
+
             _container = new GenericContainer("my image", dockerClientMock.Object, loggerMock.Object);
         }
 
@@ -34,14 +34,14 @@ namespace Containers.Tests
                 // arrange
                 var expected = new Uri(url).Host;
                 _dockerClientMock.MockClientConfiguration = new DockerClientConfiguration(new Uri(url));
-                
+
                 // act
                 var actual = _container.GetDockerHostIpAddress();
-                
+
                 // assert
                 Assert.Equal(expected, actual);
             }
-            
+
             [Theory]
             [InlineData("npipe://1.1.1.1")]
             [InlineData("unix://1.1.1.1")]
@@ -49,10 +49,10 @@ namespace Containers.Tests
             {
                 // arrange
                 _dockerClientMock.MockClientConfiguration = new DockerClientConfiguration(new Uri(url));
-                
+
                 // act
                 var actual = _container.GetDockerHostIpAddress();
-                
+
                 // assert
                 Assert.Equal("localhost", actual);
             }

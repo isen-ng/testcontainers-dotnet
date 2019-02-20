@@ -17,7 +17,7 @@ namespace TestContainers.Containers
     public class GenericContainer : IContainer
     {
         private readonly ILogger _logger;
-        
+
         protected IDockerClient DockerClient { get; }
 
         protected string ContainerId { get; private set; }
@@ -25,17 +25,17 @@ namespace TestContainers.Containers
         protected string ContainerName { get; private set; }
 
         protected IWaitStrategy WaitStrategy { get; [NotNull] set; } = new NoWaitStrategy();
-        
+
         protected IStartupStrategy StartupStrategy { get; [NotNull] set; } = new IsRunningStartupCheckStrategy();
-    
+
         private ContainerInspectResponse ContainerInfo { get; set; }
 
         public string DockerImageName { get; }
 
-        public List<int> ExposedPorts { get; } = new List<int>();
+        public IList<int> ExposedPorts { get; } = new List<int>();
 
         public Dictionary<string, string> Env { get; } = new Dictionary<string, string>();
-        
+
         public GenericContainer(string dockerImageName, IDockerClient dockerClient, ILoggerFactory loggerFactory)
         {
             DockerImageName = dockerImageName;
@@ -51,7 +51,7 @@ namespace TestContainers.Containers
             }
 
             await ConfigureAsync();
-            
+
             await PullImage(ct);
 
             ContainerId = await CreateContainer(ct);
@@ -69,7 +69,7 @@ namespace TestContainers.Containers
             await DockerClient.Containers.StopContainerAsync(ContainerId, new ContainerStopParameters(), ct);
             await DockerClient.Containers.RemoveContainerAsync(ContainerId, new ContainerRemoveParameters(), ct);
         }
-        
+
         public string GetDockerHostIpAddress()
         {
             var dockerHostUri = DockerClient.Configuration.EndpointBaseUri;
@@ -101,7 +101,7 @@ namespace TestContainers.Containers
             };
 
             var response = await DockerClient.Containers.ExecCreateContainerAsync(ContainerId, parameters);
-            
+
             var stream = await DockerClient.Containers.StartAndAttachContainerExecAsync(response.ID, false);
             return await stream.ReadOutputToEndAsync(default(CancellationToken));
         }
@@ -175,7 +175,7 @@ namespace TestContainers.Containers
             catch (Exception e)
             {
                 _logger.LogError(e, "Unable to start container: {}", DockerImageName);
-                
+
                 if (ContainerId != null && _logger.IsEnabled(LogLevel.Error))
                 {
                     using (var logStream = await DockerClient.Containers.GetContainerLogsAsync(ContainerId,

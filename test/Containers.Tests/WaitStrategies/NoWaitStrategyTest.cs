@@ -17,7 +17,7 @@ namespace Containers.Tests.WaitStrategies
         {
             // act
             var result = _strategy.WaitUntil(null);
-            
+
             // assert
             Assert.True(result.IsCompletedSuccessfully);
         }

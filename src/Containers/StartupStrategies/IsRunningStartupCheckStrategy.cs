@@ -11,9 +11,10 @@ namespace TestContainers.Containers.StartupStrategies
     {
         public async Task WaitUntilSuccess(IDockerClient dockerClient, string containerId)
         {
-            var retryPolicy = AsyncRetryTResultSyntax.WaitAndRetryForeverAsync(Policy
-                    .HandleResult<ContainerState>(s => !IsContainerRunning(s)), retry => TimeSpan.FromSeconds(1));
-                
+            var retryPolicy = Policy
+                .HandleResult<ContainerState>(s => !IsContainerRunning(s))
+                .WaitAndRetryForeverAsync(retry => TimeSpan.FromSeconds(1));
+
             var outcome = await Policy
                 .TimeoutAsync(TimeSpan.FromMinutes(1))
                 .WrapAsync(retryPolicy)
@@ -27,22 +28,23 @@ namespace TestContainers.Containers.StartupStrategies
 
         private static bool IsContainerRunning(ContainerState state)
         {
-            if (state.Running) 
+            if (state.Running)
             {
                 return true;
             }
-            
+
             if (!string.IsNullOrEmpty(state.FinishedAt))
             {
                 // container exited early?
                 throw new InvalidOperationException("Container has exited with code: " + state.ExitCode);
-            } 
-            
+            }
+
             // still starting, I guess...
             return false;
         }
-        
-        private static async Task<ContainerState> GetCurrentState(IDockerClient dockerClient, string containerId) {
+
+        private static async Task<ContainerState> GetCurrentState(IDockerClient dockerClient, string containerId)
+        {
             var response = await dockerClient.Containers.InspectContainerAsync(containerId);
             return response.State;
         }

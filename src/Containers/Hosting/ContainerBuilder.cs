@@ -10,10 +10,16 @@ namespace TestContainers.Containers.Hosting
         private const string ApplicationNameKey = "applicationName";
         private const string EnvironmentKey = "environment";
         private const string DefaultEnvironment = "Production";
-        
-        private readonly List<Action<HostContext, IServiceCollection>> _configurationActions = new List<Action<HostContext, IServiceCollection>>();
-        private readonly List<Action<IConfigurationBuilder>> _configureHostActions = new List<Action<IConfigurationBuilder>>();
-        private readonly List<Action<HostContext, IConfigurationBuilder>> _configureAppActions = new List<Action<HostContext, IConfigurationBuilder>>();
+
+        private readonly List<Action<HostContext, IServiceCollection>> _configurationActions =
+            new List<Action<HostContext, IServiceCollection>>();
+
+        private readonly List<Action<IConfigurationBuilder>> _configureHostActions =
+            new List<Action<IConfigurationBuilder>>();
+
+        private readonly List<Action<HostContext, IConfigurationBuilder>> _configureAppActions =
+            new List<Action<HostContext, IConfigurationBuilder>>();
+
         private readonly List<Action<HostContext, T>> _configureContainerActions = new List<Action<HostContext, T>>();
         private Func<HostContext, string> _dockerImageNameProvider;
 
@@ -37,7 +43,7 @@ namespace TestContainers.Containers.Hosting
             _dockerImageNameProvider = @delegate;
             return this;
         }
-        
+
         public ContainerBuilder<T> ConfigureHostConfiguration(Action<IConfigurationBuilder> @delegate)
         {
             _configureHostActions.Add(@delegate ?? throw new ArgumentNullException(nameof(@delegate)));
@@ -55,30 +61,30 @@ namespace TestContainers.Containers.Hosting
             _configureContainerActions.Add(@delegate ?? throw new ArgumentNullException(nameof(@delegate)));
             return this;
         }
-        
+
         public ContainerBuilder<T> ConfigureServices(Action<HostContext, IServiceCollection> @delegate)
         {
             if (@delegate == null)
             {
                 throw new ArgumentNullException(nameof(@delegate));
             }
-            
+
             _configurationActions.Add(@delegate);
             return this;
         }
-        
+
         public ContainerBuilder<T> ConfigureServices(Action<IServiceCollection> @delegate)
         {
             if (@delegate == null)
             {
                 throw new ArgumentNullException(nameof(@delegate));
             }
-            
+
             return ConfigureServices((context, collection) => @delegate(collection));
         }
 
         public T Build()
-        {   
+        {
             var hostConfig = BuildHostConfiguration();
             var hostContext = new HostContext
             {
@@ -89,7 +95,7 @@ namespace TestContainers.Containers.Hosting
 
             var appConfig = BuildAppConfiguration(hostContext, hostConfig);
             hostContext.Configuration = appConfig;
-            
+
             ConfigureServices(
                 services =>
                 {
@@ -97,20 +103,27 @@ namespace TestContainers.Containers.Hosting
 //                    services.AddSingleton(this.hostBuilderContext);
 //                    services.AddSingleton(this.appConfiguration);
 //                    services.AddOptions();
-                    
+
                     services.AddSingleton<DockerClientFactory>();
                     services.AddScoped(provider => provider.GetRequiredService<DockerClientFactory>()
                         .Create());
-                    
+
                     services.AddLogging();
                 });
-            
+
             var dockerImageName = _dockerImageNameProvider.Invoke(hostContext);
             var serviceProvider = BuildServiceProvider(hostContext);
 
-            return ActivatorUtilities.CreateInstance<T>(serviceProvider, dockerImageName);
+            var container = ActivatorUtilities.CreateInstance<T>(serviceProvider, dockerImageName);
+
+            foreach (var action in _configureContainerActions)
+            {
+                action.Invoke(hostContext, container);
+            }
+
+            return container;
         }
-        
+
         private IConfiguration BuildHostConfiguration()
         {
             var configBuilder = new ConfigurationBuilder();
@@ -118,10 +131,10 @@ namespace TestContainers.Containers.Hosting
             {
                 buildAction(configBuilder);
             }
-            
+
             return configBuilder.Build();
         }
-        
+
         private IConfiguration BuildAppConfiguration(HostContext hostContext, IConfiguration hostConfiguration)
         {
             var configBuilder = new ConfigurationBuilder();
@@ -131,10 +144,10 @@ namespace TestContainers.Containers.Hosting
             {
                 buildAction(hostContext, configBuilder);
             }
-            
+
             return configBuilder.Build();
         }
-        
+
         private IServiceProvider BuildServiceProvider(HostContext hostContext)
         {
             var services = new ServiceCollection();

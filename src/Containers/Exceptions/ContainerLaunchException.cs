@@ -10,7 +10,8 @@ namespace TestContainers.Containers.Exceptions
         {
         }
 
-        protected ContainerLaunchException([NotNull] SerializationInfo info, StreamingContext context) : base(info, context)
+        protected ContainerLaunchException([NotNull] SerializationInfo info, StreamingContext context) : base(info,
+            context)
         {
         }
 
