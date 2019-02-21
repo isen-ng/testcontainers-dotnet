@@ -241,41 +241,23 @@ namespace TestContainers.Containers
                 AttachStderr = true,
                 AttachStdout = true,
             };
-
-            var portBindings = new Dictionary<string, IList<PortBinding>>();
-            foreach(var binding in PortBindings)
-            {
-                portBindings.Add(string.Format(TcpExposedPortFormat, binding.Key), new[] { new PortBinding
-                {
-                    HostIP = "0.0.0.0",
-                    HostPort = binding.Value.ToString()
-                } });
-            }
             
-            var hostConfig = new HostConfig
+            return new CreateContainerParameters(config)
             {
-                PortBindings = portBindings,
-                PublishAllPorts = true
+                HostConfig = new HostConfig
+                {
+                    PortBindings = PortBindings.ToDictionary(
+                        e => string.Format(TcpExposedPortFormat, e.Key),
+                        e => (IList<PortBinding>) new List<PortBinding>
+                        {
+                            new PortBinding
+                            {
+                                HostPort = e.Value.ToString()
+                            }
+                        }),
+                    PublishAllPorts = true
+                }
             };
-
-            var c = new CreateContainerParameters(config)
-            {
-                HostConfig = hostConfig
-            };
-
-            return c;
-//            return new CreateContainerParameters(config)
-//            {
-//                HostConfig = new HostConfig
-//                {
-////                    PortBindings = PortBindings.ToDictionary(
-////                        e => string.Format(TcpExposedPortFormat, e),
-////                        e => (IList<PortBinding>) new List<PortBinding>
-////                            {new PortBinding {HostPort = e.Value.ToString()}}),
-//                    PortBindings = portBindings,
-//                    PublishAllPorts = true
-//                }
-//            };
         }
     }
 }
