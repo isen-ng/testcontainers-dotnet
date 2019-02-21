@@ -40,6 +40,8 @@ namespace TestContainers.Containers
 
         public IList<int> ExposedPorts { get; } = new List<int>();
 
+        public Dictionary<int, int> PortBindings { get; } = new Dictionary<int, int>();
+
         public Dictionary<string, string> Env { get; } = new Dictionary<string, string>();
 
         public GenericContainer(string dockerImageName, IDockerClient dockerClient, ILoggerFactory loggerFactory)
@@ -131,6 +133,10 @@ namespace TestContainers.Containers
             return await stream.ReadOutputToEndAsync(default(CancellationToken));
         }
 
+        /// <summary>
+        /// Configuration hook for inherited containers to implement
+        /// </summary>
+        /// <returns></returns>
         protected virtual Task ConfigureAsync()
         {
             return Task.CompletedTask;
@@ -228,27 +234,48 @@ namespace TestContainers.Containers
             {
                 Image = DockerImageName,
                 Env = Env.Select(kvp => $"{kvp.Key}={kvp.Value}").ToList(),
-                ExposedPorts = ExposedPorts.ToDictionary(e => string.Format(TcpExposedPortFormat, e),
+                ExposedPorts = ExposedPorts.ToDictionary(
+                    e => string.Format(TcpExposedPortFormat, e),
                     e => default(EmptyStruct)),
                 Tty = true,
                 AttachStderr = true,
                 AttachStdout = true,
             };
 
-            //var portBindings = new Dictionary<string, IList<PortBinding>>();
-//            foreach (var exposed in ExposedPorts)
-//            {
-//                portBindings.Add($"{exposed}/tcp", new[] {new PortBinding {HostPort = exposed.ToString()}});
-//            }
-
-            return new CreateContainerParameters(config)
+            var portBindings = new Dictionary<string, IList<PortBinding>>();
+            foreach(var binding in PortBindings)
             {
-                HostConfig = new HostConfig
+                portBindings.Add(string.Format(TcpExposedPortFormat, binding.Key), new[] { new PortBinding
                 {
-                    //PortBindings = portBindings,
-                    PublishAllPorts = true
-                }
+                    HostIP = "0.0.0.0",
+                    HostPort = binding.Value.ToString()
+                } });
+            }
+            
+            var hostConfig = new HostConfig
+            {
+                PortBindings = portBindings,
+                PublishAllPorts = true
             };
+
+            var c = new CreateContainerParameters(config)
+            {
+                HostConfig = hostConfig
+            };
+
+            return c;
+//            return new CreateContainerParameters(config)
+//            {
+//                HostConfig = new HostConfig
+//                {
+////                    PortBindings = PortBindings.ToDictionary(
+////                        e => string.Format(TcpExposedPortFormat, e),
+////                        e => (IList<PortBinding>) new List<PortBinding>
+////                            {new PortBinding {HostPort = e.Value.ToString()}}),
+//                    PortBindings = portBindings,
+//                    PublishAllPorts = true
+//                }
+//            };
         }
     }
 }

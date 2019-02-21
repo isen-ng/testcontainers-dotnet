@@ -8,7 +8,8 @@ using Xunit;
 
 namespace Containers.Integration.Tests
 {
-    public class GenericContainerTests : IClassFixture<GenericContainerFixture>
+    [Collection(GenericContainerTestCollection.CollectionName)]
+    public class GenericContainerTests
     {
         private readonly GenericContainerFixture _fixture;
 
@@ -59,7 +60,7 @@ namespace Containers.Integration.Tests
             public EnvironmentVariablesTests(GenericContainerFixture fixture)
                 : base(fixture)
             {
-                _injectedEnvironmentVariable = fixture.InjectedEnvironmentVariable;
+                _injectedEnvironmentVariable = fixture.InjectedEnvVar;
             }
 
             [Fact]
@@ -104,6 +105,37 @@ namespace Containers.Integration.Tests
 
                 // assert
                 Assert.IsAssignableFrom<SocketException>(ex);
+            }
+        }
+        
+        public class PortBindingTests : GenericContainerTests
+        {
+            private readonly KeyValuePair<int, int> _portBinding;
+
+            public PortBindingTests(GenericContainerFixture fixture)
+                : base(fixture)
+            {
+                _portBinding = fixture.PortBinding;
+            }
+
+            [Fact]
+            public void ShouldBeAvailableWhenTheyAreSet()
+            {
+                // act
+                var tcpClient = new TcpClient("localhost", _portBinding.Value);
+
+                // assert
+                Assert.True(tcpClient.Connected);
+            }
+
+            [Fact]
+            public void ShouldReturnBoundPortWhenGetMappedPortIsCalled()
+            {
+                // act
+                var result = Container.GetMappedPort(_portBinding.Key);
+
+                // assert
+                Assert.Equal(_portBinding.Value, result);
             }
         }
     }

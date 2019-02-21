@@ -12,10 +12,12 @@ namespace Containers.Integration.Tests.Fixtures
     {
         public IContainer Container { get; }
 
-        public KeyValuePair<string, string> InjectedEnvironmentVariable { get; } =
+        public KeyValuePair<string, string> InjectedEnvVar { get; } =
             new KeyValuePair<string, string>("MY_KEY", "my value");
 
         public int ExposedPort { get; } = 1234;
+
+        public KeyValuePair<int, int> PortBinding { get; } = new KeyValuePair<int, int>(2345, 34567);
 
         public GenericContainerFixture()
         {
@@ -26,8 +28,15 @@ namespace Containers.Integration.Tests.Fixtures
                 .ConfigureLogging(builder => builder.AddConsole())
                 .ConfigureContainer((context, container) =>
                 {
-                    container.Env[InjectedEnvironmentVariable.Key] = InjectedEnvironmentVariable.Value;
+                    container.Env[InjectedEnvVar.Key] = InjectedEnvVar.Value;
                     container.ExposedPorts.Add(ExposedPort);
+                    
+                    /*
+                     to do something like `docker run -p 2345:34567 alpine:latest`,
+                     both expose port and port binding must be set
+                     */
+                    container.ExposedPorts.Add(PortBinding.Key);
+                    container.PortBindings.Add(PortBinding.Key, PortBinding.Value);
                 })
                 .Build();
         }
