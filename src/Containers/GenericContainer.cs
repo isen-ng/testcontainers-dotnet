@@ -44,6 +44,8 @@ namespace TestContainers.Containers
 
         public Dictionary<string, string> Env { get; } = new Dictionary<string, string>();
 
+        public Dictionary<string, string> Labels { get; } = new Dictionary<string, string>();
+
         public GenericContainer(string dockerImageName, IDockerClient dockerClient, ILoggerFactory loggerFactory)
         {
             DockerImageName = dockerImageName;
@@ -237,6 +239,9 @@ namespace TestContainers.Containers
                 ExposedPorts = ExposedPorts.ToDictionary(
                     e => string.Format(TcpExposedPortFormat, e),
                     e => default(EmptyStruct)),
+                Labels = Labels
+                    .Concat(DockerClientFactory.DefaultLabels)
+                    .ToDictionary(e => e.Key, e => e.Value),
                 Tty = true,
                 AttachStderr = true,
                 AttachStdout = true,

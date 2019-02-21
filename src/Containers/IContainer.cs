@@ -14,17 +14,19 @@ namespace TestContainers.Containers
         string DockerImageName { get; }
 
         /// <summary>
+        /// List of ports to be exposed on the container
+        /// These ports will be automatically mapped to a higher port upon container start
+        /// Use <see cref="GetMappedPort"/> to retrieve the automatically mapped port 
+        /// </summary>
+        [NotNull]
+        IList<int> ExposedPorts { get; }
+        
+        /// <summary>
         /// Port bindings to create for the container. The port must also be exposed by Exposed ports.
         /// Dictionary&lt;int ExposedPort, int PortBinding&gt;
         /// </summary>
         [NotNull]
         Dictionary<int, int> PortBindings { get; }
-
-        // todo: implement extra hosts
-//        /// <summary>
-//        /// Dictionary&lt;int Hostname, int IpAddress&gt;
-//        /// </summary>
-//        Dictionary<int, int> ExtraHosts { get; }
 
         /// <summary>
         /// Environment variables to be injected into the container
@@ -33,19 +35,17 @@ namespace TestContainers.Containers
         [NotNull]
         Dictionary<string, string> Env { get; }
 
-        // todo: implement labels
         /// <summary>
+        /// Labels to be set on the container
         /// Dictionary&lt;int key, int value&gt;
         /// </summary>
-//        Dictionary<string, string> Labels { get; }
+        Dictionary<string, string> Labels { get; }
 
-        /// <summary>
-        /// List of ports to be exposed on the container
-        /// These ports will be automatically mapped to a higher port upon container start
-        /// Use <see cref="GetMappedPort"/> to retrieve the automatically mapped port 
-        /// </summary>
-        [NotNull]
-        IList<int> ExposedPorts { get; }
+        // todo: implement extra hosts
+//        /// <summary>
+//        /// Dictionary&lt;int Hostname, int IpAddress&gt;
+//        /// </summary>
+//        Dictionary<int, int> ExtraHosts { get; }
 
         // todo: implement mounts
         //List<Mount> Mounts { get; }
