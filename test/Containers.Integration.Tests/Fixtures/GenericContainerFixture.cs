@@ -50,14 +50,16 @@ namespace Containers.Integration.Tests.Fixtures
                 .Build();
         }
 
-        public Task InitializeAsync()
+        public async Task InitializeAsync()
         {
-            return Container.StartAsync();
+            await ResourceReaper.Instance.ReapPreviousSessionContainers();
+            await Container.StartAsync();
         }
 
-        public Task DisposeAsync()
+        public async Task DisposeAsync()
         {
-            return Container.StopAsync();
+            await Container.StopAsync();
+            await ResourceReaper.Instance.ReapCurrentSessionContainers();
         }
     }
 }

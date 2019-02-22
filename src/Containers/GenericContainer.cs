@@ -49,7 +49,7 @@ namespace TestContainers.Containers
         public bool IsPrivileged { get; set; }
 
         public string WorkingDirectory { get; set; }
-        
+
         public List<string> Command { get; set; }
 
         public GenericContainer(string dockerImageName, IDockerClient dockerClient, ILoggerFactory loggerFactory)
@@ -246,7 +246,7 @@ namespace TestContainers.Containers
                     e => string.Format(TcpExposedPortFormat, e),
                     e => default(EmptyStruct)),
                 Labels = Labels
-                    .Concat(DockerClientFactory.DefaultLabels)
+                    .Concat(ResourceReaper.Labels)
                     .ToDictionary(e => e.Key, e => e.Value),
                 WorkingDir = WorkingDirectory,
                 Cmd = Command,
@@ -254,7 +254,7 @@ namespace TestContainers.Containers
                 AttachStderr = true,
                 AttachStdout = true,
             };
-            
+
             return new CreateContainerParameters(config)
             {
                 HostConfig = new HostConfig
