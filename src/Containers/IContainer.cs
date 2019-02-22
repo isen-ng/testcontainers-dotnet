@@ -20,7 +20,7 @@ namespace TestContainers.Containers
         /// </summary>
         [NotNull]
         IList<int> ExposedPorts { get; }
-        
+
         /// <summary>
         /// Port bindings to create for the container. The port must also be exposed by Exposed ports.
         /// Dictionary&lt;int ExposedPort, int PortBinding&gt;
@@ -50,8 +50,20 @@ namespace TestContainers.Containers
         // todo: implement mounts
         //List<Mount> Mounts { get; }
 
-        // todo: implement commands
-        //List<string> Commands { get; }
+        /// <summary>
+        /// Sets the container to use privileged mode when this is set 
+        /// </summary>
+        bool IsPrivileged { get; set; }
+
+        /// <summary>
+        /// Sets the working directory after the container started 
+        /// </summary>
+        string WorkingDirectory { get; set; }
+        
+        /// <summary>
+        /// Command to run when the container starts 
+        /// </summary>
+        List<string> Command { get; set; }
 
         /// <summary>
         /// Starts the container

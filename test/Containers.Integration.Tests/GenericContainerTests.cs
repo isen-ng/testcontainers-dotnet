@@ -55,22 +55,22 @@ namespace Containers.Integration.Tests
 
         public class EnvironmentVariablesTests : GenericContainerTests
         {
-            private readonly KeyValuePair<string, string> _injectedEnvironmentVariable;
+            private readonly KeyValuePair<string, string> _injectedEnvVar;
 
             public EnvironmentVariablesTests(GenericContainerFixture fixture)
                 : base(fixture)
             {
-                _injectedEnvironmentVariable = fixture.InjectedEnvVar;
+                _injectedEnvVar = fixture.InjectedEnvVar;
             }
 
             [Fact]
             public async Task ShouldBeAvailableWhenTheyAreSet()
             {
                 // act
-                var (stdout, _) = await Container.ExecuteCommand("sh", "-c", "echo $MY_KEY");
+                var (stdout, _) = await Container.ExecuteCommand("sh", "-c", "echo $" + _injectedEnvVar.Key);
 
                 // assert
-                Assert.Equal(_injectedEnvironmentVariable.Value, stdout.TrimEnd(Environment.NewLine.ToCharArray()));
+                Assert.Equal(_injectedEnvVar.Value, stdout.TrimEnd(Environment.NewLine.ToCharArray()));
             }
         }
 
@@ -136,6 +136,69 @@ namespace Containers.Integration.Tests
 
                 // assert
                 Assert.Equal(_portBinding.Value, result);
+            }
+        }
+        
+        public class CommandTests : GenericContainerTests
+        {
+            private readonly string _fileTouchedByCommand;
+
+            public CommandTests(GenericContainerFixture fixture)
+                : base(fixture)
+            {
+                _fileTouchedByCommand = fixture.FileTouchedByCommand;
+            }
+
+            [Fact]
+            public async Task ShouldRunCommandWhenContainerStarts()
+            {
+                // act
+                var (stdout, _) = await Container.ExecuteCommand("/bin/sh", "-c",
+                    $"if [ -e {_fileTouchedByCommand} ]; then echo 1; fi");
+
+                // assert
+                Assert.Equal("1", stdout.TrimEnd(Environment.NewLine.ToCharArray()));
+            }
+        }
+        
+        public class WorkingDirectoryTests : GenericContainerTests
+        {
+            private readonly string _workingDirectory;
+
+            public WorkingDirectoryTests(GenericContainerFixture fixture)
+                : base(fixture)
+            {
+                _workingDirectory = fixture.WorkingDirectory;
+            }
+
+            [Fact]
+            public async Task ShouldSetWorkingDirectoryWhenContainerStarts()
+            {
+                // act
+                var (stdout, _) = await Container.ExecuteCommand("pwd");
+
+                // assert
+                Assert.Equal(_workingDirectory, stdout.TrimEnd(Environment.NewLine.ToCharArray()));
+            }
+        }
+        
+        public class PrivilegedModeTests : GenericContainerTests
+        {
+            public PrivilegedModeTests(GenericContainerFixture fixture)
+                : base(fixture)
+            {
+            }
+
+            // todo: test for privileged mode with privileged container
+            [Fact]
+            public async Task ShouldFailToRunPrivilegedOperations()
+            {
+                // act
+                var (stdout, stderr) = await Container.ExecuteCommand("ip", "link", "add", "dummy0", "type", "dummy");
+
+                // assert
+                Assert.NotEmpty(stderr);
+                Assert.Empty(stdout);
             }
         }
     }

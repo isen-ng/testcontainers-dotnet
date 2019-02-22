@@ -19,6 +19,10 @@ namespace Containers.Integration.Tests.Fixtures
 
         public KeyValuePair<int, int> PortBinding { get; } = new KeyValuePair<int, int>(2345, 34567);
 
+        public string FileTouchedByCommand { get; } = "/tmp/touched";
+
+        public string WorkingDirectory { get; } = "/etc";
+        
         public GenericContainerFixture()
         {
             Container = new ContainerBuilder<GenericContainer>()
@@ -37,6 +41,11 @@ namespace Containers.Integration.Tests.Fixtures
                      */
                     container.ExposedPorts.Add(PortBinding.Key);
                     container.PortBindings.Add(PortBinding.Key, PortBinding.Value);
+                    container.WorkingDirectory = WorkingDirectory;
+                    container.Command = new List<string>
+                    {
+                        "/bin/sh", "-c", $"touch {FileTouchedByCommand}; /bin/sh"
+                    };
                 })
                 .Build();
         }

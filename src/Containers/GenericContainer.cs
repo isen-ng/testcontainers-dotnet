@@ -46,6 +46,12 @@ namespace TestContainers.Containers
 
         public Dictionary<string, string> Labels { get; } = new Dictionary<string, string>();
 
+        public bool IsPrivileged { get; set; }
+
+        public string WorkingDirectory { get; set; }
+        
+        public List<string> Command { get; set; }
+
         public GenericContainer(string dockerImageName, IDockerClient dockerClient, ILoggerFactory loggerFactory)
         {
             DockerImageName = dockerImageName;
@@ -105,7 +111,7 @@ namespace TestContainers.Containers
         {
             if (ContainerInfo == null)
             {
-                throw new InvalidOperationException($"Container must be started before mapped ports can be retrieved");
+                throw new InvalidOperationException("Container must be started before mapped ports can be retrieved");
             }
 
             var tcpExposedPort = string.Format(TcpExposedPortFormat, exposedPort);
@@ -242,6 +248,8 @@ namespace TestContainers.Containers
                 Labels = Labels
                     .Concat(DockerClientFactory.DefaultLabels)
                     .ToDictionary(e => e.Key, e => e.Value),
+                WorkingDir = WorkingDirectory,
+                Cmd = Command,
                 Tty = true,
                 AttachStderr = true,
                 AttachStdout = true,
@@ -260,7 +268,8 @@ namespace TestContainers.Containers
                                 HostPort = e.Value.ToString()
                             }
                         }),
-                    PublishAllPorts = true
+                    PublishAllPorts = true,
+                    Privileged = IsPrivileged
                 }
             };
         }
