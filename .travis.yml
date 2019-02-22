@@ -10,6 +10,6 @@ install:
 
 script:
   - dotnet build
-  - dotnet test test/Containers.Tests.csproj
-  - dotnet test test/Containers.Integration.Tests.csproj
+  - dotnet test test/Containers.Tests/Containers.Tests.csproj
+  - dotnet test test/Containers.Integration.Tests/Containers.Integration.Tests.csproj
     
