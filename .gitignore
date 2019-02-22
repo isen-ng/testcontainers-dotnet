@@ -8,3 +8,6 @@ obj
 
 # OSX
 **/.DS_Store
+
+# Sonarqube
+.sonarqube
