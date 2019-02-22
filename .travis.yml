@@ -1,0 +1,15 @@
+language: csharp
+
+solution: testcontainers-dotnet.sln
+
+mono: none
+dotnet: 2.2.104
+
+install:
+  - dotnet restore
+
+script:
+  - dotnet build
+  - dotnet test test/Containers.Tests.csproj
+  - dotnet test test/Containers.Integration.Tests.csproj
+    
