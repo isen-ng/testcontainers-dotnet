@@ -45,6 +45,7 @@ namespace TestContainers.Containers
             var result = await GetContainersByReaperLabels();
             
             await KillContainers(result);
+            await RemoveContainers(result);
         }
 
         public async Task ReapPreviousSessionContainers()
@@ -63,6 +64,7 @@ namespace TestContainers.Containers
                 .ToList();
 
             await KillContainers(result);
+            await RemoveContainers(result);
         }
 
         private async Task<IList<ContainerListResponse>> GetContainersByReaperLabels()
@@ -98,6 +100,23 @@ namespace TestContainers.Containers
         {
             await Task.WhenAll(containers
                 .Select(c => _dockerClient.Containers.KillContainerAsync(c.ID, new ContainerKillParameters()))
+                .ToList());
+        }
+        
+        private async Task RemoveContainers(IEnumerable<ContainerListResponse> containers)
+        {
+            await Task.WhenAll(containers
+                .Select(c =>
+                {
+                    try
+                    {
+                        return _dockerClient.Containers.RemoveContainerAsync(c.ID, new ContainerRemoveParameters());
+                    }
+                    catch (DockerContainerNotFoundException)
+                    {
+                        return Task.CompletedTask;
+                    }
+                })
                 .ToList());
         }
     }
