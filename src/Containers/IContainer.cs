@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using TestContainers.Containers.Models;
 
 namespace TestContainers.Containers
 {
@@ -47,8 +48,10 @@ namespace TestContainers.Containers
 //        /// </summary>
 //        Dictionary<int, int> ExtraHosts { get; }
 
-        // todo: implement mounts
-        //List<Mount> Mounts { get; }
+        /// <summary>
+        /// List of path bindings between host and container 
+        /// </summary>
+        IList<Bind> BindMounts { get; }
 
         /// <summary>
         /// Sets the container to use privileged mode when this is set 

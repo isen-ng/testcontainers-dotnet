@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Net.Sockets;
 using System.Threading.Tasks;
 using Containers.Integration.Tests.Fixtures;
@@ -37,7 +38,7 @@ namespace Containers.Integration.Tests
                 var (stdout, stderr) = await Container.ExecuteCommand("echo", hello);
 
                 // assert
-                Assert.Equal(hello, stdout.TrimEnd(Environment.NewLine.ToCharArray()));
+                Assert.Equal(hello, stdout.TrimEndNewLine());
                 Assert.True(string.IsNullOrEmpty(stderr));
             }
 
@@ -70,7 +71,7 @@ namespace Containers.Integration.Tests
                 var (stdout, _) = await Container.ExecuteCommand("sh", "-c", "echo $" + _injectedEnvVar.Key);
 
                 // assert
-                Assert.Equal(_injectedEnvVar.Value, stdout.TrimEnd(Environment.NewLine.ToCharArray()));
+                Assert.Equal(_injectedEnvVar.Value, stdout.TrimEndNewLine());
             }
         }
 
@@ -107,7 +108,7 @@ namespace Containers.Integration.Tests
                 Assert.IsAssignableFrom<SocketException>(ex);
             }
         }
-        
+
         public class PortBindingTests : GenericContainerTests
         {
             private readonly KeyValuePair<int, int> _portBinding;
@@ -138,7 +139,7 @@ namespace Containers.Integration.Tests
                 Assert.Equal(_portBinding.Value, result);
             }
         }
-        
+
         public class CommandTests : GenericContainerTests
         {
             private readonly string _fileTouchedByCommand;
@@ -157,10 +158,10 @@ namespace Containers.Integration.Tests
                     $"if [ -e {_fileTouchedByCommand} ]; then echo 1; fi");
 
                 // assert
-                Assert.Equal("1", stdout.TrimEnd(Environment.NewLine.ToCharArray()));
+                Assert.Equal("1", stdout.TrimEndNewLine());
             }
         }
-        
+
         public class WorkingDirectoryTests : GenericContainerTests
         {
             private readonly string _workingDirectory;
@@ -178,10 +179,10 @@ namespace Containers.Integration.Tests
                 var (stdout, _) = await Container.ExecuteCommand("pwd");
 
                 // assert
-                Assert.Equal(_workingDirectory, stdout.TrimEnd(Environment.NewLine.ToCharArray()));
+                Assert.Equal(_workingDirectory, stdout.TrimEndNewLine());
             }
         }
-        
+
         public class PrivilegedModeTests : GenericContainerTests
         {
             public PrivilegedModeTests(GenericContainerFixture fixture)
@@ -199,6 +200,34 @@ namespace Containers.Integration.Tests
                 // assert
                 Assert.NotEmpty(stderr);
                 Assert.Empty(stdout);
+            }
+        }
+
+        public class BindMountTests : GenericContainerTests
+        {
+            private readonly KeyValuePair<string, string> _hostPathBinding;
+
+            public BindMountTests(GenericContainerFixture fixture)
+                : base(fixture)
+            {
+                _hostPathBinding = fixture.HostPathBinding;
+            }
+
+            [Fact]
+            public async Task ShouldContainFileCreatedInHostBindingDirectory()
+            {
+                // arrange
+                var content = Guid.NewGuid().ToString();
+                const string filename = "my_file";
+                var filepath = Path.Combine(_hostPathBinding.Key, filename);
+                File.WriteAllText(filepath, content);
+
+                // act
+                var (stdout, stderr) =
+                    await Container.ExecuteCommand("cat", Path.Combine(_hostPathBinding.Value, filename));
+
+                // assert
+                Assert.Equal(content, stdout.TrimEndNewLine());
             }
         }
     }

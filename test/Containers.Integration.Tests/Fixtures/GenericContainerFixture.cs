@@ -1,9 +1,11 @@
 using System.Collections.Generic;
+using System.IO;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using TestContainers.Containers;
 using TestContainers.Containers.Hosting;
+using TestContainers.Containers.Models;
 using Xunit;
 
 namespace Containers.Integration.Tests.Fixtures
@@ -19,8 +21,11 @@ namespace Containers.Integration.Tests.Fixtures
 
         public KeyValuePair<int, int> PortBinding { get; } = new KeyValuePair<int, int>(2345, 34567);
 
+        public KeyValuePair<string, string> HostPathBinding =
+            new KeyValuePair<string, string>(Directory.GetCurrentDirectory(), "/host");
+        
         public string FileTouchedByCommand { get; } = "/tmp/touched";
-
+        
         public string WorkingDirectory { get; } = "/etc";
         
         public GenericContainerFixture()
@@ -41,6 +46,12 @@ namespace Containers.Integration.Tests.Fixtures
                      */
                     container.ExposedPorts.Add(PortBinding.Key);
                     container.PortBindings.Add(PortBinding.Key, PortBinding.Value);
+                    container.BindMounts.Add(new Bind
+                    {
+                        HostPath = HostPathBinding.Key,
+                        ContainerPath = HostPathBinding.Value,
+                        AccessMode = AccessMode.ReadOnly
+                    });
                     container.WorkingDirectory = WorkingDirectory;
                     container.Command = new List<string>
                     {

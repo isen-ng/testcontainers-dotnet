@@ -9,6 +9,7 @@ using Docker.DotNet.Models;
 using JetBrains.Annotations;
 using Microsoft.Extensions.Logging;
 using TestContainers.Containers.Exceptions;
+using TestContainers.Containers.Models;
 using TestContainers.Containers.StartupStrategies;
 using TestContainers.Containers.WaitStrategies;
 
@@ -45,6 +46,8 @@ namespace TestContainers.Containers
         public Dictionary<string, string> Env { get; } = new Dictionary<string, string>();
 
         public Dictionary<string, string> Labels { get; } = new Dictionary<string, string>();
+
+        public IList<Bind> BindMounts { get; } = new List<Bind>();
 
         public bool IsPrivileged { get; set; }
 
@@ -268,6 +271,14 @@ namespace TestContainers.Containers
                                 HostPort = e.Value.ToString()
                             }
                         }),
+                    Mounts = BindMounts.Select(m => new Mount
+                        {
+                            Source = m.HostPath,
+                            Target = m.ContainerPath,
+                            ReadOnly = m.AccessMode == AccessMode.ReadOnly,
+                            Type = "bind"
+                        })
+                        .ToList(),
                     PublishAllPorts = true,
                     Privileged = IsPrivileged
                 }
