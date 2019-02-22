@@ -22,7 +22,7 @@ namespace TestContainers.Containers
         {
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
-                return new DockerClientConfiguration(new Uri("unix:///var/run/docker.sock"));
+                return new DockerClientConfiguration(new Uri("npipe://./pipe/docker_engine"));
             }
 
             if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX) ||
