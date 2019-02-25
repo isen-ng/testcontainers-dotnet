@@ -57,7 +57,7 @@ namespace TestContainers.Containers
 
         public bool AutoRemove { get; set; }
 
-        public AbstractContainer(string dockerImageName, IDockerClient dockerClient, ILoggerFactory loggerFactory)
+        protected AbstractContainer(string dockerImageName, IDockerClient dockerClient, ILoggerFactory loggerFactory)
         {
             DockerImageName = dockerImageName;
             DockerClient = dockerClient;

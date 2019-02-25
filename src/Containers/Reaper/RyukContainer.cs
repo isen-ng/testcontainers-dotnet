@@ -56,6 +56,8 @@ namespace TestContainers.Containers.Reaper
 
         protected override Task ContainerStarted()
         {
+            // persistent tcp connection to container
+            // only closed when process exits
             _tcpClient = new TcpClient(GetDockerHostIpAddress(), GetMappedPort(RyukPort));
             _tcpWriter = _tcpClient.GetStream();
             _tcpReader = new StreamReader(new BufferedStream(_tcpClient.GetStream()), Encoding.UTF8);
