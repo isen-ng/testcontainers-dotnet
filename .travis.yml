@@ -8,6 +8,7 @@ dotnet: 2.1.502
 install:
   - dotnet restore
   - dotnet tool install --global dotnet-sonarscanner
+  - PATH=~/.dotnet/tools:$PATH
 
 script:
   - dotnet sonarscanner begin /k:"testcontainers-dotnet" /d:sonar.organization="isen-ng-github" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.login="2457b2d28e2da7ba84edcf68b53e9650217c5b44"
