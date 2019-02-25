@@ -99,11 +99,6 @@ namespace TestContainers.Containers.Hosting
             ConfigureServices(
                 services =>
                 {
-//                    services.AddSingleton(this.hostingEnvironment);
-//                    services.AddSingleton(this.hostBuilderContext);
-//                    services.AddSingleton(this.appConfiguration);
-//                    services.AddOptions();
-
                     services.AddSingleton<DockerClientFactory>();
                     services.AddScoped(provider => provider.GetRequiredService<DockerClientFactory>()
                         .Create());
