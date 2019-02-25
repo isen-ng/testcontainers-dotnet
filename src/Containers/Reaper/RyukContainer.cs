@@ -65,6 +65,12 @@ namespace TestContainers.Containers.Reaper
             return Task.CompletedTask;
         }
 
+        protected override Task ContainerStopping()
+        {
+            _tcpClient?.Dispose();
+            return Task.CompletedTask;
+        }
+
         public void AddToDeathNote(Dictionary<string, string> dictionary)
         {
             foreach (var entry in dictionary)
@@ -79,6 +85,11 @@ namespace TestContainers.Containers.Reaper
         {
             _deathNote.Add(label, value);
             _sendToRyukWorker.Notify();
+        }
+
+        internal void KillTcpConnection()
+        {
+            _tcpClient?.Dispose();
         }
 
         private async Task SendToRyuk()

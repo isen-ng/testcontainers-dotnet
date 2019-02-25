@@ -24,7 +24,7 @@ namespace TestContainers.Containers.Reaper
 
         private static TaskCompletionSource<bool> _ryukStartupTaskCompletionSource;
 
-        public static async Task Start(IDockerClient dockerClient)
+        public static async Task StartAsync(IDockerClient dockerClient)
         {
             var disabled = Environment.GetEnvironmentVariable("REAPER_DISABLED");
             if (!string.IsNullOrWhiteSpace(disabled) &&
@@ -59,6 +59,16 @@ namespace TestContainers.Containers.Reaper
             }
 
             await _ryukStartupTaskCompletionSource.Task;
+        }
+
+        internal static void KillTcpConnectionAsync()
+        {
+            _ryukContainer?.KillTcpConnection();
+        }
+
+        internal static string GetRyukContainerId()
+        {
+            return _ryukContainer?.ContainerId;
         }
     }
 }

@@ -91,8 +91,16 @@ namespace TestContainers.Containers
                 return;
             }
 
+            await ContainerStopping();
+
             await DockerClient.Containers.StopContainerAsync(ContainerId, new ContainerStopParameters(), ct);
-            await DockerClient.Containers.RemoveContainerAsync(ContainerId, new ContainerRemoveParameters(), ct);
+
+            if (!AutoRemove)
+            {
+                await DockerClient.Containers.RemoveContainerAsync(ContainerId, new ContainerRemoveParameters(), ct);
+            }
+
+            await ContainerStopped();
         }
 
         public string GetDockerHostIpAddress()
@@ -153,7 +161,6 @@ namespace TestContainers.Containers
         /// <summary>
         /// Configuration hook for inherited containers to implement
         /// </summary>
-        /// <returns></returns>
         protected virtual Task ConfigureAsync()
         {
             return Task.CompletedTask;
@@ -162,7 +169,6 @@ namespace TestContainers.Containers
         /// <summary>
         /// Hook before starting the container 
         /// </summary>
-        /// <returns></returns>
         protected virtual Task ContainerStarting()
         {
             return Task.CompletedTask;
@@ -171,8 +177,23 @@ namespace TestContainers.Containers
         /// <summary>
         /// Hook after starting the container 
         /// </summary>
-        /// <returns></returns>
         protected virtual Task ContainerStarted()
+        {
+            return Task.CompletedTask;
+        }
+
+        /// <summary>
+        /// Hook before stopping the container 
+        /// </summary>
+        protected virtual Task ContainerStopping()
+        {
+            return Task.CompletedTask;
+        }
+        
+        /// <summary>
+        /// Hook after stopping the container 
+        /// </summary>
+        protected virtual Task ContainerStopped()
         {
             return Task.CompletedTask;
         }

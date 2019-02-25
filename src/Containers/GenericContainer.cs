@@ -20,7 +20,7 @@ namespace TestContainers.Containers
             await base.ContainerStarting();
 
             _logger.LogDebug("Starting reaper ...");
-            await ResourceReaper.Start(DockerClient);
+            await ResourceReaper.StartAsync(DockerClient);
         }
 
         protected override Task ConfigureAsync()
