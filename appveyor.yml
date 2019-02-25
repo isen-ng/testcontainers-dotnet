@@ -1,0 +1,18 @@
+image:
+  - Visual Studio 2015
+
+stack: docker
+
+services:
+  - docker
+
+configuration: Release
+
+install:
+  - dotnet restore
+
+build_script:
+  - dotnet build
+  
+test_script:
+  - dotnet test
