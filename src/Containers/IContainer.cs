@@ -42,12 +42,6 @@ namespace TestContainers.Containers
         /// </summary>
         Dictionary<string, string> Labels { get; }
 
-        // todo: implement extra hosts
-//        /// <summary>
-//        /// Dictionary&lt;int Hostname, int IpAddress&gt;
-//        /// </summary>
-//        Dictionary<int, int> ExtraHosts { get; }
-
         /// <summary>
         /// List of path bindings between host and container 
         /// </summary>
@@ -62,11 +56,16 @@ namespace TestContainers.Containers
         /// Sets the working directory after the container started 
         /// </summary>
         string WorkingDirectory { get; set; }
-        
+
         /// <summary>
         /// Command to run when the container starts 
         /// </summary>
         List<string> Command { get; set; }
+
+        /// <summary>
+        /// Option to auto remove the container after use
+        /// </summary>
+        bool AutoRemove { get; set; }
 
         /// <summary>
         /// Starts the container

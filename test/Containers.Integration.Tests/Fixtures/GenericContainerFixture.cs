@@ -23,11 +23,11 @@ namespace Containers.Integration.Tests.Fixtures
 
         public KeyValuePair<string, string> HostPathBinding =
             new KeyValuePair<string, string>(Directory.GetCurrentDirectory(), "/host");
-        
+
         public string FileTouchedByCommand { get; } = "/tmp/touched";
-        
+
         public string WorkingDirectory { get; } = "/etc";
-        
+
         public GenericContainerFixture()
         {
             Container = new ContainerBuilder<GenericContainer>()
@@ -39,7 +39,7 @@ namespace Containers.Integration.Tests.Fixtures
                 {
                     container.Env[InjectedEnvVar.Key] = InjectedEnvVar.Value;
                     container.ExposedPorts.Add(ExposedPort);
-                    
+
                     /*
                      to do something like `docker run -p 2345:34567 alpine:latest`,
                      both expose port and port binding must be set
@@ -63,14 +63,12 @@ namespace Containers.Integration.Tests.Fixtures
 
         public async Task InitializeAsync()
         {
-            await ResourceReaper.Instance.ReapPreviousSessionContainers();
             await Container.StartAsync();
         }
 
         public async Task DisposeAsync()
         {
             await Container.StopAsync();
-            await ResourceReaper.Instance.ReapCurrentSessionContainers();
         }
     }
 }

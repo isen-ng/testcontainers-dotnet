@@ -18,6 +18,22 @@ namespace TestContainers.Containers
             return _configuration.CreateClient();
         }
 
+        public static string GetDockerSocket()
+        {
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                return "./pipe/docker_engine";
+            }
+
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX) ||
+                RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            {
+                return "/var/run/docker.sock";
+            }
+
+            throw new InvalidOperationException("OS is not supported for testcontainers-dotnet");
+        }
+
         private static DockerClientConfiguration BuildDockerConfigBasedOnOs()
         {
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
