@@ -13,6 +13,11 @@ namespace TestContainers.Containers
         /// </summary>
         [NotNull]
         string DockerImageName { get; }
+        
+        /// <summary>
+        /// Gets the container id after it has started
+        /// </summary>
+        string ContainerId { get; }
 
         /// <summary>
         /// List of ports to be exposed on the container

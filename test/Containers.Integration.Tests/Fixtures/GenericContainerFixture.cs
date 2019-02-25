@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
+using Docker.DotNet;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using TestContainers.Containers;
@@ -13,7 +14,12 @@ namespace Containers.Integration.Tests.Fixtures
     public class GenericContainerFixture : IAsyncLifetime
     {
         public IContainer Container { get; }
+        
+        public IDockerClient DockerClient { get; }
 
+        public KeyValuePair<string, string> CustomLabel { get; } =
+            new KeyValuePair<string, string>("custom label", "custom value");
+        
         public KeyValuePair<string, string> InjectedEnvVar { get; } =
             new KeyValuePair<string, string>("MY_KEY", "my value");
 
@@ -37,6 +43,7 @@ namespace Containers.Integration.Tests.Fixtures
                 .ConfigureLogging(builder => builder.AddConsole())
                 .ConfigureContainer((context, container) =>
                 {
+                    container.Labels.Add(CustomLabel.Key, CustomLabel.Value);
                     container.Env[InjectedEnvVar.Key] = InjectedEnvVar.Value;
                     container.ExposedPorts.Add(ExposedPort);
 
@@ -59,6 +66,8 @@ namespace Containers.Integration.Tests.Fixtures
                     };
                 })
                 .Build();
+            
+            DockerClient = new DockerClientFactory().Create();
         }
 
         public async Task InitializeAsync()

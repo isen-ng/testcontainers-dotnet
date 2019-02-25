@@ -27,8 +27,6 @@ namespace TestContainers.Containers
 
         protected IDockerClient DockerClient { get; }
 
-        protected string ContainerId { get; private set; }
-
         protected string ContainerName { get; private set; }
 
         protected IWaitStrategy WaitStrategy { get; [NotNull] set; } = new NoWaitStrategy();
@@ -39,6 +37,8 @@ namespace TestContainers.Containers
 
         public string DockerImageName { get; }
 
+        public string ContainerId { get; private set; }
+        
         public IList<int> ExposedPorts { get; } = new List<int>();
 
         public Dictionary<int, int> PortBindings { get; } = new Dictionary<int, int>();

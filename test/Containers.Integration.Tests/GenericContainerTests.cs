@@ -4,7 +4,9 @@ using System.IO;
 using System.Net.Sockets;
 using System.Threading.Tasks;
 using Containers.Integration.Tests.Fixtures;
+using Docker.DotNet;
 using TestContainers.Containers;
+using TestContainers.Containers.Reaper;
 using Xunit;
 
 namespace Containers.Integration.Tests
@@ -16,6 +18,8 @@ namespace Containers.Integration.Tests
 
         protected IContainer Container => _fixture.Container;
 
+        protected IDockerClient DockerClient => _fixture.DockerClient;
+        
         public GenericContainerTests(GenericContainerFixture fixture)
         {
             _fixture = fixture;
@@ -228,6 +232,40 @@ namespace Containers.Integration.Tests
 
                 // assert
                 Assert.Equal(content, stdout.TrimEndNewLine());
+            }
+        }
+        
+        public class LabelTests : GenericContainerTests
+        {
+            private readonly KeyValuePair<string, string> _customLabel;
+
+            public LabelTests(GenericContainerFixture fixture)
+                : base(fixture)
+            {
+                _customLabel = fixture.CustomLabel;
+            }
+
+            [Fact]
+            public async Task ShouldContainConfiguredCustomLabels()
+            {
+                // act
+                var response = await DockerClient.Containers.InspectContainerAsync(Container.ContainerId);
+
+                // assert
+                Assert.Equal(response.Config.Labels[_customLabel.Key], _customLabel.Value);
+            }
+            
+            [Fact]
+            public async Task ShouldContainReaperLabels()
+            {
+                // act
+                var response = await DockerClient.Containers.InspectContainerAsync(Container.ContainerId);
+
+                // assert
+                foreach (var label in ResourceReaper.Labels)
+                {
+                    Assert.Equal(response.Config.Labels[label.Key], label.Value);    
+                }
             }
         }
     }
