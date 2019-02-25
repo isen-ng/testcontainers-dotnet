@@ -26,6 +26,13 @@ namespace TestContainers.Containers.Reaper
 
         public static async Task Start(IDockerClient dockerClient)
         {
+            var disabled = Environment.GetEnvironmentVariable("REAPER_DISABLED");
+            if (!string.IsNullOrWhiteSpace(disabled) &&
+                (disabled.Equals("1") || disabled.ToLower().Equals("true")))
+            {
+                return;
+            }
+            
             if (_ryukStartupTaskCompletionSource == null)
             {
                 await InitLock.WaitAsync();
