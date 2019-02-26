@@ -54,7 +54,7 @@ namespace Containers.Integration.Tests
         [Fact]
         public async Task ShouldRunInWindows2()
         {
-            var (stdout, _) = await Container.ExecuteCommand("echo", "lala");
+            var (stdout, _) = await Container.ExecuteCommand("powershell", "-command", "echo", "lala");
 
             // assert
             Assert.Equal("lala", stdout.TrimEndNewLine());
