@@ -4,6 +4,7 @@ using System.IO;
 using System.Net.Sockets;
 using System.Threading.Tasks;
 using Containers.Integration.Tests.Fixtures;
+using Containers.Integration.Tests.Platforms;
 using Docker.DotNet;
 using TestContainers.Containers;
 using TestContainers.Containers.Reaper;
@@ -19,6 +20,8 @@ namespace Containers.Integration.Tests
         protected IContainer Container => _fixture.Container;
 
         protected IDockerClient DockerClient => _fixture.DockerClient;
+
+        protected IPlatformSpecific PlatformSpecific => _fixture.PlatformSpecific;
         
         public GenericContainerTests(GenericContainerFixture fixture)
         {
@@ -39,7 +42,7 @@ namespace Containers.Integration.Tests
                 const string hello = "hello-world";
 
                 // act
-                var (stdout, stderr) = await Container.ExecuteCommand("echo", hello);
+                var (stdout, stderr) = await Container.ExecuteCommand(PlatformSpecific.EchoCommand, hello);
 
                 // assert
                 Assert.Equal(hello, stdout.TrimEndNewLine());
@@ -50,7 +53,7 @@ namespace Containers.Integration.Tests
             public async Task ShouldReturnFailureResponseInStdErr()
             {
                 // act
-                var (stdout, stderr) = await Container.ExecuteCommand("sh", "echo");
+                var (stdout, stderr) = await Container.ExecuteCommand(PlatformSpecific.ShellCommand, PlatformSpecific.EchoCommand);
 
                 // assert
                 Assert.True(string.IsNullOrEmpty(stdout));
@@ -72,7 +75,9 @@ namespace Containers.Integration.Tests
             public async Task ShouldBeAvailableWhenTheyAreSet()
             {
                 // act
-                var (stdout, _) = await Container.ExecuteCommand("sh", "-c", "echo $" + _injectedEnvVar.Key);
+                var (stdout, _) = await Container.ExecuteCommand(
+                    PlatformSpecific.ShellCommandFormat(
+                        $"{PlatformSpecific.EchoCommand} {PlatformSpecific.EnvVarFormat(_injectedEnvVar.Key)}"));
 
                 // assert
                 Assert.Equal(_injectedEnvVar.Value, stdout.TrimEndNewLine());
@@ -158,8 +163,10 @@ namespace Containers.Integration.Tests
             public async Task ShouldRunCommandWhenContainerStarts()
             {
                 // act
-                var (stdout, _) = await Container.ExecuteCommand("/bin/sh", "-c",
-                    $"if [ -e {_fileTouchedByCommand} ]; then echo 1; fi");
+                var (stdout, _) = await Container.ExecuteCommand(
+                    PlatformSpecific.ShellCommandFormat(
+                        PlatformSpecific.IfExistsThenFormat($"{_fileTouchedByCommand}",
+                            $"{PlatformSpecific.EchoCommand} 1")));
 
                 // assert
                 Assert.Equal("1", stdout.TrimEndNewLine());
@@ -180,7 +187,7 @@ namespace Containers.Integration.Tests
             public async Task ShouldSetWorkingDirectoryWhenContainerStarts()
             {
                 // act
-                var (stdout, _) = await Container.ExecuteCommand("pwd");
+                var (stdout, _) = await Container.ExecuteCommand(PlatformSpecific.CurrentPathCommand);
 
                 // assert
                 Assert.Equal(_workingDirectory, stdout.TrimEndNewLine());
@@ -199,7 +206,7 @@ namespace Containers.Integration.Tests
             public async Task ShouldFailToRunPrivilegedOperations()
             {
                 // act
-                var (stdout, stderr) = await Container.ExecuteCommand("ip", "link", "add", "dummy0", "type", "dummy");
+                var (stdout, stderr) = await Container.ExecuteCommand(PlatformSpecific.PrivilegedCommand);
 
                 // assert
                 Assert.NotEmpty(stderr);
@@ -228,7 +235,7 @@ namespace Containers.Integration.Tests
 
                 // act
                 var (stdout, stderr) =
-                    await Container.ExecuteCommand("cat", Path.Combine(_hostPathBinding.Value, filename));
+                    await Container.ExecuteCommand(PlatformSpecific.CatCommand, Path.Combine(_hostPathBinding.Value, filename));
 
                 // assert
                 Assert.Equal(content, stdout.TrimEndNewLine());

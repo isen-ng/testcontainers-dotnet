@@ -1,4 +1,5 @@
 using System.Threading.Tasks;
+using Containers.Integration.Tests.Platforms;
 using Docker.DotNet;
 using Microsoft.Extensions.Configuration;
 using TestContainers.Containers;
@@ -18,7 +19,7 @@ namespace Containers.Integration.Tests
             _container = new ContainerBuilder<GenericContainer>()
                 .ConfigureHostConfiguration(builder => builder.AddInMemoryCollection())
                 .ConfigureAppConfiguration((context, builder) => builder.AddInMemoryCollection())
-                .ConfigureDockerImageName("alpine:3.5")
+                .ConfigureDockerImageName(PlatformHelper.GetPlatform().TinyDockerImage)
                 .Build();
             
             _dockerClient = new DockerClientFactory().Create();

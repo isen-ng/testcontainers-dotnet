@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
+using Containers.Integration.Tests.Platforms;
 using Docker.DotNet;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -13,6 +14,8 @@ namespace Containers.Integration.Tests.Fixtures
 {
     public class GenericContainerFixture : IAsyncLifetime
     {
+        public IPlatformSpecific PlatformSpecific { get; } = PlatformHelper.GetPlatform();
+        
         public IContainer Container { get; }
         
         public IDockerClient DockerClient { get; }
@@ -39,7 +42,7 @@ namespace Containers.Integration.Tests.Fixtures
             Container = new ContainerBuilder<GenericContainer>()
                 .ConfigureHostConfiguration(builder => builder.AddInMemoryCollection())
                 .ConfigureAppConfiguration((context, builder) => builder.AddInMemoryCollection())
-                .ConfigureDockerImageName("alpine:3.5")
+                .ConfigureDockerImageName(PlatformSpecific.TinyDockerImage)
                 .ConfigureLogging(builder => builder.AddConsole())
                 .ConfigureContainer((context, container) =>
                 {
