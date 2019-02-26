@@ -9,7 +9,7 @@ namespace Containers.Integration.Tests.Platforms
         //public string TinyDockerImage { get; } = "mcr.microsoft.com/windows/nanoserver:1809";
         public string TinyDockerImage { get; } = "mcr.microsoft.com/windows/nanoserver:sac2016";
         
-        public string ShellCommand { get; } = "powershell";
+        public string ShellCommand { get; } = "pwsh";
         
         public string EchoCommand { get; } = "echo";
         
