@@ -29,7 +29,7 @@ namespace Containers.Integration.Tests.Platforms
         
         public string EnvVarFormat(string var)
         {
-            return $"%{var}%";
+            return $"$env:{var}";
         }
         
         public string[] ShellCommandFormat(string command)
