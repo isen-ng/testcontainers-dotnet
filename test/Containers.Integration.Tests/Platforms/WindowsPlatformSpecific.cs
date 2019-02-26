@@ -58,7 +58,7 @@ namespace Containers.Integration.Tests.Platforms
         
         public string IfExistsThenFormat(string @if, string then)
         {
-            return $"if exist {@if} {then}";
+            return $"if (\"{@if}\" | Test-Path) {{ {then} }}";
         }
     }
 }
