@@ -9,7 +9,7 @@ namespace Containers.Integration.Tests.Platforms
         //public string TinyDockerImage { get; } = "mcr.microsoft.com/windows/nanoserver:1809";
         public string TinyDockerImage { get; } = "mcr.microsoft.com/windows/nanoserver:sac2016";
         
-        public string ShellCommand { get; } = "cmd";
+        public string ShellCommand { get; } = "powershell";
         
         public string EchoCommand { get; } = "echo";
         
@@ -34,7 +34,7 @@ namespace Containers.Integration.Tests.Platforms
         
         public string[] ShellCommandFormat(string command)
         {
-            return new[] {$"{ShellCommand}", "-c", command};
+            return new[] {$"{ShellCommand}", "-command", command};
         }
         
         public string IfExistsThenFormat(string @if, string then)

@@ -209,7 +209,7 @@ namespace TestContainers.Containers
             var images = await DockerClient.Images.ListImagesAsync(new ImagesListParameters(), ct);
             if (images.Any(image => image.RepoTags != null && image.RepoTags.Contains(DockerImageName)))
             {
-                _logger.LogInformation("Image already exists, not pulling: {}", DockerImageName);
+                _logger.LogDebug("Image already exists, not pulling: {}", DockerImageName);
                 return;
             }
 
@@ -234,7 +234,7 @@ namespace TestContainers.Containers
                 return null;
             }
 
-            _logger.LogInformation("Creating container for image: {}", DockerImageName);
+            _logger.LogDebug("Creating container for image: {}", DockerImageName);
             var createParameters = ApplyConfiguration();
             var containerCreated = await DockerClient.Containers.CreateContainerAsync(createParameters, ct);
 
