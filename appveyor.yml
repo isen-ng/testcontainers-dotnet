@@ -16,8 +16,6 @@ build_script:
 
 before_test:
   - docker info
-  - docker pull alpine:3.5
-  - docker image pull alpine:3.5
   
 test_script:
   - dotnet test
