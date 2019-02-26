@@ -16,7 +16,7 @@ build_script:
 
 before_test:
   - docker info
-  - docker pull mcr.microsoft.com/windows/nanoserver:1809
+  - docker pull mcr.microsoft.com/windows/nanoserver:sac2016
   
 test_script:
   - dotnet test
