@@ -19,3 +19,7 @@ before_test:
   
 test_script:
   - dotnet test
+    
+cache:
+  - '%USERPROFILE%\.nuget\packages'
+  - '%USERPROFILE%\.local/share/NuGet/Cache'
