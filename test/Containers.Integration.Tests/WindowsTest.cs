@@ -43,11 +43,9 @@ namespace Containers.Integration.Tests
         }
 
         [Fact]
-        public async Task ShouldRun()
+        public async Task ShouldRunInWindows()
         {
-            var (stdout, _) = await Container.ExecuteCommand(
-                PlatformSpecific.ShellCommandFormat(
-                    $"{PlatformSpecific.EchoCommand} {PlatformSpecific.EnvVarFormat("my_key")}"));
+            var (stdout, _) = await Container.ExecuteCommand("powershell", "-command", "echo $env:my_key");
 
             // assert
             Assert.Equal("my_value", stdout.TrimEndNewLine());
