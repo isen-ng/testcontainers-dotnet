@@ -4,7 +4,10 @@ namespace Containers.Integration.Tests.Platforms
     {
         public static IPlatformSpecific Instance { get; } = new WindowsPlatformSpecific();
         
-        public string TinyDockerImage { get; } = "mcr.microsoft.com/windows/nanoserver:1809";
+        // https://github.com/appveyor/ci/issues/2466
+        // https://github.com/appveyor/ci/issues/1885
+        //public string TinyDockerImage { get; } = "mcr.microsoft.com/windows/nanoserver:1809";
+        public string TinyDockerImage { get; } = "mcr.microsoft.com/windows/nanoserver:sac2016";
         
         public string ShellCommand { get; } = "cmd";
         
