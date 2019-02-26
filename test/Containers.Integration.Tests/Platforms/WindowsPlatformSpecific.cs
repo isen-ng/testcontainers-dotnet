@@ -13,7 +13,7 @@ namespace Containers.Integration.Tests.Platforms
         
         public string EchoCommand { get; } = "echo";
         
-        public string CurrentPathCommand { get; } = "echo %cd%";
+        public string CurrentPathCommand { get; } = "\"$pwd\"";
         
         public string CatCommand { get; } = "type";
         
