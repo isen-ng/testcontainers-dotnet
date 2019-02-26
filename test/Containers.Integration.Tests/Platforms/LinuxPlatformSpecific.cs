@@ -14,7 +14,15 @@ namespace Containers.Integration.Tests.Platforms
         
         public string CatCommand { get; } = "cat";
 
+        public string TouchCommand { get; } = "touch";
+
         public string[] PrivilegedCommand { get; } = {"ip", "link", "add", "dummy0", "type", "dummy"};
+
+        public string BindPath { get; } = "/host";
+
+        public string TouchedFilePath { get; } = "/tmp/touched";
+
+        public string WorkingDirectory { get; } = "/etc";
 
         public string EnvVarFormat(string var)
         {

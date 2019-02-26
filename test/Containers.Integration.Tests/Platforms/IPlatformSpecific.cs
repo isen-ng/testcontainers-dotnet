@@ -12,7 +12,15 @@ namespace Containers.Integration.Tests.Platforms
  
         string CatCommand { get; }
         
+        string TouchCommand { get; }
+        
         string[] PrivilegedCommand { get; }
+        
+        string BindPath { get; }
+        
+        string TouchedFilePath { get; }
+        
+        string WorkingDirectory { get; }
         
         string EnvVarFormat(string var);
 

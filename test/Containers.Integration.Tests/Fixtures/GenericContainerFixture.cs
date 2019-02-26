@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using Containers.Integration.Tests.Platforms;
 using Docker.DotNet;
@@ -30,15 +31,19 @@ namespace Containers.Integration.Tests.Fixtures
 
         public KeyValuePair<int, int> PortBinding { get; } = new KeyValuePair<int, int>(2345, 34567);
 
-        public KeyValuePair<string, string> HostPathBinding =
-            new KeyValuePair<string, string>(Directory.GetCurrentDirectory(), "/host");
+        public KeyValuePair<string, string> HostPathBinding { get; }
 
-        public string FileTouchedByCommand { get; } = "/tmp/touched";
+        public string FileTouchedByCommand { get; }
 
-        public string WorkingDirectory { get; } = "/etc";
+        public string WorkingDirectory { get; }
 
         public GenericContainerFixture()
         {
+            HostPathBinding =
+                new KeyValuePair<string, string>(Directory.GetCurrentDirectory(), PlatformSpecific.BindPath);
+            FileTouchedByCommand = PlatformSpecific.TouchedFilePath;
+            WorkingDirectory = PlatformSpecific.WorkingDirectory;
+            
             Container = new ContainerBuilder<GenericContainer>()
                 .ConfigureHostConfiguration(builder => builder.AddInMemoryCollection())
                 .ConfigureAppConfiguration((context, builder) => builder.AddInMemoryCollection())
@@ -63,10 +68,9 @@ namespace Containers.Integration.Tests.Fixtures
                         AccessMode = AccessMode.ReadOnly
                     });
                     container.WorkingDirectory = WorkingDirectory;
-                    container.Command = new List<string>
-                    {
-                        "/bin/sh", "-c", $"touch {FileTouchedByCommand}; /bin/sh"
-                    };
+                    container.Command = PlatformSpecific.ShellCommandFormat(
+                        $"{PlatformSpecific.TouchCommand} {FileTouchedByCommand}; {PlatformSpecific.ShellCommand}")
+                        .ToList();
                 })
                 .Build();
             
