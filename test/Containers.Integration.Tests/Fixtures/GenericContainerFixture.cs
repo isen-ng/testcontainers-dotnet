@@ -68,8 +68,8 @@ namespace Containers.Integration.Tests.Fixtures
                         AccessMode = AccessMode.ReadOnly
                     });
                     container.WorkingDirectory = WorkingDirectory;
-                    container.Command = PlatformSpecific.ShellCommandFormat(
-                        $"{PlatformSpecific.TouchCommand} {FileTouchedByCommand}; {PlatformSpecific.ShellCommand}")
+                    container.Command = PlatformSpecific.ShellCommand(
+                        $"{PlatformSpecific.Touch} {FileTouchedByCommand}; {PlatformSpecific.Shell}")
                         .ToList();
                 })
                 .Build();

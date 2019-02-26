@@ -9,32 +9,51 @@ namespace Containers.Integration.Tests.Platforms
         //public string TinyDockerImage { get; } = "mcr.microsoft.com/windows/nanoserver:1809";
         public string TinyDockerImage { get; } = "mcr.microsoft.com/windows/nanoserver:sac2016";
         
-        public string ShellCommand { get; } = "powershell";
+        public string Shell { get; } = "powershell";
         
-        public string EchoCommand { get; } = "echo";
+        public string Echo { get; } = "echo";
         
-        public string CurrentPathCommand { get; } = "\"$pwd\"";
-        
-        public string CatCommand { get; } = "type";
-        
-        public string TouchCommand { get; } = "fc >";
-        
-        public string[] PrivilegedCommand { get; } = {"ip", "link", "add", "dummy0", "type", "dummy"};
+        public string Touch { get; } = "fc >";
         
         public string BindPath { get; } = "C:\\host";
 
         public string TouchedFilePath { get; } = "C:\\%TEMP%\\touched";
 
         public string WorkingDirectory { get; } = "C:\\Windows";
+
+        public string[] PwdCommand()
+        {
+            return ShellCommand("echo \"$pwd\"");
+        }
+
+        public string[] TouchCommand(string file)
+        {
+            return ShellCommand($"{Touch} {file}");
+        }
+        
+        public string[] CatCommand(string file)
+        {
+            return ShellCommand("type " + file);
+        }
+        
+        public string[] EchoCommand(string message)
+        {
+            return ShellCommand($"{Echo} {message}");
+        }
+
+        public string[] PrivilegedCommand()
+        {
+            return ShellCommand("ip link add dummy0 type dummy");
+        }
+
+        public string[] ShellCommand(string command)
+        {
+            return new[] {$"{Shell}", "-command", command};
+        }
         
         public string EnvVarFormat(string var)
         {
             return $"$env:{var}";
-        }
-        
-        public string[] ShellCommandFormat(string command)
-        {
-            return new[] {$"{ShellCommand}", "-command", command};
         }
         
         public string IfExistsThenFormat(string @if, string then)

@@ -42,7 +42,7 @@ namespace Containers.Integration.Tests
                 const string hello = "hello-world";
 
                 // act
-                var (stdout, stderr) = await Container.ExecuteCommand(PlatformSpecific.EchoCommand, hello);
+                var (stdout, stderr) = await Container.ExecuteCommand(PlatformSpecific.EchoCommand(hello));
 
                 // assert
                 Assert.Equal(hello, stdout.TrimEndNewLine());
@@ -53,7 +53,7 @@ namespace Containers.Integration.Tests
             public async Task ShouldReturnFailureResponseInStdErr()
             {
                 // act
-                var (stdout, stderr) = await Container.ExecuteCommand(PlatformSpecific.ShellCommand, PlatformSpecific.EchoCommand);
+                var (stdout, stderr) = await Container.ExecuteCommand(PlatformSpecific.Shell, PlatformSpecific.Echo);
 
                 // assert
                 Assert.True(string.IsNullOrEmpty(stdout));
@@ -76,8 +76,7 @@ namespace Containers.Integration.Tests
             {
                 // act
                 var (stdout, _) = await Container.ExecuteCommand(
-                    PlatformSpecific.ShellCommandFormat(
-                        $"{PlatformSpecific.EchoCommand} {PlatformSpecific.EnvVarFormat(_injectedEnvVar.Key)}"));
+                    PlatformSpecific.EchoCommand(PlatformSpecific.EnvVarFormat(_injectedEnvVar.Key)));
 
                 // assert
                 Assert.Equal(_injectedEnvVar.Value, stdout.TrimEndNewLine());
@@ -164,9 +163,9 @@ namespace Containers.Integration.Tests
             {
                 // act
                 var (stdout, _) = await Container.ExecuteCommand(
-                    PlatformSpecific.ShellCommandFormat(
+                    PlatformSpecific.ShellCommand(
                         PlatformSpecific.IfExistsThenFormat($"{_fileTouchedByCommand}",
-                            $"{PlatformSpecific.EchoCommand} 1")));
+                            $"{PlatformSpecific.Echo} 1")));
 
                 // assert
                 Assert.Equal("1", stdout.TrimEndNewLine());
@@ -187,7 +186,7 @@ namespace Containers.Integration.Tests
             public async Task ShouldSetWorkingDirectoryWhenContainerStarts()
             {
                 // act
-                var (stdout, _) = await Container.ExecuteCommand(PlatformSpecific.CurrentPathCommand);
+                var (stdout, _) = await Container.ExecuteCommand(PlatformSpecific.PwdCommand());
 
                 // assert
                 Assert.Equal(_workingDirectory, stdout.TrimEndNewLine());
@@ -206,7 +205,7 @@ namespace Containers.Integration.Tests
             public async Task ShouldFailToRunPrivilegedOperations()
             {
                 // act
-                var (stdout, stderr) = await Container.ExecuteCommand(PlatformSpecific.PrivilegedCommand);
+                var (stdout, stderr) = await Container.ExecuteCommand(PlatformSpecific.PrivilegedCommand());
 
                 // assert
                 Assert.NotEmpty(stderr);
@@ -235,7 +234,7 @@ namespace Containers.Integration.Tests
 
                 // act
                 var (stdout, stderr) =
-                    await Container.ExecuteCommand(PlatformSpecific.CatCommand, Path.Combine(_hostPathBinding.Value, filename));
+                    await Container.ExecuteCommand(PlatformSpecific.CatCommand(Path.Combine(_hostPathBinding.Value, filename)));
 
                 // assert
                 Assert.Equal(content, stdout.TrimEndNewLine());

@@ -4,27 +4,29 @@ namespace Containers.Integration.Tests.Platforms
     {
         string TinyDockerImage { get; }
         
-        string ShellCommand { get; }
+        string Shell { get; }
         
-        string EchoCommand { get; }
+        string Echo { get; }
 
-        string CurrentPathCommand { get; }
- 
-        string CatCommand { get; }
-        
-        string TouchCommand { get; }
-        
-        string[] PrivilegedCommand { get; }
+        string Touch { get; }
         
         string BindPath { get; }
         
         string TouchedFilePath { get; }
         
         string WorkingDirectory { get; }
+
+        string[] PwdCommand();
+
+        string[] CatCommand(string file);
+
+        string[] EchoCommand(string message);
+
+        string[] PrivilegedCommand();
+
+        string[] ShellCommand(string command);
         
         string EnvVarFormat(string var);
-
-        string[] ShellCommandFormat(string command);
         
         string IfExistsThenFormat(string @if, string then);
     }

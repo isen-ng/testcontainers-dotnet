@@ -6,17 +6,11 @@ namespace Containers.Integration.Tests.Platforms
 
         public string TinyDockerImage { get; } = "alpine:3.5";
 
-        public string ShellCommand { get; } = "/bin/sh";
+        public string Shell { get; } = "/bin/sh";
         
-        public string EchoCommand { get; } = "echo";
-
-        public string CurrentPathCommand { get; } = "pwd";
+        public string Echo { get; } = "echo";
         
-        public string CatCommand { get; } = "cat";
-
-        public string TouchCommand { get; } = "touch";
-
-        public string[] PrivilegedCommand { get; } = {"ip", "link", "add", "dummy0", "type", "dummy"};
+        public string Touch { get; } = "touch";
 
         public string BindPath { get; } = "/host";
 
@@ -24,14 +18,34 @@ namespace Containers.Integration.Tests.Platforms
 
         public string WorkingDirectory { get; } = "/etc";
 
+        public string[] PwdCommand()
+        {
+            return new[] {"pwd"};
+        }
+        
+        public string[] CatCommand(string file)
+        {
+            return ShellCommand("cat " + file);
+        }
+        
+        public string[] EchoCommand(string message)
+        {
+            return ShellCommand($"{Echo} {message}");
+        }
+
+        public string[] PrivilegedCommand()
+        {
+            return ShellCommand("ip link add dummy0 type dummy");
+        }
+
+        public string[] ShellCommand(string command)
+        {
+            return new[] {$"{Shell}", "-command", command};
+        }
+        
         public string EnvVarFormat(string var)
         {
             return $"${var}";
-        }
-
-        public string[] ShellCommandFormat(string command)
-        {
-            return new[] {$"{ShellCommand}", "-c", command};
         }
 
         public string IfExistsThenFormat(string @if, string then)
