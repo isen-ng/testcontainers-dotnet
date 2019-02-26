@@ -50,5 +50,14 @@ namespace Containers.Integration.Tests
             // assert
             Assert.Equal("my_value", stdout.TrimEndNewLine());
         }
+        
+        [Fact]
+        public async Task ShouldRunInWindows2()
+        {
+            var (stdout, _) = await Container.ExecuteCommand("echo", "lala");
+
+            // assert
+            Assert.Equal("lala", stdout.TrimEndNewLine());
+        }
     }
 }
