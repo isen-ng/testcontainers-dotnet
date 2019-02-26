@@ -40,7 +40,7 @@ namespace Containers.Integration.Tests.Platforms
 
         public string[] ShellCommand(string command)
         {
-            return new[] {$"{Shell}", "-command", command};
+            return new[] {$"{Shell}", "-c", command};
         }
         
         public string EnvVarFormat(string var)
