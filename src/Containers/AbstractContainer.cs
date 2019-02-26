@@ -204,6 +204,14 @@ namespace TestContainers.Containers
             {
                 return;
             }
+            
+            // todo: write a test for this
+            var images = await DockerClient.Images.ListImagesAsync(new ImagesListParameters(), ct);
+            if (images.Any(image => image.RepoTags != null && image.RepoTags.Contains(DockerImageName)))
+            {
+                _logger.LogInformation("Image already exists, not pulling: {}", DockerImageName);
+                return;
+            }
 
             _logger.LogInformation("Pulling container image: {}", DockerImageName);
             var createParameters = new ImagesCreateParameters
