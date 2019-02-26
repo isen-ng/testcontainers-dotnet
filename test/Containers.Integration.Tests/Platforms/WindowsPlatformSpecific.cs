@@ -17,7 +17,7 @@ namespace Containers.Integration.Tests.Platforms
         
         public string BindPath { get; } = "C:\\host";
 
-        public string TouchedFilePath { get; } = "C:\\%TEMP%\\touched";
+        public string TouchedFilePath { get; } = "C:\\touched";
 
         public string WorkingDirectory { get; } = "C:\\Windows";
 
@@ -26,11 +26,6 @@ namespace Containers.Integration.Tests.Platforms
             return ShellCommand("echo \"$pwd\"");
         }
 
-        public string[] TouchCommand(string file)
-        {
-            return ShellCommand($"{Touch} {file}");
-        }
-        
         public string[] CatCommand(string file)
         {
             return ShellCommand("type " + file);
