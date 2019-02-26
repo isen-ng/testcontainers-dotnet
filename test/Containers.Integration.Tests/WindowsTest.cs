@@ -25,7 +25,7 @@ namespace Containers.Integration.Tests
                 .ConfigureContainer((context, container) =>
                 {
                     container.Env["my_key"] = "my_value";
-                    container.Command = new List<string> {"powershell"};
+                    container.Command = new List<string> {"powershell", "-command", "type NUL > C:\\touched; powershell"};
                 })
                 .Build();
             
