@@ -13,7 +13,7 @@ before_script:
   - export PATH="$PATH:$HOME/.dotnet/tools"
   
 script:
-  - dotnet sonarscanner begin /k:"testcontainers-dotnet" /d:sonar.organization="isen-ng-github" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.login="2457b2d28e2da7ba84edcf68b53e9650217c5b44"
+  - dotnet sonarscanner begin /k:"testcontainers-dotnet" /o:"isen-ng-github" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.login="2457b2d28e2da7ba84edcf68b53e9650217c5b44"
   - dotnet build
   - dotnet sonarscanner end /d:sonar.login="2457b2d28e2da7ba84edcf68b53e9650217c5b44"
   - dotnet test /p:CollectCoverage=true /p:CoverletOutputFormat='json%2copencover' /p:CoverletOutput=../bin/coverage/ /p:MergeWith='../bin/coverage/coverage.json'
