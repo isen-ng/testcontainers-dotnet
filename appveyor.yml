@@ -10,6 +10,7 @@ configuration: Release
 
 install:
   - dotnet restore
+  - docker pull quay.io/testcontainers/ryuk:0.2.3
 
 build_script:
   - dotnet build
