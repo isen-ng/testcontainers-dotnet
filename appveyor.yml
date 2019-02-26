@@ -13,6 +13,9 @@ install:
 
 build_script:
   - dotnet build
+
+before_test:
+  - docker info
   
 test_script:
   - dotnet test

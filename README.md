@@ -1,6 +1,6 @@
 Linux/MacOS CI: [![Build Status](https://travis-ci.org/isen-ng/testcontainers-dotnet.svg?branch=master)](https://travis-ci.org/isen-ng/testcontainers-dotnet)
 
-Windows CI: TODO
+Windows CI: [![Build status](https://ci.appveyor.com/api/projects/status/4hcmw8qnlp86vag0/branch/master?svg=true)](https://ci.appveyor.com/project/isen-ng/testcontainers-dotnet/branch/master)
 
 Code coverage: [![codecov](https://codecov.io/gh/isen-ng/testcontainers-dotnet/branch/master/graph/badge.svg)](https://codecov.io/gh/isen-ng/testcontainers-dotnet)
 
