@@ -17,7 +17,7 @@ namespace Containers.Integration.Tests.Platforms
         
         public string CatCommand { get; } = "type";
         
-        public string TouchCommand { get; } = "type NUL >";
+        public string TouchCommand { get; } = "fc >";
         
         public string[] PrivilegedCommand { get; } = {"ip", "link", "add", "dummy0", "type", "dummy"};
         
