@@ -22,7 +22,11 @@ namespace Containers.Integration.Tests
                 .ConfigureAppConfiguration((context, builder) => builder.AddInMemoryCollection())
                 .ConfigureDockerImageName(PlatformSpecific.TinyDockerImage)
                 .ConfigureLogging(builder => builder.AddConsole())
-                .ConfigureContainer((context, container) => { container.Command = new List<string> {"powershell"}; })
+                .ConfigureContainer((context, container) =>
+                {
+                    container.Env["my_key"] = "my_value";
+                    container.Command = new List<string> {"powershell"};
+                })
                 .Build();
             
             //DockerClient = new DockerClientFactory().Create();
@@ -39,9 +43,14 @@ namespace Containers.Integration.Tests
         }
 
         [Fact]
-        public void ShouldRun()
+        public async Task ShouldRun()
         {
-            Assert.True(true);
+            var (stdout, _) = await Container.ExecuteCommand(
+                PlatformSpecific.ShellCommandFormat(
+                    $"{PlatformSpecific.EchoCommand} {PlatformSpecific.EnvVarFormat("my_key")}"));
+
+            // assert
+            Assert.Equal("my_value", stdout.TrimEndNewLine());
         }
     }
 }
