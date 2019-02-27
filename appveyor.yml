@@ -17,7 +17,7 @@ build_script:
 
 before_test:
   - docker info
-  - (cd ryuk && docker build -t ryuk:0.2.3-windows-sac2016 .)
+  - cmd /c "cd ryuk && docker build -t ryuk:0.2.3-windows-sac2016 ."
   
 test_script:
   - dotnet test
