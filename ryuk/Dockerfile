@@ -1,9 +1,13 @@
 FROM golang:1.10-nanoserver as workspace
 WORKDIR /go/src/github.com/testcontainers/moby-ryuk
-COPY glide.lock glide.yaml make-bootstrap.bat ./
-RUN make-bootstrap.bat
+
+COPY make-3.81-bin.zip ./make
+RUN cd make && unzip make && new-item alias:make -value '.\make\bin\make.exe'
+
+COPY glide.lock glide.yaml Makefile ./
+RUN make bootstrap
 COPY . .
-RUN make-build.bat
+RUN make build
 
 FROM mcr.microsoft.com/windows/nanoserver:sac2016
 RUN apk --no-cache add ca-certificates
