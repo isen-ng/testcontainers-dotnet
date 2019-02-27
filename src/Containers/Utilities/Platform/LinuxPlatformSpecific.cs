@@ -6,6 +6,6 @@ namespace TestContainers.Containers.Utilities.Platform
 
         public string TinyDockerImage { get; } = "alpine:3.5";
 
-        public string RyukImage { get; } = "LinuxRyukContainerName";
+        public string RyukImage { get; } = "quay.io/testcontainers/ryuk:0.2.3";
     }
 }
