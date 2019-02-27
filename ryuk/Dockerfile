@@ -1,11 +1,12 @@
 FROM golang:1.10-nanoserver as workspace
 WORKDIR /go/src/github.com/testcontainers/moby-ryuk
 
-COPY make-3.81-bin.zip ./make
-RUN cd ./make 
-RUN unzip make-3.81-bin.zip 
+WORKDIR /make
+COPY make-3.81-bin.zip ./
+RUN unzip make-3.81-bin.zip
 RUN new-item alias:make -value "$pwd\bin\make.exe"
 
+WORKDIR /go/src/github.com/testcontainers/moby-ryuk
 COPY glide.lock glide.yaml Makefile ./
 RUN make bootstrap
 COPY . .
