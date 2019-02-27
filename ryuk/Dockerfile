@@ -1,6 +1,6 @@
 FROM golang:1.10-nanoserver as workspace
 WORKDIR /go/src/github.com/testcontainers/moby-ryuk
-COPY glide.lock glide.yaml Makefile ./
+COPY glide.lock glide.yaml make-bootstrap.bat ./
 RUN make-bootstrap.bat
 COPY . .
 RUN make-build.bat
