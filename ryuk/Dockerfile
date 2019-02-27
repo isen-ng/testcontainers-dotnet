@@ -3,7 +3,7 @@ WORKDIR /go/src/github.com/testcontainers/moby-ryuk
 
 WORKDIR /make
 COPY make-3.81-bin.zip ./
-RUN unzip make-3.81-bin.zip
+RUN Expand-Archive -Path .\make-3.81-bin.zip -DestinationPath . 
 RUN new-item alias:make -value "$pwd\bin\make.exe"
 
 WORKDIR /go/src/github.com/testcontainers/moby-ryuk
