@@ -9,6 +9,16 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Containers.Tests", "test\Co
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Containers.Integration.Tests", "test\Containers.Integration.Tests\Containers.Integration.Tests.csproj", "{15C26CE5-2CE8-4C90-BFE4-880729162370}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ryuk", "ryuk", "{CACF478A-D033-483A-862C-930881F162ED}"
+ProjectSection(SolutionItems) = preProject
+	ryuk\.dockerignore = ryuk\.dockerignore
+	ryuk\Dockerfile = ryuk\Dockerfile
+	ryuk\glide.lock = ryuk\glide.lock
+	ryuk\glide.yaml = ryuk\glide.yaml
+	ryuk\main.go = ryuk\main.go
+	ryuk\Makefile = ryuk\Makefile
+EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

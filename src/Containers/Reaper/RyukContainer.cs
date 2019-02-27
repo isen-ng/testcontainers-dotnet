@@ -9,14 +9,13 @@ using Docker.DotNet;
 using Microsoft.Extensions.Logging.Abstractions;
 using TestContainers.Containers.Models;
 using TestContainers.Containers.Utilities;
+using TestContainers.Containers.Utilities.Platform;
 using TestContainers.Containers.WaitStrategies;
 
 namespace TestContainers.Containers.Reaper
 {
     public class RyukContainer : AbstractContainer
     {
-        private const string RyukContainerName = "quay.io/testcontainers/ryuk:0.2.3";
-
         private const string RyukAck = "ACK";
 
         private const int RyukPort = 8080;
@@ -31,8 +30,8 @@ namespace TestContainers.Containers.Reaper
 
         private TextReader _tcpReader;
 
-        public RyukContainer(IDockerClient dockerClient)
-            : base(RyukContainerName, dockerClient, NullLoggerFactory.Instance)
+        public RyukContainer(IDockerClient dockerClient, IPlatformSpecific platformSpecific)
+            : base(platformSpecific.RyukImage, dockerClient, NullLoggerFactory.Instance)
         {
             _sendToRyukWorker = new BatchWorkerFromDelegate(SendToRyuk);
         }

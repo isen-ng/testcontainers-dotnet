@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Docker.DotNet;
+using TestContainers.Containers.Utilities.Platform;
 
 namespace TestContainers.Containers.Reaper
 {
@@ -42,7 +43,8 @@ namespace TestContainers.Containers.Reaper
                     if (_ryukStartupTaskCompletionSource == null)
                     {
                         _ryukStartupTaskCompletionSource = new TaskCompletionSource<bool>();
-                        _ryukContainer = new RyukContainer(dockerClient);
+                        var platformSpecificFactory = new PlatformSpecificFactory();
+                        _ryukContainer = new RyukContainer(dockerClient, platformSpecificFactory.Create());
 
                         var ryukStartupTask = _ryukContainer.StartAsync();
                         await ryukStartupTask.ContinueWith(_ =>
