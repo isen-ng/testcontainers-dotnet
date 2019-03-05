@@ -23,6 +23,14 @@ after_success:
   - chmod +x codecov
   - ./codecov -f "test/bin/coverage/coverage.opencover.xml"
 
+deploy:
+  skip_cleanup: true
+  provider: script
+  script: dotnet pack -c Release
+  on:
+    tags: true
+    condition: $TRAVIS_TAG =~ ^release/*$
+
 cache:
   directories:
     - '$HOME/.nuget/packages'
