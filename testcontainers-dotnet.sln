@@ -1,13 +1,13 @@
 ﻿Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{1ADD6063-F7A1-4BB6-98CE-A7EC643FD20F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Containers", "src\Containers\Containers.csproj", "{AEB3BDF2-12AC-4446-8F56-0D1EEBF1F2EF}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Container.Abstractions", "src\Container.Abstractions\Container.Abstractions.csproj", "{AEB3BDF2-12AC-4446-8F56-0D1EEBF1F2EF}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{558B7340-0330-4D4A-87D9-680D83CFD1A1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Containers.Tests", "test\Containers.Tests\Containers.Tests.csproj", "{02299ABE-A972-46D1-A1B0-156ABCB6384F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Container.Abstractions.Tests", "test\Container.Abstractions.Tests\Container.Abstractions.Tests.csproj", "{02299ABE-A972-46D1-A1B0-156ABCB6384F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Containers.Integration.Tests", "test\Containers.Integration.Tests\Containers.Integration.Tests.csproj", "{15C26CE5-2CE8-4C90-BFE4-880729162370}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Container.Abstractions.Integration.Tests", "test\Container.Abstractions.Integration.Tests\Container.Abstractions.Integration.Tests.csproj", "{15C26CE5-2CE8-4C90-BFE4-880729162370}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ryuk", "ryuk", "{CACF478A-D033-483A-862C-930881F162ED}"
 EndProject
