@@ -10,5 +10,8 @@ CSPROJ="${PROJECT_DIR}/Container.Abstractions.csproj"
 ASSEMBLY_NAME="TestContainers.Container.Abstractions"
 CONFIGURATION="Release"
 
+echo "dotnet pack ${CSPROJ} -c ${CONFIGURATION}"
+echo "dotnet nuget push ${PROJECT_DIR}/bin/${CONFIGURATION}/${ASSEMBLY_NAME}.*.nupkg -s ${SOURCE}"
+
 dotnet pack ${CSPROJ} -c ${CONFIGURATION}
 dotnet nuget push ${PROJECT_DIR}/bin/${CONFIGURATION}/${ASSEMBLY_NAME}.*.nupkg -s ${SOURCE}
