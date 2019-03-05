@@ -5,7 +5,7 @@ set -e
 eval SOURCE="~/.nuget/packages"
 
 PROJECT_DIR="src/Container.Abstractions"
-VERSION="1.0.0-PRERELEASE"
+VERSION="1.0.0-SNAPSHOT"
 CSPROJ="${PROJECT_DIR}/Container.Abstractions.csproj"
 ASSEMBLY_NAME="TestContainers.Container.Abstractions"
 CONFIGURATION="Release"
