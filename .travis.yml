@@ -24,12 +24,18 @@ after_success:
   - ./codecov -f "test/bin/coverage/coverage.opencover.xml"
 
 deploy:
-  skip_cleanup: true
-  provider: script
-  script: dotnet pack -c Release
-  on:
-    tags: true
-    condition: $TRAVIS_TAG =~ ^release/*$
+  - provider: script
+    skip_cleanup: true
+    script: dotnet pack -c Release
+    on:
+      tags: true
+      condition: $TRAVIS_TAG =~ ^release/*$
+  - provider: script
+    skip_cleanup: true
+    script: dotnet pack -c Release
+    on:
+      tags: true
+      condition: $TRAVIS_TAG =~ ^test/*$
 
 cache:
   directories:
