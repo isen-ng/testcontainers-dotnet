@@ -26,16 +26,16 @@ after_success:
 deploy:
   - provider: script
     skip_cleanup: true
-    script: dotnet pack -c Release
+    script: ./remote-publish.sh $NUGET_API_KEY $NUGET_GALLERY_URL
     on:
       tags: true
-      condition: $TRAVIS_TAG =~ ^release/*$
+      condition: $TRAVIS_TAG =~ ^v[0-9]+\.[0-9]+.[0-9]+$
   - provider: script
     skip_cleanup: true
-    script: dotnet pack -c Release
+    script: ./remote-publish.sh $INTEGRATION_NUGET_API_KEY $INTEGRATION_NUGET_GALLERY_URL
     on:
       tags: true
-      condition: $TRAVIS_TAG =~ ^test/*$
+      condition: $TRAVIS_TAG =~ ^test\/.+$
 
 cache:
   directories:
