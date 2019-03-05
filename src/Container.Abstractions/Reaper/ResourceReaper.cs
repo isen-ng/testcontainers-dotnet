@@ -34,6 +34,15 @@ namespace TestContainers.Container.Abstractions.Reaper
                 return;
             }
 
+            // todo: Remove this when ryuk for windows is complete
+            var platformSpecificFactory = new PlatformSpecificFactory();
+            if (platformSpecificFactory.IsWindows())
+            {
+                // don't start resource reaper for windows
+                // because ryuk for windows is not developed yet
+                return;
+            }
+            
             if (_ryukStartupTaskCompletionSource == null)
             {
                 await InitLock.WaitAsync();
@@ -43,7 +52,6 @@ namespace TestContainers.Container.Abstractions.Reaper
                     if (_ryukStartupTaskCompletionSource == null)
                     {
                         _ryukStartupTaskCompletionSource = new TaskCompletionSource<bool>();
-                        var platformSpecificFactory = new PlatformSpecificFactory();
                         _ryukContainer = new RyukContainer(dockerClient, platformSpecificFactory.Create());
 
                         var ryukStartupTask = _ryukContainer.StartAsync();

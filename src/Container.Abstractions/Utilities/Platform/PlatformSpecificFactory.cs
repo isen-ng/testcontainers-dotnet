@@ -20,5 +20,10 @@ namespace TestContainers.Container.Abstractions.Utilities.Platform
 
             throw new InvalidOperationException("OS is not supported for testcontainers-dotnet");
         }
+
+        public bool IsWindows()
+        {
+            return RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
+        }
     }
 }
