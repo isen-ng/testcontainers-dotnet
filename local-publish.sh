@@ -4,12 +4,35 @@ set -e
 
 eval SOURCE="~/.nuget/packages"
 
+CONFIGURATION="Release"
+VERSION="1.1.0-SNAPSHOT"
+
+function local_publish() {
+    dotnet pack $1 -c ${CONFIGURATION} -property:Version=${VERSION}
+    dotnet nuget delete $2 ${VERSION} -s ${SOURCE} --non-interactive || true
+    dotnet nuget push $3/bin/${CONFIGURATION}/$2.${VERSION}.nupkg -s ${SOURCE}
+}
+
 PROJECT_DIR="src/Container.Abstractions"
-VERSION="1.0.0-SNAPSHOT"
 CSPROJ="${PROJECT_DIR}/Container.Abstractions.csproj"
 ASSEMBLY_NAME="TestContainers.Container.Abstractions"
-CONFIGURATION="Release"
 
-dotnet pack ${CSPROJ} -c ${CONFIGURATION} -property:Version=${VERSION}
-dotnet nuget delete ${ASSEMBLY_NAME} -s ${SOURCE} --non-interactive || true
-dotnet nuget push ${PROJECT_DIR}/bin/${CONFIGURATION}/${ASSEMBLY_NAME}.${VERSION}.nupkg -s ${SOURCE}
+local_publish ${CSPROJ} ${ASSEMBLY_NAME} ${PROJECT_DIR}
+
+PROJECT_DIR="src/Container.Database"
+CSPROJ="${PROJECT_DIR}/Container.Database.csproj"
+ASSEMBLY_NAME="TestContainers.Container.Database"
+
+local_publish ${CSPROJ} ${ASSEMBLY_NAME} ${PROJECT_DIR}
+
+PROJECT_DIR="src/Container.Database.AdoNet"
+CSPROJ="${PROJECT_DIR}/Container.Database.AdoNet.csproj"
+ASSEMBLY_NAME="TestContainers.Container.Database.AdoNet"
+
+local_publish ${CSPROJ} ${ASSEMBLY_NAME} ${PROJECT_DIR}
+
+PROJECT_DIR="src/Container.Database.PostgreSql"
+CSPROJ="${PROJECT_DIR}/Container.Database.PostgreSql.csproj"
+ASSEMBLY_NAME="TestContainers.Container.Database.PostgreSql"
+
+local_publish ${CSPROJ} ${ASSEMBLY_NAME} ${PROJECT_DIR}
