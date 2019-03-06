@@ -5,6 +5,22 @@
         <RootNamespace>TestContainers.Container.Database</RootNamespace>
     </PropertyGroup>
 
+    <PropertyGroup>
+        <AssemblyName>TestContainers.Container.Database</AssemblyName>
+        <Description>DotNet port of testcontainers.org</Description>
+
+        <Version>1.0.0</Version>
+        <Authors>Isen Ng</Authors>
+
+        <PackageProjectUrl>https://github.com/isen-ng/testcontainers-dotnet</PackageProjectUrl>
+        <PackageLicenseUrl>https://raw.githubusercontent.com/isen-ng/testcontainers-dotnet/master/LICENSE</PackageLicenseUrl>
+
+        <RepositoryUrl>https://github.com/isen-ng/testcontainers-dotnet</RepositoryUrl>
+        <RepositoryType>git</RepositoryType>
+
+        <PackageTags>testcontainers docker test tests testing nunit xunit integration database</PackageTags>
+    </PropertyGroup>
+
     <ItemGroup>
         <ProjectReference Include="..\Container.Abstractions\Container.Abstractions.csproj" />
     </ItemGroup>
