@@ -72,7 +72,7 @@ namespace TestContainers.Container.Abstractions
             }
 
             // todo: turn hooks into delegates
-            
+
             await ConfigureAsync();
 
             await ContainerStarting();
@@ -86,7 +86,7 @@ namespace TestContainers.Container.Abstractions
             await ContainerStarted();
 
             await StartServices(ct);
-            
+
             await ServiceStarted();
         }
 
@@ -188,7 +188,7 @@ namespace TestContainers.Container.Abstractions
         {
             return Task.CompletedTask;
         }
-        
+
         /// <summary>
         /// Hook after service in container started 
         /// </summary>
@@ -266,7 +266,7 @@ namespace TestContainers.Container.Abstractions
             try
             {
                 _logger.LogDebug("Starting container with id: {}", ContainerId);
-                
+
                 var started =
                     await DockerClient.Containers.StartContainerAsync(ContainerId, new ContainerStartParameters(), ct);
                 if (!started)
@@ -297,7 +297,7 @@ namespace TestContainers.Container.Abstractions
             {
                 return;
             }
-            
+
             try
             {
                 await WaitStrategy.WaitUntil(this);

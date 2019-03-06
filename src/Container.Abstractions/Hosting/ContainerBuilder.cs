@@ -107,10 +107,12 @@ namespace TestContainers.Container.Abstractions.Hosting
                     services.AddLogging();
                 });
 
-            var dockerImageName = _dockerImageNameProvider.Invoke(hostContext);
+            var dockerImageName = _dockerImageNameProvider?.Invoke(hostContext);
             var serviceProvider = BuildServiceProvider(hostContext);
 
-            var container = ActivatorUtilities.CreateInstance<T>(serviceProvider, dockerImageName);
+            var container = dockerImageName == null
+                ? ActivatorUtilities.CreateInstance<T>(serviceProvider)
+                : ActivatorUtilities.CreateInstance<T>(serviceProvider, dockerImageName);
 
             foreach (var action in _configureContainerActions)
             {

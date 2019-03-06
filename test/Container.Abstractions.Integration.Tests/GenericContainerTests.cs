@@ -7,6 +7,7 @@ using Container.Abstractions.Integration.Tests.Fixtures;
 using Container.Abstractions.Integration.Tests.Platforms;
 using Docker.DotNet;
 using TestContainers.Container.Abstractions;
+using TestContainers.Container.Abstractions.Hosting;
 using TestContainers.Container.Abstractions.Reaper;
 using Xunit;
 
@@ -28,6 +29,23 @@ namespace Container.Abstractions.Integration.Tests
             _fixture = fixture;
         }
 
+        public class DefaultImageTests
+        {
+            [Fact]
+            public void ShouldUseDefaultImageWhenImageIsNotSpecified()
+            {
+                // arrange
+                var container = new ContainerBuilder<GenericContainer>()
+                    .Build();
+
+                // act
+                var actual = container.DockerImageName;
+
+                // assert
+                Assert.Equal($"{GenericContainer.DefaultImage}:{GenericContainer.DefaultTag}", actual);
+            }
+        }
+        
         public class ExecuteCommandTests : GenericContainerTests
         {
             public ExecuteCommandTests(GenericContainerFixture fixture)

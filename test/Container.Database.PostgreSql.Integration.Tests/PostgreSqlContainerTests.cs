@@ -2,6 +2,8 @@ using System;
 using System.Threading.Tasks;
 using Container.Database.PostgreSql.Integration.Tests.Fixtures;
 using Npgsql;
+using TestContainers.Container.Abstractions.Hosting;
+using TestContainers.Container.Database.Hosting;
 using TestContainers.Container.Database.PostgreSql;
 using Xunit;
 
@@ -9,7 +11,45 @@ namespace Container.Database.PostgreSql.Integration.Tests
 {
     public class PostgreSqlContainerTests
     {
-        // todo: tests default image name
+        public class DefaultImageTests
+        {
+            [Fact]
+            public void ShouldUseDefaultImageWhenImageIsNotSpecified()
+            {
+                // arrange
+                var container = new ContainerBuilder<PostgreSqlContainer>()
+                    .ConfigureDatabaseConfiguration("", "", "")
+                    .Build();
+
+                // act
+                var actual = container.DockerImageName;
+
+                // assert
+                Assert.Equal($"{PostgreSqlContainer.DefaultImage}:{PostgreSqlContainer.DefaultTag}", actual);
+            }
+            
+            [Fact]
+            public void ShouldUseConfiguredUsernamePasswordAndDatabase()
+            {
+                // arrange
+                const string username = "user";
+                const string password = "my pwd";
+                const string database = "my db 1234";
+                var container = new ContainerBuilder<PostgreSqlContainer>()
+                    .ConfigureDatabaseConfiguration(username, password, database)
+                    .Build();
+
+                // act
+                var actualUsername = container.Username;
+                var actualPassword = container.Password;
+                var actualDatabase = container.DatabaseName;
+
+                // assert
+                Assert.Equal(username, actualUsername);
+                Assert.Equal(password, actualPassword);
+                Assert.Equal(database, actualDatabase);
+            }
+        }
 
         public class ExposedPortTests : IClassFixture<ExposedPortContainerFixture>
         {

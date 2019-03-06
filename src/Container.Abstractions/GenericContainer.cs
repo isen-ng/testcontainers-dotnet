@@ -7,8 +7,17 @@ namespace TestContainers.Container.Abstractions
 {
     public class GenericContainer : AbstractContainer
     {
+        public const string DefaultImage = "alpine";
+        public const string DefaultTag = "3.5";
+        
         private readonly ILogger _logger;
 
+        public GenericContainer(IDockerClient dockerClient, ILoggerFactory loggerFactory)
+            : this($"{DefaultImage}:{DefaultTag}", dockerClient, loggerFactory)
+        {
+            _logger = loggerFactory.CreateLogger(GetType());
+        }
+        
         public GenericContainer(string dockerImageName, IDockerClient dockerClient, ILoggerFactory loggerFactory)
             : base(dockerImageName, dockerClient, loggerFactory)
         {

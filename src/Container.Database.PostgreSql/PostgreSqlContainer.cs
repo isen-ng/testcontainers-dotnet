@@ -11,16 +11,22 @@ namespace TestContainers.Container.Database.PostgreSql
 {
     public class PostgreSqlContainer : AdoNetContainer
     {
-        public const string Image = "postgres";
-        public const string DefaultTag = "11-alpine";
+        public new const string DefaultImage = "postgres";
+        public new const string DefaultTag = "11-alpine";
         public const int PostgreSqlPort = 5432;
 
         private string _connectionString;
 
         protected override DbProviderFactory DbProviderFactory { get; } = NpgsqlFactory.Instance;
 
-        public PostgreSqlContainer(string dockerImageName, IDockerClient dockerClient, ILoggerFactory loggerFactory,
-            IDatabaseContext context)
+        public PostgreSqlContainer(IDockerClient dockerClient, 
+            ILoggerFactory loggerFactory, IDatabaseContext context)
+            : base($"{DefaultImage}:{DefaultTag}", dockerClient, loggerFactory, context)
+        {
+        }
+        
+        public PostgreSqlContainer(string dockerImageName, IDockerClient dockerClient, 
+            ILoggerFactory loggerFactory, IDatabaseContext context)
             : base(dockerImageName, dockerClient, loggerFactory, context)
         {
         }
