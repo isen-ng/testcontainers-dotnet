@@ -13,7 +13,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\..\src\Container.Database.MsSql\Container.Database.MsSql.csproj" />
+        <ProjectReference Include="..\..\src\Container.Database.ArangoDb\Container.Database.ArangoDb.csproj" />
         <ProjectReference Include="..\Container.Test.Utility\Container.Test.Utility.csproj" />
     </ItemGroup>
 

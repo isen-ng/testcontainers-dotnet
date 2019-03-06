@@ -25,7 +25,7 @@ namespace TestContainers.Container.Database.MsSql
     {
         public new const string DefaultImage = "mcr.microsoft.com/mssql/server";
         public new const string DefaultTag = "2017-latest-ubuntu";
-        public const int MsSqlPort = 1433;
+        public const int DefaultPort = 1433;
 
         private string _connectionString;
 
@@ -33,13 +33,13 @@ namespace TestContainers.Container.Database.MsSql
 
         protected override DbProviderFactory DbProviderFactory { get; } = SqlClientFactory.Instance;
 
-        public MsSqlContainer(IDockerClient dockerClient, 
+        public MsSqlContainer(IDockerClient dockerClient,
             ILoggerFactory loggerFactory, IDatabaseContext context)
             : base($"{DefaultImage}:{DefaultTag}", dockerClient, loggerFactory, context)
         {
         }
-        
-        public MsSqlContainer(string dockerImageName, IDockerClient dockerClient, 
+
+        public MsSqlContainer(string dockerImageName, IDockerClient dockerClient,
             ILoggerFactory loggerFactory, IDatabaseContext context)
             : base(dockerImageName, dockerClient, loggerFactory, context)
         {
@@ -50,10 +50,10 @@ namespace TestContainers.Container.Database.MsSql
             // rigorous password validation ...
             // see: https://hub.docker.com/_/microsoft-mssql-server?tab=description
             ValidatePassword(Password);
-            
+
             await base.ConfigureAsync();
 
-            ExposedPorts.Add(MsSqlPort);
+            ExposedPorts.Add(DefaultPort);
             Env.Add("ACCEPT_EULA", "Y");
             Env.Add("SA_PASSWORD", Password);
         }
@@ -73,14 +73,14 @@ namespace TestContainers.Container.Database.MsSql
 
             return _connectionString;
         }
-        
+
         public string GetConnectionString(string databaseName)
         {
             if (_connectionString == null)
             {
                 throw new InvalidOperationException("Container must be started before the connection string is ready");
             }
-            
+
             var builder = CreateConnectionStringBuilder();
             builder["database"] = databaseName;
 
@@ -92,16 +92,16 @@ namespace TestContainers.Container.Database.MsSql
             var builder = SqlClientFactory.Instance.CreateConnectionStringBuilder();
             if (builder == null)
             {
-                throw new InvalidOperationException("SqlClientFactory.CreateConnectionStringBuilder returned null");    
+                throw new InvalidOperationException("SqlClientFactory.CreateConnectionStringBuilder returned null");
             }
-            
-            builder["server"] = GetDockerHostIpAddress() + "," + GetMappedPort(MsSqlPort);
+
+            builder["server"] = GetDockerHostIpAddress() + "," + GetMappedPort(DefaultPort);
             builder["uid"] = Username;
             builder["password"] = Password;
 
             return builder;
         }
-        
+
         private static void ValidatePassword(string password)
         {
             if (!IsLengthValid(password))
@@ -127,22 +127,22 @@ namespace TestContainers.Container.Database.MsSql
         {
             return password.Length >= 8;
         }
-        
+
         private static bool HasUpperCase(string password)
         {
             return password.ToLower() != password;
         }
-        
+
         private static bool HasLowerCase(string password)
         {
             return password.ToUpper() != password;
         }
-        
+
         private static bool HasNumber(string password)
         {
             return !password.Any(char.IsDigit);
         }
-        
+
         private static bool HasNonAlphaNumeric(string password)
         {
             return !password.All(char.IsLetterOrDigit);

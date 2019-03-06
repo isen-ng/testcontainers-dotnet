@@ -1,15 +1,16 @@
 using System;
+using System.Net;
 using System.Threading.Tasks;
-using Container.Database.PostgreSql.Integration.Tests.Fixtures;
-using Npgsql;
+using ArangoDB.Client;
+using Containers.Database.ArangoDb.Integration.Tests.Fixtures;
 using TestContainers.Container.Abstractions.Hosting;
+using TestContainers.Container.Database.ArangoDb;
 using TestContainers.Container.Database.Hosting;
-using TestContainers.Container.Database.PostgreSql;
 using Xunit;
 
-namespace Container.Database.PostgreSql.Integration.Tests
+namespace Containers.Database.ArangoDb.Integration.Tests
 {
-    public class PostgreSqlContainerTests
+    public class ArangoDbContainerTests
     {
         public class DefaultImageTests
         {
@@ -17,7 +18,7 @@ namespace Container.Database.PostgreSql.Integration.Tests
             public void ShouldUseDefaultImageWhenImageIsNotSpecified()
             {
                 // arrange
-                var container = new ContainerBuilder<PostgreSqlContainer>()
+                var container = new ContainerBuilder<ArangoDbContainer>()
                     .ConfigureDatabaseConfiguration("", "", "")
                     .Build();
 
@@ -25,29 +26,27 @@ namespace Container.Database.PostgreSql.Integration.Tests
                 var actual = container.DockerImageName;
 
                 // assert
-                Assert.Equal($"{PostgreSqlContainer.DefaultImage}:{PostgreSqlContainer.DefaultTag}", actual);
+                Assert.Equal($"{ArangoDbContainer.DefaultImage}:{ArangoDbContainer.DefaultTag}", actual);
             }
 
             [Fact]
-            public void ShouldUseConfiguredUsernamePasswordAndDatabase()
+            public void ShouldUseConfiguredPassword()
             {
                 // arrange
                 const string username = "user";
                 const string password = "my pwd";
                 const string database = "my db 1234";
-                var container = new ContainerBuilder<PostgreSqlContainer>()
+                var container = new ContainerBuilder<ArangoDbContainer>()
                     .ConfigureDatabaseConfiguration(username, password, database)
                     .Build();
 
                 // act
                 var actualUsername = container.Username;
                 var actualPassword = container.Password;
-                var actualDatabase = container.DatabaseName;
 
                 // assert
-                Assert.Equal(username, actualUsername);
+                Assert.Equal("root", actualUsername);
                 Assert.Equal(password, actualPassword);
-                Assert.Equal(database, actualDatabase);
             }
         }
 
@@ -64,7 +63,8 @@ namespace Container.Database.PostgreSql.Integration.Tests
             public async Task CanQueryContainerUsingProvidedConnectionString()
             {
                 // act
-                var ex = await ProbeForException(_fixture.Container.GetConnectionString());
+                var ex = await ProbeForException(_fixture.Container.GetArangoUrl(), _fixture.Container.DatabaseName,
+                    _fixture.Container.Username, _fixture.Container.Password);
 
                 // assert
                 Assert.Null(ex);
@@ -74,13 +74,12 @@ namespace Container.Database.PostgreSql.Integration.Tests
             public async Task CanQueryContainerUsingConstructedConnectionString()
             {
                 // arrange
-                var connectionString =
-                    $"Server={_fixture.Container.GetDockerHostIpAddress()};" +
-                    $"Port={_fixture.Container.GetMappedPort(PostgreSqlContainer.DefaultPort)};" +
-                    $"Database={_fixture.DatabaseName};Username={_fixture.Username};Password={_fixture.Password}";
+                var arangoUrl =
+                    $"http://{_fixture.Container.GetDockerHostIpAddress()}:{_fixture.Container.GetMappedPort(ArangoDbContainer.DefaultPort)}";
 
                 // act
-                var ex = await ProbeForException(connectionString);
+                var ex = await ProbeForException(arangoUrl, _fixture.Container.DatabaseName,
+                    _fixture.Container.Username, _fixture.Container.Password);
 
                 // assert
                 Assert.Null(ex);
@@ -100,7 +99,8 @@ namespace Container.Database.PostgreSql.Integration.Tests
             public async Task CanQueryContainerUsingProvidedConnectionString()
             {
                 // act
-                var ex = await ProbeForException(_fixture.Container.GetConnectionString());
+                var ex = await ProbeForException(_fixture.Container.GetArangoUrl(), _fixture.Container.DatabaseName,
+                    _fixture.Container.Username, _fixture.Container.Password);
 
                 // assert
                 Assert.Null(ex);
@@ -110,33 +110,32 @@ namespace Container.Database.PostgreSql.Integration.Tests
             public async Task CanQueryContainerUsingConstructedConnectionString()
             {
                 // arrange
-                var connectionString =
-                    $"Server={_fixture.Container.GetDockerHostIpAddress()};" +
-                    $"Port={_fixture.MyPort};Database={_fixture.DatabaseName};" +
-                    $"Username={_fixture.Username};Password={_fixture.Password}";
+                var arangoUrl =
+                    $"http://{_fixture.Container.GetDockerHostIpAddress()}:{_fixture.MyPort}";
 
                 // act
-                var ex = await ProbeForException(connectionString);
+                var ex = await ProbeForException(arangoUrl, _fixture.Container.DatabaseName,
+                    _fixture.Container.Username, _fixture.Container.Password);
 
                 // assert
                 Assert.Null(ex);
             }
         }
 
-        private static async Task<Exception> ProbeForException(string connectionString)
+        private static async Task<Exception> ProbeForException(string arangoUrl, string database, string username,
+            string password)
         {
-            using (var connection = new NpgsqlConnection(connectionString))
+            var settings = new DatabaseSharedSetting
             {
-                await connection.OpenAsync();
+                Url = arangoUrl,
+                Database = database,
+                Credential = new NetworkCredential(username, password)
+            };
 
+            using (var db = new ArangoDatabase(settings))
+            {
                 return await Record.ExceptionAsync(async () =>
-                {
-                    using (var command = connection.CreateCommand())
-                    {
-                        command.CommandText = "SELECT 1";
-                        await command.ExecuteScalarAsync();
-                    }
-                });
+                    await db.CreateStatement<int>("RETURN 1").ToListAsync());
             }
         }
     }

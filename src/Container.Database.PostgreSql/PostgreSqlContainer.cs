@@ -13,19 +13,19 @@ namespace TestContainers.Container.Database.PostgreSql
     {
         public new const string DefaultImage = "postgres";
         public new const string DefaultTag = "11-alpine";
-        public const int PostgreSqlPort = 5432;
+        public const int DefaultPort = 5432;
 
         private string _connectionString;
 
         protected override DbProviderFactory DbProviderFactory { get; } = NpgsqlFactory.Instance;
 
-        public PostgreSqlContainer(IDockerClient dockerClient, 
+        public PostgreSqlContainer(IDockerClient dockerClient,
             ILoggerFactory loggerFactory, IDatabaseContext context)
             : base($"{DefaultImage}:{DefaultTag}", dockerClient, loggerFactory, context)
         {
         }
-        
-        public PostgreSqlContainer(string dockerImageName, IDockerClient dockerClient, 
+
+        public PostgreSqlContainer(string dockerImageName, IDockerClient dockerClient,
             ILoggerFactory loggerFactory, IDatabaseContext context)
             : base(dockerImageName, dockerClient, loggerFactory, context)
         {
@@ -35,7 +35,7 @@ namespace TestContainers.Container.Database.PostgreSql
         {
             await base.ConfigureAsync();
 
-            ExposedPorts.Add(PostgreSqlPort);
+            ExposedPorts.Add(DefaultPort);
             Env.Add("POSTGRES_DB", DatabaseName);
             Env.Add("POSTGRES_USER", Username);
             Env.Add("POSTGRES_PASSWORD", Password);
@@ -45,7 +45,7 @@ namespace TestContainers.Container.Database.PostgreSql
         {
             var builder = NpgsqlFactory.Instance.CreateConnectionStringBuilder();
             builder["server"] = GetDockerHostIpAddress();
-            builder["port"] = GetMappedPort(PostgreSqlPort);
+            builder["port"] = GetMappedPort(DefaultPort);
             builder["database"] = DatabaseName;
             builder["username"] = Username;
             builder["password"] = Password;

@@ -10,21 +10,21 @@ namespace Container.Database.PostgreSql.Integration.Tests.Fixtures
     public class PortBindingContainerFixture : IAsyncLifetime
     {
         public PostgreSqlContainer Container { get; }
-        
+
         public string DatabaseName { get; } = "my_db";
-        
+
         public string Username { get; } = "my_user";
-        
+
         public string Password { get; } = "my_password";
-        
+
         public int MyPort { get; } = FreePortHelper.GetFreePort();
-        
+
         public PortBindingContainerFixture()
         {
             Container = new ContainerBuilder<PostgreSqlContainer>()
                 .ConfigureDockerImageName("postgres:11-alpine")
                 .ConfigureDatabaseConfiguration(Username, Password, DatabaseName)
-                .ConfigureContainer((h, c) => { c.PortBindings.Add(PostgreSqlContainer.PostgreSqlPort, MyPort); })
+                .ConfigureContainer((h, c) => { c.PortBindings.Add(PostgreSqlContainer.DefaultPort, MyPort); })
                 .Build();
         }
 

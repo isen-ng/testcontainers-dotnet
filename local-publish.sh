@@ -36,3 +36,15 @@ CSPROJ="${PROJECT_DIR}/Container.Database.PostgreSql.csproj"
 ASSEMBLY_NAME="TestContainers.Container.Database.PostgreSql"
 
 local_publish ${CSPROJ} ${ASSEMBLY_NAME} ${PROJECT_DIR}
+
+PROJECT_DIR="src/Container.Database.MsSql"
+CSPROJ="${PROJECT_DIR}/Container.Database.MsSql.csproj"
+ASSEMBLY_NAME="TestContainers.Container.Database.MsSql"
+
+local_publish ${CSPROJ} ${ASSEMBLY_NAME} ${PROJECT_DIR}
+
+PROJECT_DIR="src/Container.Database.ArangoDb"
+CSPROJ="${PROJECT_DIR}/Container.Database.ArangoDb.csproj"
+ASSEMBLY_NAME="TestContainers.Container.Database.ArangoDb"
+
+local_publish ${CSPROJ} ${ASSEMBLY_NAME} ${PROJECT_DIR}

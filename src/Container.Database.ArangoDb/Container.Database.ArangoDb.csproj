@@ -2,11 +2,11 @@
 
     <PropertyGroup>
         <TargetFramework>netstandard2.0</TargetFramework>
-        <RootNamespace>TestContainers.Container.Database.MsSql</RootNamespace>
+        <RootNamespace>TestContainers.Container.Database.ArangoDb</RootNamespace>
     </PropertyGroup>
 
     <PropertyGroup>
-        <AssemblyName>TestContainers.Container.Database.MsSql</AssemblyName>
+        <AssemblyName>TestContainers.Container.Database.ArangoDb</AssemblyName>
         <Description>DotNet port of testcontainers.org</Description>
 
         <Version>1.1.0</Version>
@@ -18,15 +18,15 @@
         <RepositoryUrl>https://github.com/isen-ng/testcontainers-dotnet</RepositoryUrl>
         <RepositoryType>git</RepositoryType>
 
-        <PackageTags>testcontainers docker test tests testing nunit xunit integration database adonet mssql</PackageTags>
+        <PackageTags>testcontainers docker test tests testing nunit xunit integration database arangodb</PackageTags>
     </PropertyGroup>
-
-    <ItemGroup>
-        <ProjectReference Include="..\Container.Database.AdoNet\Container.Database.AdoNet.csproj" />
-    </ItemGroup>
-
-    <ItemGroup>
-        <PackageReference Include="System.Data.SqlClient" Version="4.6.0" />
-    </ItemGroup>
     
+    <ItemGroup>
+         <ProjectReference Include="..\Container.Database\Container.Database.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+         <PackageReference Include="ArangoDB.Client" Version="0.7.70" />
+    </ItemGroup>
+
 </Project>

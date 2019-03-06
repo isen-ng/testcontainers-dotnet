@@ -27,9 +27,9 @@ namespace Container.Database.MsSql.Integration.Tests
                 // assert
                 Assert.Equal($"{MsSqlContainer.DefaultImage}:{MsSqlContainer.DefaultTag}", actual);
             }
-            
+
             [Fact]
-            public void ShouldUseConfiguredUsernamePasswordAndDatabase()
+            public void ShouldUseConfiguredPassword()
             {
                 // arrange
                 const string username = "user";
@@ -63,7 +63,7 @@ namespace Container.Database.MsSql.Integration.Tests
             {
                 // arrange
                 const string existingDatabaseName = "master";
-                
+
                 // act
                 object result;
                 using (var connection = new SqlConnection(_fixture.Container.GetConnectionString(existingDatabaseName)))
@@ -95,20 +95,7 @@ namespace Container.Database.MsSql.Integration.Tests
             public async Task CanQueryContainerUsingProvidedConnectionString()
             {
                 // act
-                Exception ex;
-                using (var connection = new SqlConnection(_fixture.Container.GetConnectionString()))
-                {
-                    await connection.OpenAsync();
-
-                    ex = await Record.ExceptionAsync(async () =>
-                    {
-                        using (var command = connection.CreateCommand())
-                        {
-                            command.CommandText = "SELECT 1";
-                            await command.ExecuteScalarAsync();
-                        }
-                    });
-                }
+                var ex = await ProbeForException(_fixture.Container.GetConnectionString());
 
                 // assert
                 Assert.Null(ex);
@@ -120,24 +107,11 @@ namespace Container.Database.MsSql.Integration.Tests
                 // arrange
                 var connectionString =
                     $"Server={_fixture.Container.GetDockerHostIpAddress()}," +
-                    $"{_fixture.Container.GetMappedPort(MsSqlContainer.MsSqlPort)};" +
+                    $"{_fixture.Container.GetMappedPort(MsSqlContainer.DefaultPort)};" +
                     $"Uid={_fixture.Username};Password={_fixture.Password}";
 
                 // act
-                Exception ex;
-                using (var connection = new SqlConnection(connectionString))
-                {
-                    await connection.OpenAsync();
-
-                    ex = await Record.ExceptionAsync(async () =>
-                    {
-                        using (var command = connection.CreateCommand())
-                        {
-                            command.CommandText = "SELECT 1";
-                            await command.ExecuteScalarAsync();
-                        }
-                    });
-                }
+                var ex = await ProbeForException(connectionString);
 
                 // assert
                 Assert.Null(ex);
@@ -157,20 +131,7 @@ namespace Container.Database.MsSql.Integration.Tests
             public async Task CanQueryContainerUsingProvidedConnectionString()
             {
                 // act
-                Exception ex;
-                using (var connection = new SqlConnection(_fixture.Container.GetConnectionString()))
-                {
-                    await connection.OpenAsync();
-
-                    ex = await Record.ExceptionAsync(async () =>
-                    {
-                        using (var command = connection.CreateCommand())
-                        {
-                            command.CommandText = "SELECT 1";
-                            await command.ExecuteScalarAsync();
-                        }
-                    });
-                }
+                var ex = await ProbeForException(_fixture.Container.GetConnectionString());
 
                 // assert
                 Assert.Null(ex);
@@ -185,23 +146,27 @@ namespace Container.Database.MsSql.Integration.Tests
                     $"Uid={_fixture.Username};Password={_fixture.Password}";
 
                 // act
-                Exception ex;
-                using (var connection = new SqlConnection(connectionString))
-                {
-                    await connection.OpenAsync();
-
-                    ex = await Record.ExceptionAsync(async () =>
-                    {
-                        using (var command = connection.CreateCommand())
-                        {
-                            command.CommandText = "SELECT 1";
-                            await command.ExecuteScalarAsync();
-                        }
-                    });
-                }
+                var ex = await ProbeForException(connectionString);
 
                 // assert
                 Assert.Null(ex);
+            }
+        }
+
+        private static async Task<Exception> ProbeForException(string connectionString)
+        {
+            using (var connection = new SqlConnection(connectionString))
+            {
+                await connection.OpenAsync();
+
+                return await Record.ExceptionAsync(async () =>
+                {
+                    using (var command = connection.CreateCommand())
+                    {
+                        command.CommandText = "SELECT 1";
+                        await command.ExecuteScalarAsync();
+                    }
+                });
             }
         }
     }

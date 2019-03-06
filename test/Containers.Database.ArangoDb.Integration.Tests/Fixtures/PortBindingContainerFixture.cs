@@ -1,28 +1,28 @@
 using System.Threading.Tasks;
 using Container.Test.Utility;
 using TestContainers.Container.Abstractions.Hosting;
+using TestContainers.Container.Database.ArangoDb;
 using TestContainers.Container.Database.Hosting;
-using TestContainers.Container.Database.MsSql;
 using Xunit;
 
-namespace Container.Database.MsSql.Integration.Tests.Fixtures
+namespace Containers.Database.ArangoDb.Integration.Tests.Fixtures
 {
     public class PortBindingContainerFixture : IAsyncLifetime
     {
-        public MsSqlContainer Container { get; }
-
-        public string Username { get; } = "sa";
-
-        public string Password { get; } = "!abcD1234";
-
+        public ArangoDbContainer Container { get; }
+        
+        public string Username { get; } = "root";
+        
+        public string Password { get; } = "Acbd1234";
+        
         public int MyPort { get; } = FreePortHelper.GetFreePort();
-
+        
         public PortBindingContainerFixture()
         {
-            Container = new ContainerBuilder<MsSqlContainer>()
-                .ConfigureDockerImageName("mcr.microsoft.com/mssql/server:2017-latest-ubuntu")
+            Container = new ContainerBuilder<ArangoDbContainer>()
+                .ConfigureDockerImageName("arangodb:3.4.3")
                 .ConfigureDatabaseConfiguration("", Password, "")
-                .ConfigureContainer((h, c) => { c.PortBindings.Add(MsSqlContainer.DefaultPort, MyPort); })
+                .ConfigureContainer((h, c) => { c.PortBindings.Add(ArangoDbContainer.DefaultPort, MyPort); })
                 .Build();
         }
 
