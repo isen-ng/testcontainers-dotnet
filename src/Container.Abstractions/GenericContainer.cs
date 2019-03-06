@@ -23,16 +23,16 @@ namespace TestContainers.Container.Abstractions
             await ResourceReaper.StartAsync(DockerClient);
         }
 
-        protected override Task ConfigureAsync()
+        protected override async Task ConfigureAsync()
         {
+            await base.ConfigureAsync();
+            
             _logger.LogDebug("Adding session labels to generic container: " + ResourceReaper.SessionId);
 
             foreach (var label in ResourceReaper.Labels)
             {
                 Labels.Add(label.Key, label.Value);
             }
-
-            return Task.CompletedTask;
         }
     }
 }

@@ -53,7 +53,7 @@ namespace TestContainers.Container.Abstractions.Reaper
             AutoRemove = true;
         }
 
-        protected override Task ContainerStarted()
+        protected override Task ServiceStarted()
         {
             // persistent tcp connection to container
             // only closed when process exits

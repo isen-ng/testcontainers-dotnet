@@ -71,6 +71,8 @@ namespace TestContainers.Container.Abstractions
                 return;
             }
 
+            // todo: turn hooks into delegates
+            
             await ConfigureAsync();
 
             await ContainerStarting();
@@ -82,6 +84,10 @@ namespace TestContainers.Container.Abstractions
             await StartContainer(ct);
 
             await ContainerStarted();
+
+            await StartServices(ct);
+            
+            await ServiceStarted();
         }
 
         public async Task StopAsync(CancellationToken ct = default(CancellationToken))
@@ -182,6 +188,14 @@ namespace TestContainers.Container.Abstractions
         {
             return Task.CompletedTask;
         }
+        
+        /// <summary>
+        /// Hook after service in container started 
+        /// </summary>
+        protected virtual Task ServiceStarted()
+        {
+            return Task.CompletedTask;
+        }
 
         /// <summary>
         /// Hook before stopping the container 
@@ -251,7 +265,8 @@ namespace TestContainers.Container.Abstractions
 
             try
             {
-                _logger.LogInformation("Starting container with id: {}", ContainerId);
+                _logger.LogDebug("Starting container with id: {}", ContainerId);
+                
                 var started =
                     await DockerClient.Containers.StartContainerAsync(ContainerId, new ContainerStartParameters(), ct);
                 if (!started)
@@ -264,30 +279,36 @@ namespace TestContainers.Container.Abstractions
                 ContainerInfo = await DockerClient.Containers.InspectContainerAsync(ContainerId, ct);
                 ContainerName = ContainerInfo.Name;
 
-                await WaitStrategy.WaitUntil(this);
-
-                _logger.LogInformation("Container.Abstractions {} started!", DockerImageName);
+                _logger.LogDebug("Container {} startup complete", DockerImageName);
             }
             catch (Exception e)
             {
                 _logger.LogError(e, "Unable to start container: {}", DockerImageName);
 
-                if (ContainerId != null && _logger.IsEnabled(LogLevel.Error))
-                {
-                    using (var logStream = await DockerClient.Containers.GetContainerLogsAsync(ContainerId,
-                        new ContainerLogsParameters
-                        {
-                            ShowStderr = true,
-                            ShowStdout = true,
-                        },
-                        ct))
-                    {
-                        using (var reader = new StreamReader(logStream))
-                        {
-                            _logger.LogError(reader.ReadToEnd());
-                        }
-                    }
-                }
+                await PrintContainerLogs(ct);
+
+                throw;
+            }
+        }
+
+        private async Task StartServices(CancellationToken ct)
+        {
+            if (ct.IsCancellationRequested)
+            {
+                return;
+            }
+            
+            try
+            {
+                await WaitStrategy.WaitUntil(this);
+
+                _logger.LogInformation("Container {} started!", DockerImageName);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Unable to start container services: {}", DockerImageName);
+
+                await PrintContainerLogs(ct);
 
                 throw;
             }
@@ -336,6 +357,26 @@ namespace TestContainers.Container.Abstractions
                     Privileged = IsPrivileged
                 }
             };
+        }
+
+        private async Task PrintContainerLogs(CancellationToken ct)
+        {
+            if (ContainerId != null && _logger.IsEnabled(LogLevel.Error))
+            {
+                using (var logStream = await DockerClient.Containers.GetContainerLogsAsync(ContainerId,
+                    new ContainerLogsParameters
+                    {
+                        ShowStderr = true,
+                        ShowStdout = true,
+                    },
+                    ct))
+                {
+                    using (var reader = new StreamReader(logStream))
+                    {
+                        _logger.LogError(reader.ReadToEnd());
+                    }
+                }
+            }
         }
     }
 }

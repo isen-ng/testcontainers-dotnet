@@ -5,7 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace TestContainers.Container.Abstractions.Hosting
 {
-    public class ContainerBuilder<T> where T : IContainer
+    public partial class ContainerBuilder<T> where T : IContainer
     {
         private const string ApplicationNameKey = "applicationName";
         private const string EnvironmentKey = "environment";
@@ -21,6 +21,7 @@ namespace TestContainers.Container.Abstractions.Hosting
             new List<Action<HostContext, IConfigurationBuilder>>();
 
         private readonly List<Action<HostContext, T>> _configureContainerActions = new List<Action<HostContext, T>>();
+        
         private Func<HostContext, string> _dockerImageNameProvider;
 
         public ContainerBuilder<T> ConfigureDockerImageName(string name)
