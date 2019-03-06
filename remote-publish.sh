@@ -8,7 +8,7 @@ CONFIGURATION="Release"
 
 function remote_publish() {
     dotnet pack $1 -c ${CONFIGURATION}
-    dotnet nuget push $2/bin/${CONFIGURATION}/$3.*.nupkg -s ${SOURCE} -k ${API_KEY}
+    dotnet nuget push $3/bin/${CONFIGURATION}/$2.*.nupkg -s ${SOURCE} -k ${API_KEY}
 }
 
 PROJECT_DIR="src/Container.Abstractions"
