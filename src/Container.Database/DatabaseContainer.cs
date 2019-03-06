@@ -9,11 +9,11 @@ namespace TestContainers.Container.Database
     {
         protected IDatabaseContext Context { get; }
 
-        public string DatabaseName => Context.DatabaseName;
+        public virtual string DatabaseName => Context.DatabaseName;
 
-        public string Username => Context.Username;
+        public virtual string Username => Context.Username;
 
-        public string Password => Context.Password;
+        public virtual string Password => Context.Password;
 
         public DatabaseContainer(string dockerImageName, IDockerClient dockerClient, ILoggerFactory loggerFactory,
             IDatabaseContext context)

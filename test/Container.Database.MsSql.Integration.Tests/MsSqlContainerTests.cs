@@ -1,15 +1,15 @@
 using System;
+using System.Data.SqlClient;
 using System.Threading.Tasks;
-using Container.Database.PostgreSql.Integration.Tests.Fixtures;
-using Npgsql;
+using Container.Database.MsSql.Integration.Tests.Fixtures;
 using TestContainers.Container.Abstractions.Hosting;
 using TestContainers.Container.Database.Hosting;
-using TestContainers.Container.Database.PostgreSql;
+using TestContainers.Container.Database.MsSql;
 using Xunit;
 
-namespace Container.Database.PostgreSql.Integration.Tests
+namespace Container.Database.MsSql.Integration.Tests
 {
-    public class PostgreSqlContainerTests
+    public class MsSqlContainerTests
     {
         public class DefaultImageTests
         {
@@ -17,7 +17,7 @@ namespace Container.Database.PostgreSql.Integration.Tests
             public void ShouldUseDefaultImageWhenImageIsNotSpecified()
             {
                 // arrange
-                var container = new ContainerBuilder<PostgreSqlContainer>()
+                var container = new ContainerBuilder<MsSqlContainer>()
                     .ConfigureDatabaseConfiguration("", "", "")
                     .Build();
 
@@ -25,7 +25,7 @@ namespace Container.Database.PostgreSql.Integration.Tests
                 var actual = container.DockerImageName;
 
                 // assert
-                Assert.Equal($"{PostgreSqlContainer.DefaultImage}:{PostgreSqlContainer.DefaultTag}", actual);
+                Assert.Equal($"{MsSqlContainer.DefaultImage}:{MsSqlContainer.DefaultTag}", actual);
             }
             
             [Fact]
@@ -35,19 +35,50 @@ namespace Container.Database.PostgreSql.Integration.Tests
                 const string username = "user";
                 const string password = "my pwd";
                 const string database = "my db 1234";
-                var container = new ContainerBuilder<PostgreSqlContainer>()
+                var container = new ContainerBuilder<MsSqlContainer>()
                     .ConfigureDatabaseConfiguration(username, password, database)
                     .Build();
 
                 // act
                 var actualUsername = container.Username;
                 var actualPassword = container.Password;
-                var actualDatabase = container.DatabaseName;
 
                 // assert
-                Assert.Equal(username, actualUsername);
+                Assert.Equal("sa", actualUsername);
                 Assert.Equal(password, actualPassword);
-                Assert.Equal(database, actualDatabase);
+            }
+        }
+
+        public class GetConnectionStringTests : IClassFixture<ExposedPortContainerFixture>
+        {
+            private readonly ExposedPortContainerFixture _fixture;
+
+            public GetConnectionStringTests(ExposedPortContainerFixture fixture)
+            {
+                _fixture = fixture;
+            }
+
+            [Fact]
+            public async Task ShouldReturnConnectionStringWithDatabaseDefined()
+            {
+                // arrange
+                const string existingDatabaseName = "master";
+                
+                // act
+                object result;
+                using (var connection = new SqlConnection(_fixture.Container.GetConnectionString(existingDatabaseName)))
+                {
+                    await connection.OpenAsync();
+
+                    using (var command = connection.CreateCommand())
+                    {
+                        command.CommandText = "SELECT db_name()";
+                        result = await command.ExecuteScalarAsync();
+                    }
+                }
+
+                // assert
+                Assert.Equal(existingDatabaseName, result);
             }
         }
 
@@ -65,7 +96,7 @@ namespace Container.Database.PostgreSql.Integration.Tests
             {
                 // act
                 Exception ex;
-                using (var connection = new NpgsqlConnection(_fixture.Container.GetConnectionString()))
+                using (var connection = new SqlConnection(_fixture.Container.GetConnectionString()))
                 {
                     await connection.OpenAsync();
 
@@ -88,13 +119,13 @@ namespace Container.Database.PostgreSql.Integration.Tests
             {
                 // arrange
                 var connectionString =
-                    $"Server={_fixture.Container.GetDockerHostIpAddress()};" +
-                    $"Port={_fixture.Container.GetMappedPort(PostgreSqlContainer.PostgreSqlPort)};" +
-                    $"Database={_fixture.DatabaseName};Username={_fixture.Username};Password={_fixture.Password}";
+                    $"Server={_fixture.Container.GetDockerHostIpAddress()}," +
+                    $"{_fixture.Container.GetMappedPort(MsSqlContainer.MsSqlPort)};" +
+                    $"Uid={_fixture.Username};Password={_fixture.Password}";
 
                 // act
                 Exception ex;
-                using (var connection = new NpgsqlConnection(connectionString))
+                using (var connection = new SqlConnection(connectionString))
                 {
                     await connection.OpenAsync();
 
@@ -127,7 +158,7 @@ namespace Container.Database.PostgreSql.Integration.Tests
             {
                 // act
                 Exception ex;
-                using (var connection = new NpgsqlConnection(_fixture.Container.GetConnectionString()))
+                using (var connection = new SqlConnection(_fixture.Container.GetConnectionString()))
                 {
                     await connection.OpenAsync();
 
@@ -150,13 +181,12 @@ namespace Container.Database.PostgreSql.Integration.Tests
             {
                 // arrange
                 var connectionString =
-                    $"Server={_fixture.Container.GetDockerHostIpAddress()};" +
-                    $"Port={_fixture.MyPort};Database={_fixture.DatabaseName};" +
-                    $"Username={_fixture.Username};Password={_fixture.Password}";
+                    $"Server={_fixture.Container.GetDockerHostIpAddress()},{_fixture.MyPort};" +
+                    $"Uid={_fixture.Username};Password={_fixture.Password}";
 
                 // act
                 Exception ex;
-                using (var connection = new NpgsqlConnection(connectionString))
+                using (var connection = new SqlConnection(connectionString))
                 {
                     await connection.OpenAsync();
 

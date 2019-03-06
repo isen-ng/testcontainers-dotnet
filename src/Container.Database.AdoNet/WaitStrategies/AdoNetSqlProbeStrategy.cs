@@ -38,7 +38,14 @@ namespace TestContainers.Container.Database.AdoNet.WaitStrategies
 
                 connection.ConnectionString = adoNetContainer.GetConnectionString();
 
-                await connection.OpenAsync().ConfigureAwait(false);
+                try
+                {
+                    await connection.OpenAsync().ConfigureAwait(false);
+                }
+                catch (Exception e)
+                {
+                    throw e;
+                }
 
                 using (var command = connection.CreateCommand())
                 {
