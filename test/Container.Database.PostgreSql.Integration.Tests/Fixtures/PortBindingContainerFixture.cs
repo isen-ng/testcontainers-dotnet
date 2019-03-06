@@ -1,7 +1,8 @@
 using System.Threading.Tasks;
-using Container.Database.Hosting;
 using Container.Test.Utility;
 using TestContainers.Container.Abstractions.Hosting;
+using TestContainers.Container.Database.Hosting;
+using TestContainers.Container.Database.PostgreSql;
 using Xunit;
 
 namespace Container.Database.PostgreSql.Integration.Tests.Fixtures

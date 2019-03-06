@@ -1,4 +1,4 @@
-namespace Container.Database.Hosting
+namespace TestContainers.Container.Database.Hosting
 {
     public interface IDatabaseContext
     {

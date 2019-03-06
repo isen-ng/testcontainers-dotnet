@@ -2,6 +2,7 @@ using System;
 using System.Threading.Tasks;
 using Container.Database.PostgreSql.Integration.Tests.Fixtures;
 using Npgsql;
+using TestContainers.Container.Database.PostgreSql;
 using Xunit;
 
 namespace Container.Database.PostgreSql.Integration.Tests

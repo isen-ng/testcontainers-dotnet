@@ -1,7 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using TestContainers.Container.Abstractions.Hosting;
 
-namespace Container.Database.Hosting
+namespace TestContainers.Container.Database.Hosting
 {
     public static class ContainerBuilderExtensions
     {

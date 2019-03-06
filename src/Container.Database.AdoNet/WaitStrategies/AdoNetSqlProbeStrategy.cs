@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using TestContainers.Container.Abstractions;
 using TestContainers.Container.Abstractions.WaitStrategies;
 
-namespace Container.Database.AdoNet.WaitStrategies
+namespace TestContainers.Container.Database.AdoNet.WaitStrategies
 {
     public class AdoNetSqlProbeStrategy : AbstractProbingStrategy
     {
@@ -27,7 +27,7 @@ namespace Container.Database.AdoNet.WaitStrategies
             {
                 throw new InvalidOperationException("Container must be an AdoNetContainer for AdoNetSqlProbeStrategy");
             }
-            
+
             using (var connection = _dbProviderFactory.CreateConnection())
             {
                 if (connection == null)

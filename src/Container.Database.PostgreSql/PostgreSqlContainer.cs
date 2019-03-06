@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Data.Common;
 using System.Threading.Tasks;
-using Container.Database.AdoNet;
-using Container.Database.Hosting;
 using Docker.DotNet;
 using Microsoft.Extensions.Logging;
 using Npgsql;
+using TestContainers.Container.Database.AdoNet;
+using TestContainers.Container.Database.Hosting;
 
-namespace Container.Database.PostgreSql
+namespace TestContainers.Container.Database.PostgreSql
 {
     public class PostgreSqlContainer : AdoNetContainer
     {
@@ -16,19 +16,19 @@ namespace Container.Database.PostgreSql
         public const int PostgreSqlPort = 5432;
 
         private string _connectionString;
-        
+
         protected override DbProviderFactory DbProviderFactory { get; } = NpgsqlFactory.Instance;
 
-        public PostgreSqlContainer(string dockerImageName, IDockerClient dockerClient, ILoggerFactory loggerFactory, 
-            IDatabaseContext context) 
+        public PostgreSqlContainer(string dockerImageName, IDockerClient dockerClient, ILoggerFactory loggerFactory,
+            IDatabaseContext context)
             : base(dockerImageName, dockerClient, loggerFactory, context)
         {
         }
-        
+
         protected override async Task ConfigureAsync()
         {
             await base.ConfigureAsync();
-            
+
             ExposedPorts.Add(PostgreSqlPort);
             Env.Add("POSTGRES_DB", DatabaseName);
             Env.Add("POSTGRES_USER", Username);
