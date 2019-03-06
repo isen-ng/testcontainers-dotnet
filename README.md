@@ -21,11 +21,13 @@ Windows: [![Build status](https://ci.appveyor.com/api/projects/status/4hcmw8qnlp
 ## Linux environment
 
 * Container management
+* Todo: Start Container from Dockerfile
 * Ryuk resource reaper
 
 ## Windows environment
 
 * Container management
+* Todo: Start Container from Dockerfile
 * Todo: Windows version of Ryuk [Help wanted]
 
 # Example code
