@@ -3,13 +3,15 @@
     <PropertyGroup>
         <TargetFramework>netstandard2.0</TargetFramework>
         <RootNamespace>TestContainers.Container.Database.MsSql</RootNamespace>
+        <IncludeSymbols>true</IncludeSymbols>
+        <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     </PropertyGroup>
 
     <PropertyGroup>
         <AssemblyName>TestContainers.Container.Database.MsSql</AssemblyName>
         <Description>DotNet port of testcontainers.org</Description>
 
-        <Version>1.1.0</Version>
+        <Version>1.1.1</Version>
         <Authors>Isen Ng</Authors>
 
         <PackageProjectUrl>https://github.com/isen-ng/testcontainers-dotnet</PackageProjectUrl>
