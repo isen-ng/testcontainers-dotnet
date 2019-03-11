@@ -32,12 +32,12 @@ Windows: [![Build status](https://ci.appveyor.com/api/projects/status/4hcmw8qnlp
 
 ## Built-in containers
 
-| Container            | Version
-|----------------------|------
-| Generic Container    | [![Generic](https://img.shields.io/nuget/v/TestContainers.Container.Abstractions.svg)](https://www.nuget.org/packages/TestContainers.Container.Abstractions/)
-| MsSql Container      | [![Generic](https://img.shields.io/nuget/v/TestContainers.Container.Database.MsSql.svg)](https://www.nuget.org/packages/TestContainers.Container.Database.MsSql/)
-| PostgreSql Container | [![Generic](https://img.shields.io/nuget/v/TestContainers.Container.Database.PostgreSql.svg)](https://www.nuget.org/packages/TestContainers.Container.Database.PostgreSql/)
-| ArangoDb Container   | [![Generic](https://img.shields.io/nuget/v/TestContainers.Container.Database.ArangoDb.svg)](https://www.nuget.org/packages/TestContainers.Container.Database.ArangoDb/)
+| Container            | Readme                                                | Version
+|----------------------|-------------------------------------------------------|--------
+| Generic Container    | --                                                    | [![Generic](https://img.shields.io/nuget/v/TestContainers.Container.Abstractions.svg)](https://www.nuget.org/packages/TestContainers.Container.Abstractions/)
+| MsSql Container      | [README](src/Container.Database.MsSql/README.md)      | [![Generic](https://img.shields.io/nuget/v/TestContainers.Container.Database.MsSql.svg)](https://www.nuget.org/packages/TestContainers.Container.Database.MsSql/)
+| PostgreSql Container | [README](src/Container.Database.PostgreSql/README.md) | [![Generic](https://img.shields.io/nuget/v/TestContainers.Container.Database.PostgreSql.svg)](https://www.nuget.org/packages/TestContainers.Container.Database.PostgreSql/)
+| ArangoDb Container   | [README](src/Container.Database.ArangoDb/README.md)   | [![Generic](https://img.shields.io/nuget/v/TestContainers.Container.Database.ArangoDb.svg)](https://www.nuget.org/packages/TestContainers.Container.Database.ArangoDb/)
 
 
 ## Example code

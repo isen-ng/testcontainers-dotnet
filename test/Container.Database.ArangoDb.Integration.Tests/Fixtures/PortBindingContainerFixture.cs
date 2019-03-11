@@ -5,7 +5,7 @@ using TestContainers.Container.Database.ArangoDb;
 using TestContainers.Container.Database.Hosting;
 using Xunit;
 
-namespace Containers.Database.ArangoDb.Integration.Tests.Fixtures
+namespace Container.Database.ArangoDb.Integration.Tests.Fixtures
 {
     public class PortBindingContainerFixture : IAsyncLifetime
     {
@@ -21,7 +21,7 @@ namespace Containers.Database.ArangoDb.Integration.Tests.Fixtures
         {
             Container = new ContainerBuilder<ArangoDbContainer>()
                 .ConfigureDockerImageName("arangodb:3.4.3")
-                .ConfigureDatabaseConfiguration("", Password, "")
+                .ConfigureDatabaseConfiguration("not-used", Password, "not-used")
                 .ConfigureContainer((h, c) => { c.PortBindings.Add(ArangoDbContainer.DefaultPort, MyPort); })
                 .Build();
         }

@@ -2,13 +2,13 @@ using System;
 using System.Net;
 using System.Threading.Tasks;
 using ArangoDB.Client;
-using Containers.Database.ArangoDb.Integration.Tests.Fixtures;
+using Container.Database.ArangoDb.Integration.Tests.Fixtures;
 using TestContainers.Container.Abstractions.Hosting;
 using TestContainers.Container.Database.ArangoDb;
 using TestContainers.Container.Database.Hosting;
 using Xunit;
 
-namespace Containers.Database.ArangoDb.Integration.Tests
+namespace Container.Database.ArangoDb.Integration.Tests
 {
     public class ArangoDbContainerTests
     {
@@ -19,7 +19,7 @@ namespace Containers.Database.ArangoDb.Integration.Tests
             {
                 // arrange
                 var container = new ContainerBuilder<ArangoDbContainer>()
-                    .ConfigureDatabaseConfiguration("", "", "")
+                    .ConfigureDatabaseConfiguration("not-important", "not-important", "not-important")
                     .Build();
 
                 // act

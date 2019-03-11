@@ -18,7 +18,7 @@ namespace Container.Database.PostgreSql.Integration.Tests
             {
                 // arrange
                 var container = new ContainerBuilder<PostgreSqlContainer>()
-                    .ConfigureDatabaseConfiguration("", "", "")
+                    .ConfigureDatabaseConfiguration("not-important", "not-important", "not-important")
                     .Build();
 
                 // act

@@ -18,7 +18,7 @@ namespace Container.Database.MsSql.Integration.Tests
             {
                 // arrange
                 var container = new ContainerBuilder<MsSqlContainer>()
-                    .ConfigureDatabaseConfiguration("", "", "")
+                    .ConfigureDatabaseConfiguration("not-important", "not-important", "not-important")
                     .Build();
 
                 // act

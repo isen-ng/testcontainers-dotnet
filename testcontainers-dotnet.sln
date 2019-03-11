@@ -27,7 +27,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Container.Database.MsSql.In
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Container.Database.ArangoDb", "src\Container.Database.ArangoDb\Container.Database.ArangoDb.csproj", "{6791AF3D-55F3-49FA-ABD3-37831A7EEE6D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Containers.Database.ArangoDb.Integration.Tests", "test\Containers.Database.ArangoDb.Integration.Tests\Containers.Database.ArangoDb.Integration.Tests.csproj", "{DF4C5515-381E-493E-B3B1-5708658B3C7C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Container.Database.ArangoDb.Integration.Tests", "test\Container.Database.ArangoDb.Integration.Tests\Container.Database.ArangoDb.Integration.Tests.csproj", "{DF4C5515-381E-493E-B3B1-5708658B3C7C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

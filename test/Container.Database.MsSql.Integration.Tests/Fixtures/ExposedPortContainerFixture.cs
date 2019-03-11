@@ -18,7 +18,7 @@ namespace Container.Database.MsSql.Integration.Tests.Fixtures
         {
             Container = new ContainerBuilder<MsSqlContainer>()
                 .ConfigureDockerImageName("mcr.microsoft.com/mssql/server:2017-latest-ubuntu")
-                .ConfigureDatabaseConfiguration("", Password, "")
+                .ConfigureDatabaseConfiguration("not-used", Password, "not-used")
                 .Build();
         }
 
