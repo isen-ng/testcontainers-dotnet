@@ -103,8 +103,6 @@ namespace TestContainers.Container.Abstractions
                 return;
             }
 
-            // todo: turn hooks into delegates
-
             await ConfigureAsync();
 
             await ContainerStarting();
@@ -170,7 +168,7 @@ namespace TestContainers.Container.Abstractions
             if (ContainerInfo == null)
             {
                 throw new InvalidOperationException(
-                    "Container.Abstractions must be started before mapped ports can be retrieved");
+                    "Container must be started before mapped ports can be retrieved");
             }
 
             var tcpExposedPort = string.Format(TcpExposedPortFormat, exposedPort);
@@ -188,6 +186,12 @@ namespace TestContainers.Container.Abstractions
         /// <inheritdoc />
         public async Task<(string stdout, string stderr)> ExecuteCommand(params string[] command)
         {
+            if (ContainerInfo == null)
+            {
+                throw new InvalidOperationException(
+                    "Container must be started before mapped ports can be retrieved");
+            }
+            
             var parameters = new ContainerExecCreateParameters
             {
                 AttachStderr = true,

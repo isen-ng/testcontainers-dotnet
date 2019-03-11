@@ -11,7 +11,6 @@ namespace TestContainers.Container.Database.MsSql
 {
     /// <summary>
     /// MsSQL Server container
-    /// 
     /// Username is always "sa"
     /// Database parameter is ignored because container does not allow creating of database
     /// Password must be:
@@ -22,6 +21,7 @@ namespace TestContainers.Container.Database.MsSql
     ///    * has digit
     ///    * has non-alphanumeric character
     /// </summary>
+    /// <inheritdoc />
     public class MsSqlContainer : AdoNetContainer
     {
         /// <summary>

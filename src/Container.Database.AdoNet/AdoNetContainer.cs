@@ -1,4 +1,5 @@
-﻿using System.Data.Common;
+﻿using System;
+using System.Data.Common;
 using System.Threading.Tasks;
 using Docker.DotNet;
 using Microsoft.Extensions.Logging;
@@ -35,6 +36,7 @@ namespace TestContainers.Container.Database.AdoNet
         /// Gets the connection string for this ADO.Net container after the container has started
         /// </summary>
         /// <returns>a connection string</returns>
+        /// <exception cref="InvalidOperationException">when the container has yet to start</exception>
         public abstract string GetConnectionString();
     }
 }

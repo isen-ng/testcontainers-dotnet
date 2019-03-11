@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -93,6 +94,7 @@ namespace TestContainers.Container.Abstractions
         /// Gets a network host address for this docker instance
         /// </summary>
         /// <returns>The network host for this docker instance</returns>
+        /// <exception cref="InvalidOperationException">when docker uses a transport that is not supported</exception>
         string GetDockerHostIpAddress();
 
         /// <summary>
@@ -100,13 +102,15 @@ namespace TestContainers.Container.Abstractions
         /// </summary>
         /// <param name="exposedPort">Exposed port to map</param>
         /// <returns>The mapped port</returns>
+        /// <exception cref="InvalidOperationException">when the container has yet to start</exception>
         int GetMappedPort(int exposedPort);
 
         /// <summary>
-        /// Executes a command against the container
+        /// Executes a command against a running container
         /// </summary>
         /// <param name="command">The command and its parameters to run</param>
         /// <returns>Tuple containing the response of the command</returns>
+        /// <exception cref="InvalidOperationException">when the container has yet to start</exception>
         Task<(string stdout, string stderr)> ExecuteCommand(params string[] command);
     }
 }
