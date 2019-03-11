@@ -8,19 +8,26 @@ using TestContainers.Container.Abstractions.WaitStrategies;
 
 namespace TestContainers.Container.Database.AdoNet.WaitStrategies
 {
+    /// <summary>
+    /// Probing strategy that uses ADO.Net classes
+    /// </summary>
+    /// <inheritdoc />
     public class AdoNetSqlProbeStrategy : AbstractProbingStrategy
     {
         private readonly DbProviderFactory _dbProviderFactory;
 
+        /// <inheritdoc />
         protected override IEnumerable<Type> ExceptionTypes { get; } =
             new[] {typeof(SocketException), typeof(DbException)};
 
 
+        /// <inheritdoc />
         public AdoNetSqlProbeStrategy(DbProviderFactory dbProviderFactory)
         {
             _dbProviderFactory = dbProviderFactory;
         }
 
+        /// <inheritdoc />
         protected override async Task Probe(IContainer container)
         {
             if (!(container is AdoNetContainer adoNetContainer))
@@ -38,14 +45,7 @@ namespace TestContainers.Container.Database.AdoNet.WaitStrategies
 
                 connection.ConnectionString = adoNetContainer.GetConnectionString();
 
-                try
-                {
-                    await connection.OpenAsync().ConfigureAwait(false);
-                }
-                catch (Exception e)
-                {
-                    throw e;
-                }
+                await connection.OpenAsync().ConfigureAwait(false);
 
                 using (var command = connection.CreateCommand())
                 {

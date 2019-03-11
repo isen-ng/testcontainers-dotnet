@@ -6,15 +6,24 @@ using TestContainers.Container.Database.AdoNet.WaitStrategies;
 
 namespace TestContainers.Container.Database.AdoNet
 {
+    /// <summary>
+    /// Base class ADO.NET type db containers
+    /// </summary>
+    /// <inheritdoc />
     public abstract class AdoNetContainer : DatabaseContainer
     {
+        /// <summary>
+        /// Factory to create db connection instances
+        /// </summary>
         protected abstract DbProviderFactory DbProviderFactory { get; }
 
-        public AdoNetContainer(string dockerImageName, IDockerClient dockerClient, ILoggerFactory loggerFactory)
+        /// <inheritdoc />
+        protected AdoNetContainer(string dockerImageName, IDockerClient dockerClient, ILoggerFactory loggerFactory)
             : base(dockerImageName, dockerClient, loggerFactory)
         {
         }
 
+        /// <inheritdoc />
         protected override async Task ConfigureAsync()
         {
             await base.ConfigureAsync();
@@ -22,6 +31,10 @@ namespace TestContainers.Container.Database.AdoNet
             WaitStrategy = new AdoNetSqlProbeStrategy(DbProviderFactory);
         }
 
+        /// <summary>
+        /// Gets the connection string for this ADO.Net container after the container has started
+        /// </summary>
+        /// <returns>a connection string</returns>
         public abstract string GetConnectionString();
     }
 }
