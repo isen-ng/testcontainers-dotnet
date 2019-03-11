@@ -5,13 +5,14 @@
         <RootNamespace>TestContainers.Container.Database.AdoNet</RootNamespace>
         <IncludeSymbols>true</IncludeSymbols>
         <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
     </PropertyGroup>
 
     <PropertyGroup>
         <AssemblyName>TestContainers.Container.Database.AdoNet</AssemblyName>
         <Description>DotNet port of testcontainers.org</Description>
 
-        <Version>1.1.1</Version>
+        <Version>1.1.1-alpha-1</Version>
         <Authors>Isen Ng</Authors>
 
         <PackageProjectUrl>https://github.com/isen-ng/testcontainers-dotnet</PackageProjectUrl>
