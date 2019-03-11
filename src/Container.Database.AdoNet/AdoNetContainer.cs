@@ -3,7 +3,6 @@ using System.Threading.Tasks;
 using Docker.DotNet;
 using Microsoft.Extensions.Logging;
 using TestContainers.Container.Database.AdoNet.WaitStrategies;
-using TestContainers.Container.Database.Hosting;
 
 namespace TestContainers.Container.Database.AdoNet
 {
@@ -11,9 +10,8 @@ namespace TestContainers.Container.Database.AdoNet
     {
         protected abstract DbProviderFactory DbProviderFactory { get; }
 
-        public AdoNetContainer(string dockerImageName, IDockerClient dockerClient, ILoggerFactory loggerFactory,
-            IDatabaseContext databaseContext)
-            : base(dockerImageName, dockerClient, loggerFactory, databaseContext)
+        public AdoNetContainer(string dockerImageName, IDockerClient dockerClient, ILoggerFactory loggerFactory)
+            : base(dockerImageName, dockerClient, loggerFactory)
         {
         }
 

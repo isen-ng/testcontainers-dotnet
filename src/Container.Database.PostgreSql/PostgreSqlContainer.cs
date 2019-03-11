@@ -5,7 +5,6 @@ using Docker.DotNet;
 using Microsoft.Extensions.Logging;
 using Npgsql;
 using TestContainers.Container.Database.AdoNet;
-using TestContainers.Container.Database.Hosting;
 
 namespace TestContainers.Container.Database.PostgreSql
 {
@@ -19,15 +18,13 @@ namespace TestContainers.Container.Database.PostgreSql
 
         protected override DbProviderFactory DbProviderFactory { get; } = NpgsqlFactory.Instance;
 
-        public PostgreSqlContainer(IDockerClient dockerClient,
-            ILoggerFactory loggerFactory, IDatabaseContext context)
-            : base($"{DefaultImage}:{DefaultTag}", dockerClient, loggerFactory, context)
+        public PostgreSqlContainer(IDockerClient dockerClient, ILoggerFactory loggerFactory)
+            : base($"{DefaultImage}:{DefaultTag}", dockerClient, loggerFactory)
         {
         }
 
-        public PostgreSqlContainer(string dockerImageName, IDockerClient dockerClient,
-            ILoggerFactory loggerFactory, IDatabaseContext context)
-            : base(dockerImageName, dockerClient, loggerFactory, context)
+        public PostgreSqlContainer(string dockerImageName, IDockerClient dockerClient, ILoggerFactory loggerFactory)
+            : base(dockerImageName, dockerClient, loggerFactory)
         {
         }
 

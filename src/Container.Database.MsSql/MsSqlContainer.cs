@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using Docker.DotNet;
 using Microsoft.Extensions.Logging;
 using TestContainers.Container.Database.AdoNet;
-using TestContainers.Container.Database.Hosting;
 
 namespace TestContainers.Container.Database.MsSql
 {
@@ -33,15 +32,13 @@ namespace TestContainers.Container.Database.MsSql
 
         protected override DbProviderFactory DbProviderFactory { get; } = SqlClientFactory.Instance;
 
-        public MsSqlContainer(IDockerClient dockerClient,
-            ILoggerFactory loggerFactory, IDatabaseContext context)
-            : base($"{DefaultImage}:{DefaultTag}", dockerClient, loggerFactory, context)
+        public MsSqlContainer(IDockerClient dockerClient, ILoggerFactory loggerFactory)
+            : base($"{DefaultImage}:{DefaultTag}", dockerClient, loggerFactory)
         {
         }
 
-        public MsSqlContainer(string dockerImageName, IDockerClient dockerClient,
-            ILoggerFactory loggerFactory, IDatabaseContext context)
-            : base(dockerImageName, dockerClient, loggerFactory, context)
+        public MsSqlContainer(string dockerImageName, IDockerClient dockerClient, ILoggerFactory loggerFactory)
+            : base(dockerImageName, dockerClient, loggerFactory)
         {
         }
 

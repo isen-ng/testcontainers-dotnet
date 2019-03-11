@@ -7,19 +7,15 @@ namespace TestContainers.Container.Database
 {
     public class DatabaseContainer : GenericContainer
     {
-        protected IDatabaseContext Context { get; }
+        public virtual string DatabaseName { get; set; }
+        
+        public virtual string Username { get; set; }
+        
+        public virtual string Password { get; set; }
 
-        public virtual string DatabaseName => Context.DatabaseName;
-
-        public virtual string Username => Context.Username;
-
-        public virtual string Password => Context.Password;
-
-        public DatabaseContainer(string dockerImageName, IDockerClient dockerClient, ILoggerFactory loggerFactory,
-            IDatabaseContext context)
+        public DatabaseContainer(string dockerImageName, IDockerClient dockerClient, ILoggerFactory loggerFactory)
             : base(dockerImageName, dockerClient, loggerFactory)
         {
-            Context = context;
         }
     }
 }

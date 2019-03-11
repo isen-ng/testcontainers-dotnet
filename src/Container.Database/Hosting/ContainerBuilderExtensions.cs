@@ -1,4 +1,3 @@
-using Microsoft.Extensions.DependencyInjection;
 using TestContainers.Container.Abstractions.Hosting;
 
 namespace TestContainers.Container.Database.Hosting
@@ -9,14 +8,11 @@ namespace TestContainers.Container.Database.Hosting
             string username, string password, string databaseName)
             where T : DatabaseContainer
         {
-            return builder.ConfigureServices(s =>
+            return builder.ConfigureContainer((h, c) =>
             {
-                s.AddSingleton<IDatabaseContext>(new DatabaseContext
-                {
-                    Username = username,
-                    Password = password,
-                    DatabaseName = databaseName
-                });
+                c.Username = username;
+                c.Password = password;
+                c.DatabaseName = databaseName;
             });
         }
     }

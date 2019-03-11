@@ -23,15 +23,13 @@ namespace TestContainers.Container.Database.ArangoDb
 
         public override string DatabaseName => "_system";
 
-        public ArangoDbContainer(IDockerClient dockerClient, 
-            ILoggerFactory loggerFactory, IDatabaseContext context)
-            : base($"{DefaultImage}:{DefaultTag}", dockerClient, loggerFactory, context)
+        public ArangoDbContainer(IDockerClient dockerClient, ILoggerFactory loggerFactory)
+            : base($"{DefaultImage}:{DefaultTag}", dockerClient, loggerFactory)
         {
         }
         
-        public ArangoDbContainer(string dockerImageName, IDockerClient dockerClient, 
-            ILoggerFactory loggerFactory, IDatabaseContext context)
-            : base(dockerImageName, dockerClient, loggerFactory, context)
+        public ArangoDbContainer(string dockerImageName, IDockerClient dockerClient, ILoggerFactory loggerFactory)
+            : base(dockerImageName, dockerClient, loggerFactory)
         {
         }
 
