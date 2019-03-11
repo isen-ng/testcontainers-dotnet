@@ -15,48 +15,79 @@ using TestContainers.Container.Abstractions.WaitStrategies;
 
 namespace TestContainers.Container.Abstractions
 {
+    /// <inheritdoc />
     public abstract class AbstractContainer : IContainer
     {
+        /// <summary>
+        /// Internal hostname to reach a host from inside a container
+        /// </summary>
         public const string HostMachineHostname = "host.docker.internal";
 
+        /// <summary>
+        /// Http url version of the HostMachineHostName
+        /// </summary>
         public const string HostMachineUrl = "http://" + HostMachineHostname;
 
         private const string TcpExposedPortFormat = "{0}/tcp";
 
         private readonly ILogger _logger;
 
+        /// <summary>
+        /// DockerClient used to perform docker operations
+        /// </summary>
         protected IDockerClient DockerClient { get; }
 
+        /// <summary>
+        /// Name of the container after it has started
+        /// </summary>
         protected string ContainerName { get; private set; }
 
+        /// <summary>
+        /// Strategy to use to wait for services in the container to successfully start
+        /// </summary>
         protected IWaitStrategy WaitStrategy { get; [NotNull] set; } = new NoWaitStrategy();
 
+        /// <summary>
+        /// Strategy to use to wait for the container to start
+        /// </summary>
         protected IStartupStrategy StartupStrategy { get; [NotNull] set; } = new IsRunningStartupCheckStrategy();
 
         private ContainerInspectResponse ContainerInfo { get; set; }
 
+        /// <inheritdoc />
         public string DockerImageName { get; }
 
+        /// <inheritdoc />
         public string ContainerId { get; private set; }
 
+        /// <inheritdoc />
         public IList<int> ExposedPorts { get; } = new List<int>();
 
+        /// <inheritdoc />
         public Dictionary<int, int> PortBindings { get; } = new Dictionary<int, int>();
 
+        /// <inheritdoc />
         public Dictionary<string, string> Env { get; } = new Dictionary<string, string>();
 
+        /// <inheritdoc />
         public Dictionary<string, string> Labels { get; } = new Dictionary<string, string>();
 
+        /// <inheritdoc />
         public IList<Bind> BindMounts { get; } = new List<Bind>();
 
+        /// <inheritdoc />
         public bool IsPrivileged { get; set; }
 
+        /// <inheritdoc />
         public string WorkingDirectory { get; set; }
 
+        /// <inheritdoc />
         public List<string> Command { get; set; }
 
+        /// <inheritdoc />
         public bool AutoRemove { get; set; }
 
+        /// <inheritdoc />
         protected AbstractContainer(string dockerImageName, IDockerClient dockerClient, ILoggerFactory loggerFactory)
         {
             DockerImageName = dockerImageName;
@@ -64,6 +95,7 @@ namespace TestContainers.Container.Abstractions
             _logger = loggerFactory.CreateLogger(GetType());
         }
 
+        /// <inheritdoc />
         public async Task StartAsync(CancellationToken ct = default(CancellationToken))
         {
             if (ContainerId != null)
@@ -90,6 +122,7 @@ namespace TestContainers.Container.Abstractions
             await ServiceStarted();
         }
 
+        /// <inheritdoc />
         public async Task StopAsync(CancellationToken ct = default(CancellationToken))
         {
             if (ContainerId == null)
@@ -109,6 +142,7 @@ namespace TestContainers.Container.Abstractions
             await ContainerStopped();
         }
 
+        /// <inheritdoc />
         public string GetDockerHostIpAddress()
         {
             var dockerHostUri = DockerClient.Configuration.EndpointBaseUri;
@@ -130,6 +164,7 @@ namespace TestContainers.Container.Abstractions
             }
         }
 
+        /// <inheritdoc />
         public int GetMappedPort(int exposedPort)
         {
             if (ContainerInfo == null)
@@ -150,6 +185,7 @@ namespace TestContainers.Container.Abstractions
             throw new InvalidOperationException($"ExposedPort[{exposedPort}] is not mapped");
         }
 
+        /// <inheritdoc />
         public async Task<(string stdout, string stderr)> ExecuteCommand(params string[] command)
         {
             var parameters = new ContainerExecCreateParameters

@@ -4,10 +4,17 @@ using System.Threading.Tasks;
 
 namespace TestContainers.Container.Abstractions.Utilities
 {
+    /// <summary>
+    /// Extensions for tasks
+    /// </summary>
     public static class TaskExtensions
     {
         private static readonly Action<Task> IgnoreTaskContinuation = t => { _ = t.Exception; };
 
+        /// <summary>
+        /// Ignores the output of the task, whether it is successful or whether an exception is thrown
+        /// </summary>
+        /// <param name="task">Task to ignore</param>
         public static void Ignore(this Task task)
         {
             if (task.IsCompleted)

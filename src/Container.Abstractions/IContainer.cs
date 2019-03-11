@@ -6,6 +6,9 @@ using TestContainers.Container.Abstractions.Models;
 
 namespace TestContainers.Container.Abstractions
 {
+    /// <summary>
+    /// A docker container object
+    /// </summary>
     public interface IContainer
     {
         /// <summary>

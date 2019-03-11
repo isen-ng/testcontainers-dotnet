@@ -1,7 +1,11 @@
 namespace TestContainers.Container.Abstractions.Utilities.Platform
 {
+    /// <inheritdoc />
     public class WindowsPlatformSpecific : IPlatformSpecific
     {
+        /// <summary>
+        /// 
+        /// </summary>
         public static IPlatformSpecific Instance { get; } = new WindowsPlatformSpecific();
 
         /*
@@ -13,8 +17,14 @@ namespace TestContainers.Container.Abstractions.Utilities.Platform
          * https://github.com/isen-ng/testcontainers-dotnet/issues/14
          * Todo: Upgrade image to "mcr.microsoft.com/windows/nanoserver:1809"
          */
+        /// <inheritdoc />
         public string TinyDockerImage { get; } = "mcr.microsoft.com/windows/nanoserver:sac2016";
 
+        /// <inheritdoc />
         public string RyukImage { get; } = "ryuk:0.2.3-nanoserver-sac2016";
+
+        private WindowsPlatformSpecific()
+        {
+        }
     }
 }

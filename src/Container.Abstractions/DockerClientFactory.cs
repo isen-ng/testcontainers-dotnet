@@ -4,6 +4,9 @@ using Docker.DotNet;
 
 namespace TestContainers.Container.Abstractions
 {
+    /// <summary>
+    /// Factory to provide docker clients based on the host operating system
+    /// </summary>
     public class DockerClientFactory
     {
         private static readonly DockerClientConfiguration WindowsDockerConfiguration =
@@ -14,11 +17,16 @@ namespace TestContainers.Container.Abstractions
 
         private readonly DockerClientConfiguration _configuration;
 
+        /// <inheritdoc />
         public DockerClientFactory()
         {
             _configuration = BuildDockerConfigBasedOnOs();
         }
 
+        /// <summary>
+        /// Creates a new DockerClient
+        /// </summary>
+        /// <returns></returns>
         public IDockerClient Create()
         {
             return _configuration.CreateClient();

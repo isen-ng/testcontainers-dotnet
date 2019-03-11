@@ -5,7 +5,11 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace TestContainers.Container.Abstractions.Hosting
 {
-    public partial class ContainerBuilder<T> where T : IContainer
+    /// <summary>
+    /// Builder class to consolidate services and inject them into an IContainer implementation
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    public class ContainerBuilder<T> where T : IContainer
     {
         private const string ApplicationNameKey = "applicationName";
         private const string EnvironmentKey = "environment";
@@ -21,9 +25,15 @@ namespace TestContainers.Container.Abstractions.Hosting
             new List<Action<HostContext, IConfigurationBuilder>>();
 
         private readonly List<Action<HostContext, T>> _configureContainerActions = new List<Action<HostContext, T>>();
-        
+
         private Func<HostContext, string> _dockerImageNameProvider;
 
+        /// <summary>
+        /// Sets the docker image name
+        /// </summary>
+        /// <param name="name">image name and tag</param>
+        /// <returns>builder</returns>
+        /// <exception cref="ArgumentNullException">when name is null</exception>
         public ContainerBuilder<T> ConfigureDockerImageName(string name)
         {
             if (name == null)
@@ -34,6 +44,12 @@ namespace TestContainers.Container.Abstractions.Hosting
             return ConfigureDockerImageName(c => name);
         }
 
+        /// <summary>
+        /// Sets the docker image name
+        /// </summary>
+        /// <param name="delegate">a delegate to provide a name</param>
+        /// <returns>builder</returns>
+        /// <exception cref="ArgumentNullException">when @delegate is null</exception>
         public ContainerBuilder<T> ConfigureDockerImageName(Func<HostContext, string> @delegate)
         {
             if (@delegate == null)
@@ -45,24 +61,48 @@ namespace TestContainers.Container.Abstractions.Hosting
             return this;
         }
 
+        /// <summary>
+        /// Allows the configuration of host settings
+        /// </summary>
+        /// <param name="delegate">a delegate to configure host settings</param>
+        /// <returns>builder</returns>
+        /// <exception cref="ArgumentNullException">when @delegate is null</exception>
         public ContainerBuilder<T> ConfigureHostConfiguration(Action<IConfigurationBuilder> @delegate)
         {
             _configureHostActions.Add(@delegate ?? throw new ArgumentNullException(nameof(@delegate)));
             return this;
         }
 
+        /// <summary>
+        /// Allows the configuration of app settings
+        /// </summary>
+        /// <param name="delegate">a delegate to configure app settings</param>
+        /// <returns>builder</returns>
+        /// <exception cref="ArgumentNullException">when @delegate is null</exception>
         public ContainerBuilder<T> ConfigureAppConfiguration(Action<HostContext, IConfigurationBuilder> @delegate)
         {
             _configureAppActions.Add(@delegate ?? throw new ArgumentNullException(nameof(@delegate)));
             return this;
         }
 
+        /// <summary>
+        /// Allows the configuration of container
+        /// </summary>
+        /// <param name="delegate">a delegate to configure the container</param>
+        /// <returns>builder</returns>
+        /// <exception cref="ArgumentNullException">when @delegate is null</exception>
         public ContainerBuilder<T> ConfigureContainer(Action<HostContext, T> @delegate)
         {
             _configureContainerActions.Add(@delegate ?? throw new ArgumentNullException(nameof(@delegate)));
             return this;
         }
 
+        /// <summary>
+        /// Allows the configuration of services
+        /// </summary>
+        /// <param name="delegate">a delegate to configure services</param>
+        /// <returns>builder</returns>
+        /// <exception cref="ArgumentNullException">when @delegate is null</exception>
         public ContainerBuilder<T> ConfigureServices(Action<HostContext, IServiceCollection> @delegate)
         {
             if (@delegate == null)
@@ -74,6 +114,12 @@ namespace TestContainers.Container.Abstractions.Hosting
             return this;
         }
 
+        /// <summary>
+        /// Allows the configuration of services
+        /// </summary>
+        /// <param name="delegate">a delegate to configure services</param>
+        /// <returns>builder</returns>
+        /// <exception cref="ArgumentNullException">when @delegate is null</exception>
         public ContainerBuilder<T> ConfigureServices(Action<IServiceCollection> @delegate)
         {
             if (@delegate == null)
@@ -84,6 +130,10 @@ namespace TestContainers.Container.Abstractions.Hosting
             return ConfigureServices((context, collection) => @delegate(collection));
         }
 
+        /// <summary>
+        /// Builds the container
+        /// </summary>
+        /// <returns>An implementation of the container with services injected</returns>
         public T Build()
         {
             var hostConfig = BuildHostConfiguration();

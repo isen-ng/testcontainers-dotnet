@@ -7,12 +7,29 @@ using TestContainers.Container.Abstractions.Utilities.Platform;
 
 namespace TestContainers.Container.Abstractions.Reaper
 {
+    /// <summary>
+    /// Starts a Ryuk container to kill containers started in this session.
+    /// </summary>
     public static class ResourceReaper
     {
+        /// <summary>
+        /// Class label name applied to containers created by this library
+        /// </summary>
         public static readonly string TestContainerLabelName = typeof(IContainer).FullName;
+
+        /// <summary>
+        /// Session label added to containers created by this library in this particular run
+        /// </summary>
         public static readonly string TestContainerSessionLabelName = TestContainerLabelName + ".SessionId";
+
+        /// <summary>
+        /// Session id for this particular run
+        /// </summary>
         public static readonly string SessionId = Guid.NewGuid().ToString();
 
+        /// <summary>
+        /// Labels that needs to be applied to containers for Ryuk to run properly
+        /// </summary>
         public static readonly Dictionary<string, string> Labels = new Dictionary<string, string>
         {
             {TestContainerLabelName, "true"},
@@ -25,6 +42,11 @@ namespace TestContainers.Container.Abstractions.Reaper
 
         private static TaskCompletionSource<bool> _ryukStartupTaskCompletionSource;
 
+        /// <summary>
+        /// Starts the resource reaper if it is enabled
+        /// </summary>
+        /// <param name="dockerClient">Docker client to use</param>
+        /// <returns>Task that completes when reaper starts successfully</returns>
         public static async Task StartAsync(IDockerClient dockerClient)
         {
             var disabled = Environment.GetEnvironmentVariable("REAPER_DISABLED");
@@ -42,7 +64,7 @@ namespace TestContainers.Container.Abstractions.Reaper
                 // because ryuk for windows is not developed yet
                 return;
             }
-            
+
             if (_ryukStartupTaskCompletionSource == null)
             {
                 await InitLock.WaitAsync();

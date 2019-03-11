@@ -14,6 +14,9 @@ using TestContainers.Container.Abstractions.WaitStrategies;
 
 namespace TestContainers.Container.Abstractions.Reaper
 {
+    /// <summary>
+    /// Container to start ryuk
+    /// </summary>
     public class RyukContainer : AbstractContainer
     {
         private const string RyukAck = "ACK";
@@ -30,12 +33,14 @@ namespace TestContainers.Container.Abstractions.Reaper
 
         private TextReader _tcpReader;
 
+        /// <inheritdoc />
         public RyukContainer(IDockerClient dockerClient, IPlatformSpecific platformSpecific)
             : base(platformSpecific.RyukImage, dockerClient, NullLoggerFactory.Instance)
         {
             _sendToRyukWorker = new BatchWorkerFromDelegate(SendToRyuk);
         }
 
+        /// <inheritdoc />
         protected override async Task ConfigureAsync()
         {
             await base.ConfigureAsync();
@@ -53,6 +58,7 @@ namespace TestContainers.Container.Abstractions.Reaper
             AutoRemove = true;
         }
 
+        /// <inheritdoc />
         protected override Task ServiceStarted()
         {
             // persistent tcp connection to container
@@ -64,12 +70,17 @@ namespace TestContainers.Container.Abstractions.Reaper
             return Task.CompletedTask;
         }
 
+        /// <inheritdoc />
         protected override Task ContainerStopping()
         {
             _tcpClient?.Dispose();
             return Task.CompletedTask;
         }
 
+        /// <summary>
+        /// Adds labels for ryuk to kill
+        /// </summary>
+        /// <param name="dictionary">dictionary of labels</param>
         public void AddToDeathNote(Dictionary<string, string> dictionary)
         {
             foreach (var entry in dictionary)
@@ -80,6 +91,11 @@ namespace TestContainers.Container.Abstractions.Reaper
             _sendToRyukWorker.Notify();
         }
 
+        /// <summary>
+        /// Add label for ryuk to kill
+        /// </summary>
+        /// <param name="label">label name</param>
+        /// <param name="value">label value</param>
         public void AddToDeathNote(string label, string value)
         {
             _deathNote.Add(label, value);

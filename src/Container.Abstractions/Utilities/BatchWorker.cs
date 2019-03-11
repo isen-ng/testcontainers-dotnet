@@ -3,6 +3,9 @@ using System.Threading.Tasks;
 
 namespace TestContainers.Container.Abstractions.Utilities
 {
+    /// <summary>
+    /// Worker that batches up requests
+    /// </summary>
     public abstract class BatchWorker
     {
         private readonly object _lockable = new object();

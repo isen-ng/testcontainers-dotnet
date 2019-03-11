@@ -7,18 +7,33 @@ using TestContainers.Container.Abstractions.Exceptions;
 
 namespace TestContainers.Container.Abstractions.WaitStrategies
 {
+    /// <summary>
+    /// Probes the container regularly to test if services has started
+    /// </summary>
+    /// <inheritdoc />
     public abstract class AbstractProbingStrategy : IWaitStrategy
     {
+        /// <summary>
+        /// Timeout before the strategy fails
+        /// </summary>
         public TimeSpan Timeout { get; set; } = TimeSpan.FromMinutes(1);
 
+        /// <summary>
+        /// Interval between each retry
+        /// </summary>
         public TimeSpan RetryInterval { get; set; } = TimeSpan.FromSeconds(3);
 
+        /// <summary>
+        /// Exceptions that are considered acceptable in the probe to continue probing
+        /// </summary>
         protected abstract IEnumerable<Type> ExceptionTypes { get; }
 
-        public AbstractProbingStrategy()
+        /// <inheritdoc />
+        protected AbstractProbingStrategy()
         {
         }
 
+        /// <inheritdoc />
         public async Task WaitUntil(IContainer container)
         {
             var exceptionPolicy = Policy
@@ -36,6 +51,11 @@ namespace TestContainers.Container.Abstractions.WaitStrategies
             }
         }
 
+        /// <summary>
+        /// The action to probe
+        /// </summary>
+        /// <param name="container">Container to probe</param>
+        /// <returns>A task that completes when the probe completes</returns>
         protected abstract Task Probe(IContainer container);
     }
 }

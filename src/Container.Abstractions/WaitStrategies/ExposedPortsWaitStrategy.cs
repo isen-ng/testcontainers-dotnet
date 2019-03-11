@@ -7,15 +7,24 @@ using TestContainers.Container.Abstractions.Exceptions;
 
 namespace TestContainers.Container.Abstractions.WaitStrategies
 {
+    /// <summary>
+    /// Checks if exposed ports are available to indicate if services have started
+    /// </summary>
+    /// <inheritdoc />
     public class ExposedPortsWaitStrategy : IWaitStrategy
     {
+        /// <summary>
+        /// Ports to test
+        /// </summary>
         public List<int> ExposedPorts { get; }
 
+        /// <inheritdoc />
         public ExposedPortsWaitStrategy(List<int> exposedPorts)
         {
             ExposedPorts = exposedPorts;
         }
 
+        /// <inheritdoc />
         public async Task WaitUntil(IContainer container)
         {
             var retryPolicy = Policy

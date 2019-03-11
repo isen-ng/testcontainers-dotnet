@@ -7,13 +7,17 @@ using TestContainers.Container.Abstractions.Exceptions;
 
 namespace TestContainers.Container.Abstractions.StartupStrategies
 {
+    /// <summary>
+    /// Checks if container's state is in the running state
+    /// </summary>
+    /// <inheritdoc />
     public class IsRunningStartupCheckStrategy : IStartupStrategy
     {
+        /// <inheritdoc />
         public async Task WaitUntilSuccess(IDockerClient dockerClient, string containerId)
         {
-            var retryPolicy = Policy
-                .HandleResult<ContainerState>(s => !IsContainerRunning(s)).
-                WaitAndRetryForeverAsync(retry => TimeSpan.FromSeconds(1));
+            var retryPolicy = AsyncRetryTResultSyntax.WaitAndRetryForeverAsync(Policy
+                .HandleResult<ContainerState>(s => !IsContainerRunning(s)), retry => TimeSpan.FromSeconds(1));
 
             var outcome = await Policy
                 .TimeoutAsync(TimeSpan.FromMinutes(1))
