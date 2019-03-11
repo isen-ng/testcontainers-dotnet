@@ -10,6 +10,8 @@ using TestContainers.Container.Database.AdoNet;
 namespace TestContainers.Container.Database.MsSql
 {
     /// <summary>
+    /// MsSQL Server container
+    /// 
     /// Username is always "sa"
     /// Database parameter is ignored because container does not allow creating of database
     /// Password must be:
@@ -22,26 +24,42 @@ namespace TestContainers.Container.Database.MsSql
     /// </summary>
     public class MsSqlContainer : AdoNetContainer
     {
+        /// <summary>
+        /// Default image name
+        /// </summary>
         public new const string DefaultImage = "mcr.microsoft.com/mssql/server";
+        
+        /// <summary>
+        /// Default image tag
+        /// </summary>
         public new const string DefaultTag = "2017-latest-ubuntu";
+        
+        /// <summary>
+        /// Default db port
+        /// </summary>
         public const int DefaultPort = 1433;
 
         private string _connectionString;
 
+        /// <inheritdoc />
         public override string Username => "sa";
 
+        /// <inheritdoc />
         protected override DbProviderFactory DbProviderFactory { get; } = SqlClientFactory.Instance;
 
+        /// <inheritdoc />
         public MsSqlContainer(IDockerClient dockerClient, ILoggerFactory loggerFactory)
             : base($"{DefaultImage}:{DefaultTag}", dockerClient, loggerFactory)
         {
         }
 
+        /// <inheritdoc />
         public MsSqlContainer(string dockerImageName, IDockerClient dockerClient, ILoggerFactory loggerFactory)
             : base(dockerImageName, dockerClient, loggerFactory)
         {
         }
 
+        /// <inheritdoc />
         protected override async Task ConfigureAsync()
         {
             // rigorous password validation ...
@@ -55,12 +73,14 @@ namespace TestContainers.Container.Database.MsSql
             Env.Add("SA_PASSWORD", Password);
         }
 
+        /// <inheritdoc />
         protected override Task ContainerStarted()
         {
             _connectionString = CreateConnectionStringBuilder().ConnectionString;
             return Task.CompletedTask;
         }
 
+        /// <inheritdoc />
         public override string GetConnectionString()
         {
             if (_connectionString == null)
@@ -71,6 +91,12 @@ namespace TestContainers.Container.Database.MsSql
             return _connectionString;
         }
 
+        /// <summary>
+        /// Gets a connection string with a specific database name
+        /// </summary>
+        /// <param name="databaseName">database name to use</param>
+        /// <returns>a connection string</returns>
+        /// <exception cref="InvalidOperationException">when the container has yet to start</exception>
         public string GetConnectionString(string databaseName)
         {
             if (_connectionString == null)
