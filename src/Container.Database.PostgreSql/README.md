@@ -1,4 +1,4 @@
-# MsSql Container
+# PostgreSQL Container
 
 Container to start a [PostgreSQL Server container](https://hub.docker.com/_/postgres). 
 
@@ -11,7 +11,7 @@ For more detailed examples, see our [integration tests](../../test/Container.Dat
  * default image is postgres:11-alpine 
  */
  
-var container = new ContainerBuilder<GenericContainer>()
+var container = new ContainerBuilder<PostgreSqlContainer>()
     .ConfigureDatabase(myUsername, mySaPassword, myDatabaseName)
     .Build();
 

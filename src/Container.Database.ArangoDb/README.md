@@ -1,4 +1,4 @@
-# MsSql Container
+# ArangoDB Container
 
 Container to start a [ArangoDb container](https://hub.docker.com/_/arangodb). 
 
@@ -15,7 +15,7 @@ For more detailed examples, see our [integration tests](../../test/Container.Dat
  * default image is arangodb:3.4  
  */
  
-var container = new ContainerBuilder<GenericContainer>()
+var container = new ContainerBuilder<ArangoDbContainer>()
     .ConfigureDatabase("not-used", myRootPassword, "not-used")
     .Build();
 

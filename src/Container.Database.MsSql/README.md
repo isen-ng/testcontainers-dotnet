@@ -21,7 +21,7 @@ For more detailed examples, see our [integration tests](../../test/Container.Dat
  * default image is mcr.microsoft.com/mssql/server:2017-latest-ubuntu 
  */
  
-var container = new ContainerBuilder<GenericContainer>()
+var container = new ContainerBuilder<MsSqlContainer>()
     .ConfigureDatabase("not-used", mySaPassword, "not-used")
     .Build();
 
