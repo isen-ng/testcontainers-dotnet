@@ -2,6 +2,7 @@
 
 [![codecov](https://codecov.io/gh/isen-ng/testcontainers-dotnet/branch/master/graph/badge.svg)](https://codecov.io/gh/isen-ng/testcontainers-dotnet)
 [![Sonarcloud Status](https://sonarcloud.io/api/project_badges/measure?project=testcontainers-dotnet&metric=alert_status)](https://sonarcloud.io/dashboard?id=testcontainers-dotnet)
+[![Donation](https://img.shields.io/badge/Buy-me%20a%20coffee-orange.svg)](https://paypal.me/isenng)
 
 > Testcontainers is a dotnet standard 2.0 library that supports NUnit and XUnit tests, providing lightweight, throwaway 
 instances of common databases or anything else that can run in a Docker container.
