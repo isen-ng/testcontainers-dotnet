@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Docker.DotNet;
 using Microsoft.Extensions.Logging;
 using TestContainers.Container.Abstractions.Models;
+using TestContainers.Container.Abstractions.Reaper.Filters;
 using TestContainers.Container.Abstractions.Utilities;
 using TestContainers.Container.Abstractions.Utilities.Platform;
 using TestContainers.Container.Abstractions.WaitStrategies;
@@ -28,8 +29,8 @@ namespace TestContainers.Container.Abstractions.Reaper
         private readonly BatchWorker _sendToRyukWorker;
         
         private readonly BatchWorker _connectToRyukWorker;
-
-        private readonly Dictionary<string, string> _deathNote = new Dictionary<string, string>();
+        
+        private readonly List<string> _deathNote = new List<string>();
 
         private string _ryukHost;
         
@@ -86,27 +87,12 @@ namespace TestContainers.Container.Abstractions.Reaper
         }
 
         /// <summary>
-        /// Adds labels for ryuk to kill
+        /// Adds a filter for ryuk to kill
         /// </summary>
-        /// <param name="dictionary">dictionary of labels</param>
-        public void AddToDeathNote(Dictionary<string, string> dictionary)
+        /// <param name="filter">filter to add</param>
+        public void AddToDeathNote(IFilter filter)
         {
-            foreach (var entry in dictionary)
-            {
-                _deathNote.Add(entry.Key, entry.Value);
-            }
-
-            _sendToRyukWorker.Notify();
-        }
-
-        /// <summary>
-        /// Add label for ryuk to kill
-        /// </summary>
-        /// <param name="label">label name</param>
-        /// <param name="value">label value</param>
-        public void AddToDeathNote(string label, string value)
-        {
-            _deathNote.Add(label, value);
+            _deathNote.Add(filter.ToFilterString());
             _sendToRyukWorker.Notify();
         }
 
@@ -159,28 +145,24 @@ namespace TestContainers.Container.Abstractions.Reaper
                 return;
             }
             
-            var clone = _deathNote.ToDictionary(e => e.Key, e => e.Value);
-
-            var labels = clone
-                .Select(note => $"label={note.Key}={note.Value}")
-                .Aggregate((current, next) => current + "&" + next);
-
-            var bodyBytes = Encoding.UTF8.GetBytes(labels + "\n");
+            var clone = _deathNote.ToList();
 
             try
             {
-                await _tcpWriter.WriteAsync(bodyBytes, 0, bodyBytes.Length);
-                await _tcpWriter.FlushAsync();
-                    
-                var response = await _tcpReader.ReadLineAsync();
-                while (response != null && !RyukAck.Equals(response, StringComparison.InvariantCultureIgnoreCase))
+                foreach (var filter in clone)
                 {
-                    response = await _tcpReader.ReadLineAsync();
-                }
+                    var bodyBytes = Encoding.UTF8.GetBytes(filter + "\n");
                     
-                foreach (var note in clone)
-                {
-                    _deathNote.Remove(note.Key);
+                    await _tcpWriter.WriteAsync(bodyBytes, 0, bodyBytes.Length);
+                    await _tcpWriter.FlushAsync();
+                    
+                    var response = await _tcpReader.ReadLineAsync();
+                    while (response != null && !RyukAck.Equals(response, StringComparison.InvariantCultureIgnoreCase))
+                    {
+                        response = await _tcpReader.ReadLineAsync();
+                    }
+
+                    _deathNote.Remove(filter);
                 }
             }
             catch (Exception e)

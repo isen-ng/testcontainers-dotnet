@@ -5,6 +5,7 @@ using Microsoft.Extensions.Configuration;
 using TestContainers.Container.Abstractions;
 using TestContainers.Container.Abstractions.Hosting;
 using TestContainers.Container.Abstractions.Reaper;
+using TestContainers.Container.Abstractions.Reaper.Filters;
 using Xunit;
 using Xunit.Extensions.Ordering;
 
@@ -72,7 +73,7 @@ namespace Container.Abstractions.Integration.Tests
             ResourceReaper.KillTcpConnection();
             
             // act
-            ResourceReaper.RegisterLabelForCleanup("key", "value");
+            ResourceReaper.RegisterFilterForCleanup(new LabelsFilter("key", "value"));
 
             // assert
             Assert.True(await ResourceReaper.IsConnected());

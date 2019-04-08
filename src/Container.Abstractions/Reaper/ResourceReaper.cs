@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Docker.DotNet;
 using Microsoft.Extensions.Logging.Abstractions;
+using TestContainers.Container.Abstractions.Reaper.Filters;
 using TestContainers.Container.Abstractions.Utilities.Platform;
 
 namespace TestContainers.Container.Abstractions.Reaper
@@ -81,7 +82,7 @@ namespace TestContainers.Container.Abstractions.Reaper
                         var ryukStartupTask = _ryukContainer.StartAsync();
                         await ryukStartupTask.ContinueWith(_ =>
                         {
-                            _ryukContainer.AddToDeathNote(Labels);
+                            _ryukContainer.AddToDeathNote(new LabelsFilter(Labels));
                             _ryukStartupTaskCompletionSource.SetResult(true);
                         });
                     }
@@ -96,13 +97,12 @@ namespace TestContainers.Container.Abstractions.Reaper
         }
 
         /// <summary>
-        /// Registers a label to be cleaned up after this process exits
+        /// Registers a filter to be cleaned up after this process exits
         /// </summary>
-        /// <param name="name">label name</param>
-        /// <param name="value">value</param>
-        public static void RegisterLabelForCleanup(string name, string value)
+        /// <param name="filter">filter</param>
+        public static void RegisterFilterForCleanup(IFilter filter)
         {
-            _ryukContainer.AddToDeathNote(name, value);
+            _ryukContainer.AddToDeathNote(filter);
         }
 
         internal static void KillTcpConnection()
