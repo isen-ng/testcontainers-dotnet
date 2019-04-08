@@ -115,7 +115,7 @@ namespace TestContainers.Container.Abstractions.Reaper
                 .Select(note => $"label={note.Key}={note.Value}")
                 .Aggregate((current, next) => current + "&" + next);
 
-            var bodyBytes = Encoding.UTF8.GetBytes(labels);
+            var bodyBytes = Encoding.UTF8.GetBytes(labels + "\n");
 
             // write to ryuk
             await _tcpWriter.WriteAsync(bodyBytes, 0, bodyBytes.Length);
