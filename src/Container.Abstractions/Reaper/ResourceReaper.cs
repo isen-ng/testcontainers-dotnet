@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Docker.DotNet;
+using Microsoft.Extensions.Logging.Abstractions;
 using TestContainers.Container.Abstractions.Utilities.Platform;
 
 namespace TestContainers.Container.Abstractions.Reaper
@@ -74,7 +75,8 @@ namespace TestContainers.Container.Abstractions.Reaper
                     if (_ryukStartupTaskCompletionSource == null)
                     {
                         _ryukStartupTaskCompletionSource = new TaskCompletionSource<bool>();
-                        _ryukContainer = new RyukContainer(dockerClient, platformSpecificFactory.Create());
+                        _ryukContainer = new RyukContainer(dockerClient, platformSpecificFactory.Create(),
+                            NullLoggerFactory.Instance);
 
                         var ryukStartupTask = _ryukContainer.StartAsync();
                         await ryukStartupTask.ContinueWith(_ =>
@@ -93,9 +95,29 @@ namespace TestContainers.Container.Abstractions.Reaper
             await _ryukStartupTaskCompletionSource.Task;
         }
 
-        internal static void KillTcpConnectionAsync()
+        /// <summary>
+        /// Registers a label to be cleaned up after this process exits
+        /// </summary>
+        /// <param name="name">label name</param>
+        /// <param name="value">value</param>
+        public static void RegisterLabelForCleanup(string name, string value)
+        {
+            _ryukContainer.AddToDeathNote(name, value);
+        }
+
+        internal static void KillTcpConnection()
         {
             _ryukContainer?.KillTcpConnection();
+        }
+        
+        internal static void Dispose()
+        {
+            _ryukContainer?.Dispose();
+        }
+
+        internal static Task<bool?> IsConnected()
+        {
+            return _ryukContainer?.IsConnected();
         }
 
         internal static string GetRyukContainerId()

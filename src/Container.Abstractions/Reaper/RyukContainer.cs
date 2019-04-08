@@ -6,7 +6,7 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 using Docker.DotNet;
-using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.Extensions.Logging;
 using TestContainers.Container.Abstractions.Models;
 using TestContainers.Container.Abstractions.Utilities;
 using TestContainers.Container.Abstractions.Utilities.Platform;
@@ -23,21 +23,31 @@ namespace TestContainers.Container.Abstractions.Reaper
 
         private const int RyukPort = 8080;
 
+        private readonly ILogger<RyukContainer> _logger;
+        
         private readonly BatchWorker _sendToRyukWorker;
+        
+        private readonly BatchWorker _connectToRyukWorker;
 
         private readonly Dictionary<string, string> _deathNote = new Dictionary<string, string>();
 
+        private string _ryukHost;
+        
+        private int _ryukPort;
+        
         private TcpClient _tcpClient;
-
-        private NetworkStream _tcpWriter;
-
-        private TextReader _tcpReader;
+        
+        private Stream _tcpWriter;
+            
+        private StreamReader _tcpReader;
 
         /// <inheritdoc />
-        public RyukContainer(IDockerClient dockerClient, IPlatformSpecific platformSpecific)
-            : base(platformSpecific.RyukImage, dockerClient, NullLoggerFactory.Instance)
+        public RyukContainer(IDockerClient dockerClient, IPlatformSpecific platformSpecific, ILoggerFactory loggerFactory)
+            : base(platformSpecific.RyukImage, dockerClient, loggerFactory)
         {
+            _logger = loggerFactory.CreateLogger<RyukContainer>();
             _sendToRyukWorker = new BatchWorkerFromDelegate(SendToRyuk);
+            _connectToRyukWorker = new BatchWorkerFromDelegate(ConnectToRyuk);
         }
 
         /// <inheritdoc />
@@ -61,12 +71,10 @@ namespace TestContainers.Container.Abstractions.Reaper
         /// <inheritdoc />
         protected override Task ServiceStarted()
         {
-            // persistent tcp connection to container
-            // only closed when process exits
-            _tcpClient = new TcpClient(GetDockerHostIpAddress(), GetMappedPort(RyukPort));
-            _tcpWriter = _tcpClient.GetStream();
-            _tcpReader = new StreamReader(new BufferedStream(_tcpClient.GetStream()), Encoding.UTF8);
-
+            _ryukHost = GetDockerHostIpAddress();
+            _ryukPort = GetMappedPort(RyukPort);
+            
+            _connectToRyukWorker.Notify();
             return Task.CompletedTask;
         }
 
@@ -106,9 +114,51 @@ namespace TestContainers.Container.Abstractions.Reaper
         {
             _tcpClient?.Dispose();
         }
+        
+        internal void Dispose()
+        {
+            _tcpClient?.Dispose();
+            _connectToRyukWorker.Dispose();
+        }
+        
+        internal async Task<bool?> IsConnected()
+        {
+            await _connectToRyukWorker.WaitForCurrentWorkToBeServiced();
+            await _sendToRyukWorker.WaitForCurrentWorkToBeServiced();
+            return _tcpClient?.Connected;
+        }
 
+        private Task ConnectToRyuk()
+        {
+            try
+            {
+                if (_tcpClient == null || !_tcpClient.Connected)
+                {
+                    _tcpClient = new TcpClient(_ryukHost, _ryukPort);
+                    _tcpWriter = _tcpClient.GetStream();
+                    _tcpReader = new StreamReader(new BufferedStream(_tcpClient.GetStream()), Encoding.UTF8);
+                    _sendToRyukWorker.Notify();
+                }
+                
+                _connectToRyukWorker.Notify(DateTime.UtcNow + TimeSpan.FromSeconds(4));
+            }
+            catch (Exception e)
+            {
+                _logger.LogWarning(e, "Disconnected from ryuk. Reconnecting now.");
+                _tcpClient = null;
+                _connectToRyukWorker.Notify();
+            }
+
+            return Task.CompletedTask;
+        }
+        
         private async Task SendToRyuk()
         {
+            if (_deathNote.Count <= 0)
+            {
+                return;
+            }
+            
             var clone = _deathNote.ToDictionary(e => e.Key, e => e.Value);
 
             var labels = clone
@@ -117,19 +167,26 @@ namespace TestContainers.Container.Abstractions.Reaper
 
             var bodyBytes = Encoding.UTF8.GetBytes(labels + "\n");
 
-            // write to ryuk
-            await _tcpWriter.WriteAsync(bodyBytes, 0, bodyBytes.Length);
-            await _tcpWriter.FlushAsync();
-
-            var response = await _tcpReader.ReadLineAsync();
-            while (response != null && !RyukAck.Equals(response, StringComparison.InvariantCultureIgnoreCase))
+            try
             {
-                response = await _tcpReader.ReadLineAsync();
+                await _tcpWriter.WriteAsync(bodyBytes, 0, bodyBytes.Length);
+                await _tcpWriter.FlushAsync();
+                    
+                var response = await _tcpReader.ReadLineAsync();
+                while (response != null && !RyukAck.Equals(response, StringComparison.InvariantCultureIgnoreCase))
+                {
+                    response = await _tcpReader.ReadLineAsync();
+                }
+                    
+                foreach (var note in clone)
+                {
+                    _deathNote.Remove(note.Key);
+                }
             }
-
-            foreach (var note in clone)
+            catch (Exception e)
             {
-                _deathNote.Remove(note.Key);
+                _logger.LogWarning(e, "Disconnected from ryuk while sending. Reconnecting now.");
+                _connectToRyukWorker.Notify();
             }
         }
     }

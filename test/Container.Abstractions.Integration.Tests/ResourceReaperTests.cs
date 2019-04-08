@@ -6,6 +6,7 @@ using TestContainers.Container.Abstractions;
 using TestContainers.Container.Abstractions.Hosting;
 using TestContainers.Container.Abstractions.Reaper;
 using Xunit;
+using Xunit.Extensions.Ordering;
 
 namespace Container.Abstractions.Integration.Tests
 {
@@ -35,11 +36,14 @@ namespace Container.Abstractions.Integration.Tests
             return Task.CompletedTask;
         }
 
-        [Fact]
+        /// <summary>
+        /// Must always be run last because it destroys the reaper worker
+        /// </summary>
+        [Fact, Order(int.MaxValue)]
         public async Task ShouldReapContainersWhenReaperStops()
         {
             // act
-            ResourceReaper.KillTcpConnectionAsync();
+            ResourceReaper.Dispose();
 
             // assert
             var ryukStopped = false;
@@ -59,6 +63,19 @@ namespace Container.Abstractions.Integration.Tests
                 await _dockerClient.Containers.InspectContainerAsync(_container.ContainerId));
 
             Assert.IsType<DockerContainerNotFoundException>(exception);
+        }
+        
+        [Fact]
+        public async Task ShouldReconnectIfConnectionDrops()
+        {
+            // arrange
+            ResourceReaper.KillTcpConnection();
+            
+            // act
+            ResourceReaper.RegisterLabelForCleanup("key", "value");
+
+            // assert
+            Assert.True(await ResourceReaper.IsConnected());
         }
     }
 }

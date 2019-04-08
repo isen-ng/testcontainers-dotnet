@@ -20,6 +20,8 @@ namespace TestContainers.Container.Abstractions.Utilities
         // Flag is set to indicate that more work has arrived during execution of the task
         private volatile bool _moreWork;
 
+        private volatile bool _isDisposed;
+
         // Used to communicate the task for the next work cycle to waiters.
         // This value is non-null only if there are waiters.
         private TaskCompletionSource<Task> _nextWorkCyclePromise;
@@ -86,6 +88,11 @@ namespace TestContainers.Container.Abstractions.Utilities
 
         private void Start()
         {
+            if (_isDisposed)
+            {
+                return;
+            }
+            
             // Indicate that we are starting the worker (to prevent double-starts)
             _startingCurrentWorkCycle = true;
 
@@ -228,5 +235,10 @@ namespace TestContainers.Container.Abstractions.Utilities
                 await waitForTask;
             }
         }
+
+        internal void Dispose()
+        {
+            _isDisposed = true;
+        } 
     }
 }
