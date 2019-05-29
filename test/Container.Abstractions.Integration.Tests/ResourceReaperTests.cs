@@ -3,6 +3,7 @@ using Container.Abstractions.Integration.Tests.Platforms;
 using Docker.DotNet;
 using Microsoft.Extensions.Configuration;
 using TestContainers.Container.Abstractions;
+using TestContainers.Container.Abstractions.DockerClient;
 using TestContainers.Container.Abstractions.Hosting;
 using TestContainers.Container.Abstractions.Reaper;
 using TestContainers.Container.Abstractions.Reaper.Filters;
