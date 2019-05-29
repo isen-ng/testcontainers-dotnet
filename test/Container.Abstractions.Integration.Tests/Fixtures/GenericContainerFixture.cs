@@ -79,7 +79,7 @@ namespace Container.Abstractions.Integration.Tests.Fixtures
                 })
                 .Build();
 
-            DockerClient = new DockerClientFactory().Create();
+            DockerClient = ((GenericContainer) Container).DockerClient;
         }
 
         public async Task InitializeAsync()

@@ -151,11 +151,15 @@ namespace TestContainers.Container.Abstractions.Hosting
             ConfigureServices(
                 services =>
                 {
-                    services.AddSingleton<DockerClientFactory2>();
-                    services.AddScoped(provider => 
-                        provider.GetRequiredService<DockerClientFactory2>()
-                        .Create()
-                        .Result);
+                    services.AddSingleton<IDockerClientProvider, EnvironmentDockerClientProvider>();
+                    services.AddSingleton<IDockerClientProvider, NpipeDockerClientProvider>();
+                    services.AddSingleton<IDockerClientProvider, UnixDockerClientProvider>();
+
+                    services.AddSingleton<DockerClientFactory>();
+                    services.AddScoped(provider =>
+                        provider.GetRequiredService<DockerClientFactory>()
+                            .Create()
+                            .Result);
 
                     services.AddLogging();
                 });

@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Docker.DotNet;
@@ -13,38 +12,24 @@ namespace TestContainers.Container.Abstractions.DockerClient
     /// <summary>
     /// Factory to provide docker clients based on testing different providers
     /// </summary>
-    public class DockerClientFactory2
+    public class DockerClientFactory
     {
-        private static readonly IReadOnlyList<IDockerClientProvider> OrderedDockerClientProviders;
-
-        static DockerClientFactory2()
-        {
-            OrderedDockerClientProviders = new List<IDockerClientProvider>
-                {
-                    new EnvironmentDockerClientProvider(),
-                    new NpipeDockerClientProvider(),
-                    new UnixDockerClientProvider()
-                }
-                .OrderByDescending(p => p.GetPriority())
-                .ToList();
-        }
-
-        private readonly ILogger<DockerClientFactory2> _logger;
+        private readonly ILogger<DockerClientFactory> _logger;
         private readonly AsyncLazy<DockerClientConfiguration> _configuration;
 
         /// <inheritdoc />
-        public DockerClientFactory2(ILogger<DockerClientFactory2> logger)
+        public DockerClientFactory(ILogger<DockerClientFactory> logger,
+            IEnumerable<IDockerClientProvider> dockerClientProviders)
         {
             _logger = logger;
             _configuration = new AsyncLazy<DockerClientConfiguration>(async () =>
             {
-                foreach (var provider in OrderedDockerClientProviders)
-                {
-                    if (!provider.IsApplicable)
-                    {
-                        continue;
-                    }
+                var orderedApplicableProviders = dockerClientProviders
+                    .OrderByDescending(p => p.GetPriority())
+                    .Where(p => p.IsApplicable);
 
+                foreach (var provider in orderedApplicableProviders)
+                {
                     var name = provider.GetType().Name;
                     var description = provider.Description;
 
@@ -70,51 +55,6 @@ namespace TestContainers.Container.Abstractions.DockerClient
         {
             var configuration = await _configuration.GetValueAsync(ct);
             return configuration.CreateClient();
-        }
-    }
-
-    /// <summary>
-    /// Factory to provide docker clients based on the host operating system
-    /// </summary>
-    public class DockerClientFactory
-    {
-        private static readonly DockerClientConfiguration WindowsDockerConfiguration =
-            new DockerClientConfiguration(new Uri("npipe://./pipe/docker_engine"));
-
-        private static readonly DockerClientConfiguration UnixDockerConfiguration =
-            new DockerClientConfiguration(new Uri("unix:///var/run/docker.sock"));
-
-        private readonly DockerClientConfiguration _configuration;
-
-        /// <inheritdoc />
-        public DockerClientFactory()
-        {
-            _configuration = BuildDockerConfigBasedOnOs();
-        }
-
-        /// <summary>
-        /// Creates a new DockerClient
-        /// </summary>
-        /// <returns></returns>
-        public IDockerClient Create()
-        {
-            return _configuration.CreateClient();
-        }
-
-        private static DockerClientConfiguration BuildDockerConfigBasedOnOs()
-        {
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            {
-                return WindowsDockerConfiguration;
-            }
-
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX) ||
-                RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-            {
-                return UnixDockerConfiguration;
-            }
-
-            throw new InvalidOperationException("OS is not supported for testcontainers-dotnet");
         }
     }
 }
