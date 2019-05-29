@@ -31,7 +31,7 @@ namespace TestContainers.Container.Abstractions.DockerClient
         /// </summary>
         /// <returns></returns>
         protected abstract IDockerClient CreateDockerClient();
-        
+
         /// <inheritdoc />
         public abstract int GetPriority();
 

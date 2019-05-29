@@ -10,14 +10,14 @@ namespace TestContainers.Container.Abstractions.DockerClient
     public class EnvironmentDockerClientProvider : AbstractDockerClientProvider
     {
         private const string DockerHostEnvironmentVariable = "DOCKER_HOST";
-        
+
         /// <summary>
         /// Ranks above unix, npipe and other providers
         /// </summary>
         public const int Priority = DefaultPriority + 100;
 
         private readonly string _dockerHost;
-        
+
         /// <inheritdoc />
         public override string Description => $"environment variable: [{DockerHostEnvironmentVariable}={_dockerHost}]";
 
@@ -40,7 +40,7 @@ namespace TestContainers.Container.Abstractions.DockerClient
             var uri = ValidateAndParseDockerHost(_dockerHost);
             return new DockerClientConfiguration(uri).CreateClient();
         }
-        
+
         /// <inheritdoc />
         public override int GetPriority()
         {
@@ -60,11 +60,12 @@ namespace TestContainers.Container.Abstractions.DockerClient
             {
                 throw new InvalidOperationException($"{DockerHostEnvironmentVariable} is not set");
             }
-            
+
             var uri = new Uri(dockerHost);
             if (!"tcp".Equals(uri.Scheme) && !"unix".Equals(uri.Scheme))
             {
-                throw new InvalidOperationException($"[{DockerHostEnvironmentVariable}={dockerHost}] only supports tcp and unix uri schemes.");
+                throw new InvalidOperationException(
+                    $"[{DockerHostEnvironmentVariable}={dockerHost}] only supports tcp and unix uri schemes.");
             }
 
             return uri;

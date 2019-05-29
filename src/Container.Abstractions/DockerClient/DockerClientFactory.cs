@@ -2,9 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Threading;
 using System.Threading.Tasks;
 using Docker.DotNet;
 using Microsoft.Extensions.Logging;
+using Microsoft.VisualStudio.Threading;
 
 namespace TestContainers.Container.Abstractions.DockerClient
 {
@@ -18,23 +20,23 @@ namespace TestContainers.Container.Abstractions.DockerClient
         static DockerClientFactory2()
         {
             OrderedDockerClientProviders = new List<IDockerClientProvider>
-            {
-                new EnvironmentDockerClientProvider(),
-                new NpipeDockerClientProvider(),
-                new UnixDockerClientProvider()
-            }
+                {
+                    new EnvironmentDockerClientProvider(),
+                    new NpipeDockerClientProvider(),
+                    new UnixDockerClientProvider()
+                }
                 .OrderByDescending(p => p.GetPriority())
                 .ToList();
         }
-        
+
         private readonly ILogger<DockerClientFactory2> _logger;
-        private readonly Lazy<Task<DockerClientConfiguration>> _configuration;
+        private readonly AsyncLazy<DockerClientConfiguration> _configuration;
 
         /// <inheritdoc />
         public DockerClientFactory2(ILogger<DockerClientFactory2> logger)
         {
             _logger = logger;
-            _configuration = new Lazy<Task<DockerClientConfiguration>>(async () =>
+            _configuration = new AsyncLazy<DockerClientConfiguration>(async () =>
             {
                 foreach (var provider in OrderedDockerClientProviders)
                 {
@@ -42,10 +44,10 @@ namespace TestContainers.Container.Abstractions.DockerClient
                     {
                         continue;
                     }
-                    
+
                     var name = provider.GetType().Name;
                     var description = provider.Description;
-                    
+
                     _logger.LogDebug("Testing provider: {}", name);
                     if (await provider.TryTest())
                     {
@@ -55,22 +57,22 @@ namespace TestContainers.Container.Abstractions.DockerClient
 
                     _logger.LogDebug("Provider[{}] test failed\n{}", name, description);
                 }
-                
-                throw new InvalidOperationException("There are no supported docker client providers!"); 
+
+                throw new InvalidOperationException("There are no supported docker client providers!");
             });
         }
-        
+
         /// <summary>
         /// Creates a new DockerClient
         /// </summary>
         /// <returns></returns>
-        public async Task<IDockerClient> Create()
+        public async Task<IDockerClient> Create(CancellationToken ct = default(CancellationToken))
         {
-            var configuration = await _configuration.Value;
+            var configuration = await _configuration.GetValueAsync(ct);
             return configuration.CreateClient();
         }
     }
-    
+
     /// <summary>
     /// Factory to provide docker clients based on the host operating system
     /// </summary>

@@ -13,7 +13,7 @@ namespace TestContainers.Container.Abstractions.DockerClient
         /// Describes the provider and it's properties
         /// </summary>
         string Description { get; }
-        
+
         /// <summary>
         /// Indicates whether this provider is applicable based on environment
         /// </summary>
@@ -31,7 +31,7 @@ namespace TestContainers.Container.Abstractions.DockerClient
         /// </summary>
         /// <returns>Docker configuration used to create IDockerClients</returns>
         DockerClientConfiguration GetConfiguration();
-        
+
         /// <summary>
         /// Tests if this provider actually works, if applicable
         /// </summary>

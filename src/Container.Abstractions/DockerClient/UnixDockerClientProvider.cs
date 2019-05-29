@@ -10,7 +10,7 @@ namespace TestContainers.Container.Abstractions.DockerClient
     public class UnixDockerClientProvider : AbstractDockerClientProvider
     {
         private const string UnixSocket = "unix:///var/run/docker.sock";
-        
+
         /// <summary>
         /// Default provider; default priority
         /// </summary>
@@ -40,13 +40,13 @@ namespace TestContainers.Container.Abstractions.DockerClient
         {
             return _dockerConfiguration.CreateClient();
         }
-        
+
         /// <inheritdoc />
         public override int GetPriority()
         {
             return Priority;
         }
-        
+
         /// <inheritdoc />
         public override DockerClientConfiguration GetConfiguration()
         {

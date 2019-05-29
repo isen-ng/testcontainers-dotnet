@@ -10,7 +10,7 @@ namespace TestContainers.Container.Abstractions.DockerClient
     public class NpipeDockerClientProvider : AbstractDockerClientProvider
     {
         private const string Npipe = "npipe://./pipe/docker_engine";
-        
+
         /// <summary>
         /// Default provider; default priority
         /// </summary>
@@ -39,13 +39,13 @@ namespace TestContainers.Container.Abstractions.DockerClient
         {
             return _dockerConfiguration.CreateClient();
         }
-        
+
         /// <inheritdoc />
         public override int GetPriority()
         {
             return Priority;
         }
-        
+
         /// <inheritdoc />
         public override DockerClientConfiguration GetConfiguration()
         {
