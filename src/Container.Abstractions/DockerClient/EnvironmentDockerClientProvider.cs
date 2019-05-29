@@ -25,8 +25,8 @@ namespace TestContainers.Container.Abstractions.DockerClient
         /// Applicable if os is OSX or Linux based
         /// </summary>
         public override bool IsApplicable =>
-            !string.IsNullOrWhiteSpace(_dockerHost) && _dockerHost.StartsWith("tcp") ||
-            RuntimeInformation.IsOSPlatform(OSPlatform.Linux);
+            !string.IsNullOrWhiteSpace(_dockerHost) &&
+            (RuntimeInformation.IsOSPlatform(OSPlatform.Linux) || _dockerHost.StartsWith("tcp"));
 
         /// <inheritdoc />
         public EnvironmentDockerClientProvider()
