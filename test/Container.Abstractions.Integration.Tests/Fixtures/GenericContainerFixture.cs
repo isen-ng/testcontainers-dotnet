@@ -49,7 +49,11 @@ namespace Container.Abstractions.Integration.Tests.Fixtures
                 .ConfigureHostConfiguration(builder => builder.AddInMemoryCollection())
                 .ConfigureAppConfiguration((context, builder) => builder.AddInMemoryCollection())
                 .ConfigureDockerImageName(PlatformSpecific.TinyDockerImage)
-                .ConfigureLogging(builder => builder.AddConsole())
+                .ConfigureLogging(builder =>
+                {
+                    builder.AddConsole();
+                    builder.SetMinimumLevel(LogLevel.Debug);
+                })
                 .ConfigureContainer((context, container) =>
                 {
                     container.Labels.Add(CustomLabel.Key, CustomLabel.Value);
