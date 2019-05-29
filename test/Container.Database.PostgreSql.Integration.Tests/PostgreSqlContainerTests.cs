@@ -1,6 +1,7 @@
 using System;
 using System.Threading.Tasks;
 using Container.Database.PostgreSql.Integration.Tests.Fixtures;
+using Microsoft.Extensions.Logging;
 using Npgsql;
 using TestContainers.Container.Abstractions.Hosting;
 using TestContainers.Container.Database.Hosting;
@@ -19,6 +20,11 @@ namespace Container.Database.PostgreSql.Integration.Tests
                 // arrange
                 var container = new ContainerBuilder<PostgreSqlContainer>()
                     .ConfigureDatabaseConfiguration("not-important", "not-important", "not-important")
+                    .ConfigureLogging(builder =>
+                    {
+                        builder.AddConsole();
+                        builder.SetMinimumLevel(LogLevel.Debug);
+                    })
                     .Build();
 
                 // act
@@ -37,6 +43,11 @@ namespace Container.Database.PostgreSql.Integration.Tests
                 const string database = "my db 1234";
                 var container = new ContainerBuilder<PostgreSqlContainer>()
                     .ConfigureDatabaseConfiguration(username, password, database)
+                    .ConfigureLogging(builder =>
+                    {
+                        builder.AddConsole();
+                        builder.SetMinimumLevel(LogLevel.Debug);
+                    })
                     .Build();
 
                 // act

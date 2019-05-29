@@ -1,4 +1,5 @@
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using TestContainers.Container.Abstractions.Hosting;
 using TestContainers.Container.Database.ArangoDb;
 using TestContainers.Container.Database.Hosting;
@@ -19,6 +20,11 @@ namespace Container.Database.ArangoDb.Integration.Tests.Fixtures
             Container = new ContainerBuilder<ArangoDbContainer>()
                 .ConfigureDockerImageName("arangodb:3.4.3")
                 .ConfigureDatabaseConfiguration("not-used", Password, "not-used")
+                .ConfigureLogging(builder =>
+                {
+                    builder.AddConsole();
+                    builder.SetMinimumLevel(LogLevel.Debug);
+                })
                 .Build();
         }
 

@@ -1,5 +1,6 @@
 using System.Threading.Tasks;
 using Container.Test.Utility;
+using Microsoft.Extensions.Logging;
 using TestContainers.Container.Abstractions.Hosting;
 using TestContainers.Container.Database.ArangoDb;
 using TestContainers.Container.Database.Hosting;
@@ -23,6 +24,11 @@ namespace Container.Database.ArangoDb.Integration.Tests.Fixtures
                 .ConfigureDockerImageName("arangodb:3.4.3")
                 .ConfigureDatabaseConfiguration("not-used", Password, "not-used")
                 .ConfigureContainer((h, c) => { c.PortBindings.Add(ArangoDbContainer.DefaultPort, MyPort); })
+                .ConfigureLogging(builder =>
+                {
+                    builder.AddConsole();
+                    builder.SetMinimumLevel(LogLevel.Debug);
+                })
                 .Build();
         }
 
