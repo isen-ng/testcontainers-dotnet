@@ -33,7 +33,7 @@ namespace Container.Abstractions.Tests.DockerClient
 
             // act
             var result = await factory.Create();
-            
+
             // assert
             Assert.Equal(mockConfig, result.Configuration);
         }

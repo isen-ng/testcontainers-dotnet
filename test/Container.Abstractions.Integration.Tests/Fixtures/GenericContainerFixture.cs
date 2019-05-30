@@ -7,7 +7,6 @@ using Docker.DotNet;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using TestContainers.Container.Abstractions;
-using TestContainers.Container.Abstractions.DockerClient;
 using TestContainers.Container.Abstractions.Hosting;
 using TestContainers.Container.Abstractions.Models;
 using Xunit;

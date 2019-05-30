@@ -1,5 +1,6 @@
 using System.Threading.Tasks;
 using Container.Test.Utility;
+using Microsoft.Extensions.Logging;
 using TestContainers.Container.Abstractions.Hosting;
 using TestContainers.Container.Database.Hosting;
 using TestContainers.Container.Database.PostgreSql;
@@ -25,6 +26,11 @@ namespace Container.Database.PostgreSql.Integration.Tests.Fixtures
                 .ConfigureDockerImageName("postgres:11-alpine")
                 .ConfigureDatabaseConfiguration(Username, Password, DatabaseName)
                 .ConfigureContainer((h, c) => { c.PortBindings.Add(PostgreSqlContainer.DefaultPort, MyPort); })
+                .ConfigureLogging(builder =>
+                {
+                    builder.AddConsole();
+                    builder.SetMinimumLevel(LogLevel.Debug);
+                })
                 .Build();
         }
 

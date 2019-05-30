@@ -52,7 +52,7 @@ namespace Container.Abstractions.Tests.DockerClient
 
                 // assert
                 Assert.Equal(
-                    RuntimeInformation.IsOSPlatform(OSPlatform.Linux) | 
+                    RuntimeInformation.IsOSPlatform(OSPlatform.Linux) |
                     RuntimeInformation.IsOSPlatform(OSPlatform.OSX),
                     result);
             }
