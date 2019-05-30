@@ -88,3 +88,13 @@ var container = new ContainerBuilder<GenericContainer>()
     .Build();
 ```
 
+## Configuring TestContainers-dotnet
+
+There are some configurations to testcontainers-dotnet that cannot be performed in code or injected. 
+These configuration can be set in environment variables before the first instance of your container is built.
+
+ | Variable        | Default                           | Description
+ |-----------------|-----------------------------------|------------
+ | REAPER_DISABLED | (not-set)                         | When set to `1` or `true`, disables starting of the reaper container
+ | REAPER_IMAGE    | quay.io/testcontainers/ryuk:0.2.3 | Change which container image to use for reaper
+ 

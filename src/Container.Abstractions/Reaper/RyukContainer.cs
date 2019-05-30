@@ -10,7 +10,6 @@ using Microsoft.Extensions.Logging;
 using TestContainers.Container.Abstractions.Models;
 using TestContainers.Container.Abstractions.Reaper.Filters;
 using TestContainers.Container.Abstractions.Utilities;
-using TestContainers.Container.Abstractions.Utilities.Platform;
 using TestContainers.Container.Abstractions.WaitStrategies;
 
 namespace TestContainers.Container.Abstractions.Reaper
@@ -25,26 +24,26 @@ namespace TestContainers.Container.Abstractions.Reaper
         private const int RyukPort = 8080;
 
         private readonly ILogger<RyukContainer> _logger;
-        
+
         private readonly BatchWorker _sendToRyukWorker;
-        
+
         private readonly BatchWorker _connectToRyukWorker;
-        
+
         private readonly List<string> _deathNote = new List<string>();
 
         private string _ryukHost;
-        
+
         private int _ryukPort;
-        
+
         private TcpClient _tcpClient;
-        
+
         private Stream _tcpWriter;
-            
+
         private StreamReader _tcpReader;
 
         /// <inheritdoc />
-        public RyukContainer(IDockerClient dockerClient, IPlatformSpecific platformSpecific, ILoggerFactory loggerFactory)
-            : base(platformSpecific.RyukImage, dockerClient, loggerFactory)
+        public RyukContainer(string ryukImage, IDockerClient dockerClient, ILoggerFactory loggerFactory)
+            : base(ryukImage, dockerClient, loggerFactory)
         {
             _logger = loggerFactory.CreateLogger<RyukContainer>();
             _sendToRyukWorker = new BatchWorkerFromDelegate(SendToRyuk);
@@ -74,7 +73,7 @@ namespace TestContainers.Container.Abstractions.Reaper
         {
             _ryukHost = GetDockerHostIpAddress();
             _ryukPort = GetMappedPort(RyukPort);
-            
+
             _connectToRyukWorker.Notify();
             return Task.CompletedTask;
         }
@@ -100,13 +99,13 @@ namespace TestContainers.Container.Abstractions.Reaper
         {
             _tcpClient?.Dispose();
         }
-        
+
         internal void Dispose()
         {
             _tcpClient?.Dispose();
             _connectToRyukWorker.Dispose();
         }
-        
+
         internal async Task<bool?> IsConnected()
         {
             await _connectToRyukWorker.WaitForCurrentWorkToBeServiced();
@@ -125,7 +124,7 @@ namespace TestContainers.Container.Abstractions.Reaper
                     _tcpReader = new StreamReader(new BufferedStream(_tcpClient.GetStream()), Encoding.UTF8);
                     _sendToRyukWorker.Notify();
                 }
-                
+
                 _connectToRyukWorker.Notify(DateTime.UtcNow + TimeSpan.FromSeconds(4));
             }
             catch (Exception e)
@@ -137,14 +136,14 @@ namespace TestContainers.Container.Abstractions.Reaper
 
             return Task.CompletedTask;
         }
-        
+
         private async Task SendToRyuk()
         {
             if (_deathNote.Count <= 0)
             {
                 return;
             }
-            
+
             var clone = _deathNote.ToList();
 
             try
@@ -152,10 +151,10 @@ namespace TestContainers.Container.Abstractions.Reaper
                 foreach (var filter in clone)
                 {
                     var bodyBytes = Encoding.UTF8.GetBytes(filter + "\n");
-                    
+
                     await _tcpWriter.WriteAsync(bodyBytes, 0, bodyBytes.Length);
                     await _tcpWriter.FlushAsync();
-                    
+
                     var response = await _tcpReader.ReadLineAsync();
                     while (response != null && !RyukAck.Equals(response, StringComparison.InvariantCultureIgnoreCase))
                     {

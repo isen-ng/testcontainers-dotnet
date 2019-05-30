@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using Docker.DotNet;
 using Microsoft.Extensions.Logging.Abstractions;
 using TestContainers.Container.Abstractions.Reaper.Filters;
-using TestContainers.Container.Abstractions.Utilities.Platform;
 
 namespace TestContainers.Container.Abstractions.Reaper
 {
@@ -14,6 +13,8 @@ namespace TestContainers.Container.Abstractions.Reaper
     /// </summary>
     public static class ResourceReaper
     {
+        private const string DefaultRyukImage = "quay.io/testcontainers/ryuk:0.2.3";
+
         /// <summary>
         /// Class label name applied to containers created by this library
         /// </summary>
@@ -58,13 +59,10 @@ namespace TestContainers.Container.Abstractions.Reaper
                 return;
             }
 
-            // todo: Remove this when ryuk for windows is complete
-            var platformSpecificFactory = new PlatformSpecificFactory();
-            if (platformSpecificFactory.IsWindows())
+            var ryukImage = Environment.GetEnvironmentVariable("REAPER_IMAGE");
+            if (string.IsNullOrWhiteSpace(ryukImage))
             {
-                // don't start resource reaper for windows
-                // because ryuk for windows is not developed yet
-                return;
+                ryukImage = DefaultRyukImage;
             }
 
             if (_ryukStartupTaskCompletionSource == null)
@@ -76,8 +74,7 @@ namespace TestContainers.Container.Abstractions.Reaper
                     if (_ryukStartupTaskCompletionSource == null)
                     {
                         _ryukStartupTaskCompletionSource = new TaskCompletionSource<bool>();
-                        _ryukContainer = new RyukContainer(dockerClient, platformSpecificFactory.Create(),
-                            NullLoggerFactory.Instance);
+                        _ryukContainer = new RyukContainer(ryukImage, dockerClient, NullLoggerFactory.Instance);
 
                         var ryukStartupTask = _ryukContainer.StartAsync();
                         await ryukStartupTask.ContinueWith(_ =>
@@ -109,7 +106,7 @@ namespace TestContainers.Container.Abstractions.Reaper
         {
             _ryukContainer?.KillTcpConnection();
         }
-        
+
         internal static void Dispose()
         {
             _ryukContainer?.Dispose();
