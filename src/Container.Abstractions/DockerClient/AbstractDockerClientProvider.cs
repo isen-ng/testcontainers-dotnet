@@ -1,10 +1,8 @@
 using System;
-using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using Docker.DotNet;
 using Polly;
-using Polly.Timeout;
 
 namespace TestContainers.Container.Abstractions.DockerClient
 {
@@ -42,9 +40,9 @@ namespace TestContainers.Container.Abstractions.DockerClient
         /// <inheritdoc />
         public async Task<bool> TryTest(CancellationToken ct = default(CancellationToken))
         {
-            using (var client = CreateDockerClient())
+            try
             {
-                try
+                using (var client = CreateDockerClient())
                 {
                     var exceptionPolicy = Policy
                         .Handle<Exception>()
@@ -59,10 +57,10 @@ namespace TestContainers.Container.Abstractions.DockerClient
                             return true;
                         });
                 }
-                catch (Exception)
-                {
-                    return false;
-                }
+            }
+            catch (Exception)
+            {
+                return false;
             }
         }
     }
