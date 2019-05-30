@@ -4,12 +4,6 @@ solution: testcontainers-dotnet.sln
 
 mono: none
 dotnet: 2.1.502
-
-#addons:
-#  sonarcloud:
-#    organization: "isen-ng-github"
-#    token:
-#      secure: $SONAR_TOKEN
       
 install:
   - dotnet restore
