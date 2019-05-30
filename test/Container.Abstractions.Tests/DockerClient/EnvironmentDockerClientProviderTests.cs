@@ -1,5 +1,6 @@
 using System;
 using System.Runtime.InteropServices;
+using System.Threading.Tasks;
 using TestContainers.Container.Abstractions.DockerClient;
 using Xunit;
 
@@ -20,6 +21,54 @@ namespace Container.Abstractions.Tests.DockerClient
 
                 // assert
                 Assert.Equal(200, result);
+            }
+        }
+
+        public class TryTest : EnvironmentDockerClientProviderTests
+        {
+            [Fact]
+            public async Task ShouldThrowInvalidOperationExceptionIfDockerHostNotSet()
+            {
+                // arrange
+                var provider = new EnvironmentDockerClientProvider();
+                
+                // act
+                var ex = await Record.ExceptionAsync(async () => await provider.TryTest());
+                
+                // assert
+                Assert.IsType<InvalidOperationException>(ex);
+            }
+            
+            [Fact]
+            public async Task ShouldThrowInvalidOperationExceptionIfDockerHostDoesNotStartWithTcpOrUnix()
+            {
+                // arrange
+                const string mockDockerHostUri = "???://my-mock-docker-host";
+                Environment.SetEnvironmentVariable(EnvironmentDockerClientProvider.DockerHostEnvironmentVariable,
+                    mockDockerHostUri);
+                var provider = new EnvironmentDockerClientProvider();
+                
+                // act
+                var ex = await Record.ExceptionAsync(async () => await provider.TryTest());
+                
+                // assert
+                Assert.IsType<InvalidOperationException>(ex);
+            }
+            
+            [Fact]
+            public async Task ShouldReturnFalseIfDockerDoesNotExistAtDockerHost()
+            {
+                // arrange
+                const string mockDockerHostUri = "tcp://my-mock-docker-host";
+                Environment.SetEnvironmentVariable(EnvironmentDockerClientProvider.DockerHostEnvironmentVariable,
+                    mockDockerHostUri);
+                var provider = new EnvironmentDockerClientProvider();
+
+                // act
+                var result = await provider.TryTest();
+                
+                // assert
+                Assert.False(result);
             }
         }
 
