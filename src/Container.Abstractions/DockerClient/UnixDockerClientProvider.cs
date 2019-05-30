@@ -9,7 +9,7 @@ namespace TestContainers.Container.Abstractions.DockerClient
     /// </summary>
     public class UnixDockerClientProvider : AbstractDockerClientProvider
     {
-        private const string UnixSocket = "unix:///var/run/docker.sock";
+        internal const string UnixSocket = "unix:///var/run/docker.sock";
 
         /// <summary>
         /// Default provider; default priority

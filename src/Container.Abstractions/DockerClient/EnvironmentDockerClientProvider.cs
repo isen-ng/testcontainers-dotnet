@@ -9,7 +9,7 @@ namespace TestContainers.Container.Abstractions.DockerClient
     /// </summary>
     public class EnvironmentDockerClientProvider : AbstractDockerClientProvider
     {
-        private const string DockerHostEnvironmentVariable = "DOCKER_HOST";
+        internal const string DockerHostEnvironmentVariable = "DOCKER_HOST";
 
         /// <summary>
         /// Ranks above unix, npipe and other providers
