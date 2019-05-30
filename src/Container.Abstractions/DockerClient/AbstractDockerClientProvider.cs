@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using Docker.DotNet;
@@ -58,7 +59,7 @@ namespace TestContainers.Container.Abstractions.DockerClient
                             return true;
                         });
                 }
-                catch (TimeoutRejectedException)
+                catch (Exception)
                 {
                     return false;
                 }
