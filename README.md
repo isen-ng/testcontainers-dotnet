@@ -45,7 +45,7 @@ Windows: [![Build status](https://ci.appveyor.com/api/projects/status/4hcmw8qnlp
 
 For more examples, see [integration tests](test/Container.Abstractions.Integration.Tests/Fixtures/GenericContainerFixture.cs)
 
-```
+```csharp
 var container = new ContainerBuilder<GenericContainer>()
     .ConfigureHostConfiguration(builder => builder.AddInMemoryCollection()) // host settings
     .ConfigureAppConfiguration((context, builder) => builder.AddInMemoryCollection()) // app settings
