@@ -34,8 +34,9 @@ namespace TestContainers.Container.Abstractions
 
         /// <summary>
         /// DockerClient used to perform docker operations
+        /// Exposed for unit testing
         /// </summary>
-        protected IDockerClient DockerClient { get; }
+        internal IDockerClient DockerClient { get; }
 
         /// <summary>
         /// Name of the container after it has started
@@ -191,7 +192,7 @@ namespace TestContainers.Container.Abstractions
                 throw new InvalidOperationException(
                     "Container must be started before mapped ports can be retrieved");
             }
-            
+
             var parameters = new ContainerExecCreateParameters
             {
                 AttachStderr = true,

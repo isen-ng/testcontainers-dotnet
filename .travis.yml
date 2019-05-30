@@ -4,7 +4,7 @@ solution: testcontainers-dotnet.sln
 
 mono: none
 dotnet: 2.1.502
-
+      
 install:
   - dotnet restore
   - dotnet tool install --global dotnet-sonarscanner
@@ -13,9 +13,9 @@ before_script:
   - export PATH="$PATH:$HOME/.dotnet/tools"
   
 script:
-  - dotnet sonarscanner begin /k:"testcontainers-dotnet" /o:"isen-ng-github" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.login="2457b2d28e2da7ba84edcf68b53e9650217c5b44"
+  - dotnet sonarscanner begin /k:"testcontainers-dotnet" /o:"isen-ng-github" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.login="$SONAR_TOKEN"
   - dotnet build
-  - dotnet sonarscanner end /d:sonar.login="2457b2d28e2da7ba84edcf68b53e9650217c5b44"
+  - dotnet sonarscanner end /d:sonar.login="$SONAR_TOKEN"
   - dotnet test /p:CollectCoverage=true /p:CoverletOutputFormat='json%2copencover' /p:CoverletOutput=../bin/coverage/ /p:MergeWith='../bin/coverage/coverage.json'
     
 after_success:

@@ -1,5 +1,6 @@
 using System.Threading.Tasks;
 using Container.Test.Utility;
+using Microsoft.Extensions.Logging;
 using TestContainers.Container.Abstractions.Hosting;
 using TestContainers.Container.Database.Hosting;
 using TestContainers.Container.Database.MsSql;
@@ -23,6 +24,11 @@ namespace Container.Database.MsSql.Integration.Tests.Fixtures
                 .ConfigureDockerImageName("mcr.microsoft.com/mssql/server:2017-latest-ubuntu")
                 .ConfigureDatabaseConfiguration("not-used", Password, "not-used")
                 .ConfigureContainer((h, c) => { c.PortBindings.Add(MsSqlContainer.DefaultPort, MyPort); })
+                .ConfigureLogging(builder =>
+                {
+                    builder.AddConsole();
+                    builder.SetMinimumLevel(LogLevel.Debug);
+                })
                 .Build();
         }
 

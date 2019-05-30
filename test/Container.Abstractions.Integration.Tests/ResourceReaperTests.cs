@@ -24,7 +24,7 @@ namespace Container.Abstractions.Integration.Tests
                 .ConfigureDockerImageName(PlatformHelper.GetPlatform().TinyDockerImage)
                 .Build();
 
-            _dockerClient = new DockerClientFactory().Create();
+            _dockerClient = ((GenericContainer) _container).DockerClient;
         }
 
         public Task InitializeAsync()
@@ -65,13 +65,13 @@ namespace Container.Abstractions.Integration.Tests
 
             Assert.IsType<DockerContainerNotFoundException>(exception);
         }
-        
+
         [Fact]
         public async Task ShouldReconnectIfConnectionDrops()
         {
             // arrange
             ResourceReaper.KillTcpConnection();
-            
+
             // act
             ResourceReaper.RegisterFilterForCleanup(new LabelsFilter("key", "value"));
 

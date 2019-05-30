@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using TestContainers.Container.Abstractions.DockerClient;
 
 namespace TestContainers.Container.Abstractions.Hosting
 {
@@ -150,9 +151,15 @@ namespace TestContainers.Container.Abstractions.Hosting
             ConfigureServices(
                 services =>
                 {
+                    services.AddSingleton<IDockerClientProvider, EnvironmentDockerClientProvider>();
+                    services.AddSingleton<IDockerClientProvider, NpipeDockerClientProvider>();
+                    services.AddSingleton<IDockerClientProvider, UnixDockerClientProvider>();
+
                     services.AddSingleton<DockerClientFactory>();
-                    services.AddScoped(provider => provider.GetRequiredService<DockerClientFactory>()
-                        .Create());
+                    services.AddScoped(provider =>
+                        provider.GetRequiredService<DockerClientFactory>()
+                            .Create()
+                            .Result);
 
                     services.AddLogging();
                 });
