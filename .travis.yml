@@ -1,9 +1,9 @@
+dist: bionic
 language: csharp
+mono: none
+dotnet: 2.2.300
 
 solution: testcontainers-dotnet.sln
-
-mono: none
-dotnet: 2.2.200
       
 install:
   - dotnet restore
