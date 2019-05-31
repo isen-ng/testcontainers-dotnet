@@ -3,7 +3,7 @@ language: csharp
 solution: testcontainers-dotnet.sln
 
 mono: none
-dotnet: 2.2.300
+dotnet: 2.2.200
       
 install:
   - dotnet restore
