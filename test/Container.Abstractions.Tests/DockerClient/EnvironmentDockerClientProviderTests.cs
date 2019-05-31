@@ -27,21 +27,21 @@ namespace Container.Abstractions.Tests.DockerClient
         public class TryTest : EnvironmentDockerClientProviderTests
         {
             [Fact]
-            public async Task ShouldThrowInvalidOperationExceptionIfDockerHostNotSet()
+            public async Task ShouldReturnFalseIfDockerHostNotSet()
             {
                 // arrange
                 Environment.SetEnvironmentVariable(EnvironmentDockerClientProvider.DockerHostEnvironmentVariable, "");
                 var provider = new EnvironmentDockerClientProvider();
 
                 // act
-                var ex = await Record.ExceptionAsync(async () => await provider.TryTest());
+                var result = await provider.TryTest();
 
                 // assert
-                Assert.IsType<InvalidOperationException>(ex);
+                Assert.False(result);
             }
 
             [Fact]
-            public async Task ShouldThrowInvalidOperationExceptionIfDockerHostDoesNotStartWithTcpOrUnix()
+            public async Task ShouldTReturnFalseIfDockerHostDoesNotStartWithTcpOrUnix()
             {
                 // arrange
                 const string mockDockerHostUri = "http://my-mock-docker-host";
@@ -50,10 +50,10 @@ namespace Container.Abstractions.Tests.DockerClient
                 var provider = new EnvironmentDockerClientProvider();
 
                 // act
-                var ex = await Record.ExceptionAsync(async () => await provider.TryTest());
+                var result = await provider.TryTest();
 
                 // assert
-                Assert.IsType<InvalidOperationException>(ex);
+                Assert.False(result);
             }
 
             [Fact]
