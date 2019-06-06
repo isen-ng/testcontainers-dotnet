@@ -16,7 +16,7 @@ namespace TestContainers.Container.Abstractions.Reaper.Filters
         {
             _labels = new Dictionary<string, string>
             {
-                {name, value}
+                { name, value }
             };
         }
 

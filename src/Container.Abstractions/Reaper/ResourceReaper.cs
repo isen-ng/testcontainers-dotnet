@@ -35,8 +35,8 @@ namespace TestContainers.Container.Abstractions.Reaper
         /// </summary>
         public static readonly Dictionary<string, string> Labels = new Dictionary<string, string>
         {
-            {TestContainerLabelName, "true"},
-            {TestContainerSessionLabelName, SessionId}
+            { TestContainerLabelName, "true" },
+            { TestContainerSessionLabelName, SessionId }
         };
 
         private static readonly SemaphoreSlim InitLock = new SemaphoreSlim(1, 1);

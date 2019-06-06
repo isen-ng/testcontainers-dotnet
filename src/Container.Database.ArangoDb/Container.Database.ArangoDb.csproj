@@ -1,35 +1,35 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-    <PropertyGroup>
-        <TargetFramework>netstandard2.0</TargetFramework>
-        <RootNamespace>TestContainers.Container.Database.ArangoDb</RootNamespace>
-        <IncludeSymbols>true</IncludeSymbols>
-        <SymbolPackageFormat>snupkg</SymbolPackageFormat>
-        <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    </PropertyGroup>
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <RootNamespace>TestContainers.Container.Database.ArangoDb</RootNamespace>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+  </PropertyGroup>
 
-    <PropertyGroup>
-        <AssemblyName>TestContainers.Container.Database.ArangoDb</AssemblyName>
-        <Description>DotNet port of testcontainers.org</Description>
+  <PropertyGroup>
+    <AssemblyName>TestContainers.Container.Database.ArangoDb</AssemblyName>
+    <Description>DotNet port of testcontainers.org</Description>
 
-        <Version>1.2.0</Version>
-        <Authors>Isen Ng</Authors>
+    <Version>1.2.0</Version>
+    <Authors>Isen Ng</Authors>
 
-        <PackageProjectUrl>https://github.com/isen-ng/testcontainers-dotnet</PackageProjectUrl>
-        <PackageLicenseUrl>https://raw.githubusercontent.com/isen-ng/testcontainers-dotnet/master/LICENSE</PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/isen-ng/testcontainers-dotnet</PackageProjectUrl>
+    <PackageLicenseUrl>https://raw.githubusercontent.com/isen-ng/testcontainers-dotnet/master/LICENSE</PackageLicenseUrl>
 
-        <RepositoryUrl>https://github.com/isen-ng/testcontainers-dotnet</RepositoryUrl>
-        <RepositoryType>git</RepositoryType>
+    <RepositoryUrl>https://github.com/isen-ng/testcontainers-dotnet</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
 
-        <PackageTags>testcontainers docker test tests testing nunit xunit integration database arangodb</PackageTags>
-    </PropertyGroup>
-    
-    <ItemGroup>
-         <ProjectReference Include="..\Container.Database\Container.Database.csproj" />
-    </ItemGroup>
+    <PackageTags>testcontainers docker test tests testing nunit xunit integration database arangodb</PackageTags>
+  </PropertyGroup>
 
-    <ItemGroup>
-         <PackageReference Include="ArangoDB.Client" Version="0.7.70" />
-    </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Container.Database\Container.Database.csproj"/>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="ArangoDB.Client" Version="0.7.70"/>
+  </ItemGroup>
 
 </Project>

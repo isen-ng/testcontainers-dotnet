@@ -20,7 +20,7 @@ namespace TestContainers.Container.Database.PostgreSql
         public new const string DefaultImage = "postgres";
 
         /// <summary>
-        /// Default image tag 
+        /// Default image tag
         /// </summary>
         public new const string DefaultTag = "11-alpine";
 

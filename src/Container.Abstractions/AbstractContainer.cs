@@ -215,7 +215,7 @@ namespace TestContainers.Container.Abstractions
         }
 
         /// <summary>
-        /// Hook before starting the container 
+        /// Hook before starting the container
         /// </summary>
         protected virtual Task ContainerStarting()
         {
@@ -223,7 +223,7 @@ namespace TestContainers.Container.Abstractions
         }
 
         /// <summary>
-        /// Hook after starting the container 
+        /// Hook after starting the container
         /// </summary>
         protected virtual Task ContainerStarted()
         {
@@ -231,7 +231,7 @@ namespace TestContainers.Container.Abstractions
         }
 
         /// <summary>
-        /// Hook after service in container started 
+        /// Hook after service in container started
         /// </summary>
         protected virtual Task ServiceStarted()
         {
@@ -239,7 +239,7 @@ namespace TestContainers.Container.Abstractions
         }
 
         /// <summary>
-        /// Hook before stopping the container 
+        /// Hook before stopping the container
         /// </summary>
         protected virtual Task ContainerStopping()
         {
@@ -247,7 +247,7 @@ namespace TestContainers.Container.Abstractions
         }
 
         /// <summary>
-        /// Hook after stopping the container 
+        /// Hook after stopping the container
         /// </summary>
         protected virtual Task ContainerStopped()
         {
@@ -408,7 +408,7 @@ namespace TestContainers.Container.Abstractions
                     new ContainerLogsParameters
                     {
                         ShowStderr = true,
-                        ShowStdout = true,
+                        ShowStdout = true
                     },
                     ct))
                 {

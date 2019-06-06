@@ -23,13 +23,14 @@ namespace Container.Abstractions.Tests.DockerClient
             var provider3 = new MockDockerClientProvider(true, 100, () => null, ct => Task.FromResult(true));
             var provider4 = new MockDockerClientProvider(true, 20000, () => null, ct => Task.FromResult(false));
 
-            var factory = new DockerClientFactory(new NullLogger<DockerClientFactory>(), new List<IDockerClientProvider>
-            {
-                provider1,
-                provider2,
-                provider3,
-                provider4
-            });
+            var factory = new DockerClientFactory(new NullLogger<DockerClientFactory>(),
+                new List<IDockerClientProvider>
+                {
+                    provider1,
+                    provider2,
+                    provider3,
+                    provider4
+                });
 
             // act
             var result = await factory.Create();
