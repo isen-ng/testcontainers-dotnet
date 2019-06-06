@@ -55,7 +55,7 @@ namespace TestContainers.Container.Abstractions.Reaper
         {
             await base.ConfigureAsync();
 
-            WaitStrategy = new ExposedPortsWaitStrategy(new List<int> {RyukPort});
+            WaitStrategy = new ExposedPortsWaitStrategy(new List<int> { RyukPort });
             ExposedPorts.Add(RyukPort);
 
             BindMounts.Add(new Bind

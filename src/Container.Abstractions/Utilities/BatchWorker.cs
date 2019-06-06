@@ -92,7 +92,7 @@ namespace TestContainers.Container.Abstractions.Utilities
             {
                 return;
             }
-            
+
             // Indicate that we are starting the worker (to prevent double-starts)
             _startingCurrentWorkCycle = true;
 
@@ -239,6 +239,6 @@ namespace TestContainers.Container.Abstractions.Utilities
         internal void Dispose()
         {
             _isDisposed = true;
-        } 
+        }
     }
 }

@@ -20,7 +20,7 @@ namespace Container.Abstractions.Integration.Tests.Platforms
 
         public string[] PwdCommand()
         {
-            return new[] {"pwd"};
+            return new[] { "pwd" };
         }
 
         public string[] CatCommand(string file)
@@ -40,7 +40,7 @@ namespace Container.Abstractions.Integration.Tests.Platforms
 
         public string[] ShellCommand(string command)
         {
-            return new[] {$"{Shell}", "-c", command};
+            return new[] { $"{Shell}", "-c", command };
         }
 
         public string EnvVarFormat(string var)

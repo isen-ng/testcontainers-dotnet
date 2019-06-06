@@ -9,7 +9,7 @@ namespace TestContainers.Container.Abstractions.Models
         /// ReadOnly access mode. AKA "ro"
         /// </summary>
         public static readonly AccessMode ReadOnly = new AccessMode("ro");
-        
+
         /// <summary>
         /// ReadWrite access mode. AKA "rw"
         /// </summary>

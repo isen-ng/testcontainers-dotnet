@@ -28,12 +28,12 @@ namespace TestContainers.Container.Database.MsSql
         /// Default image name
         /// </summary>
         public new const string DefaultImage = "mcr.microsoft.com/mssql/server";
-        
+
         /// <summary>
         /// Default image tag
         /// </summary>
         public new const string DefaultTag = "2017-latest-ubuntu";
-        
+
         /// <summary>
         /// Default db port
         /// </summary>

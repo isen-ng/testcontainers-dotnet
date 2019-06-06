@@ -14,12 +14,12 @@ namespace TestContainers.Container.Database
         /// Database name
         /// </summary>
         public virtual string DatabaseName { get; set; }
-        
+
         /// <summary>
         /// Database username
         /// </summary>
         public virtual string Username { get; set; }
-        
+
         /// <summary>
         /// Database password
         /// </summary>

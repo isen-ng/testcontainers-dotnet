@@ -11,13 +11,13 @@ namespace Container.Database.ArangoDb.Integration.Tests.Fixtures
     public class PortBindingContainerFixture : IAsyncLifetime
     {
         public ArangoDbContainer Container { get; }
-        
+
         public string Username { get; } = "root";
-        
+
         public string Password { get; } = "Acbd1234";
-        
+
         public int MyPort { get; } = FreePortHelper.GetFreePort();
-        
+
         public PortBindingContainerFixture()
         {
             Container = new ContainerBuilder<ArangoDbContainer>()

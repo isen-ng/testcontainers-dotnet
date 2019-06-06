@@ -43,7 +43,7 @@ namespace Container.Abstractions.Integration.Tests.Platforms
 
         public string[] ShellCommand(string command)
         {
-            return new[] {$"{Shell}", "-command", command};
+            return new[] { $"{Shell}", "-command", command };
         }
 
         public string EnvVarFormat(string var)

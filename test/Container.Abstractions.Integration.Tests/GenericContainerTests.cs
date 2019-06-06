@@ -45,7 +45,7 @@ namespace Container.Abstractions.Integration.Tests
                 Assert.Equal($"{GenericContainer.DefaultImage}:{GenericContainer.DefaultTag}", actual);
             }
         }
-        
+
         public class ExecuteCommandTests : GenericContainerTests
         {
             public ExecuteCommandTests(GenericContainerFixture fixture)

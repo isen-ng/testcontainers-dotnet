@@ -387,12 +387,12 @@ namespace TestContainers.Container.Abstractions
                             }
                         }),
                     Mounts = BindMounts.Select(m => new Mount
-                        {
-                            Source = m.HostPath,
-                            Target = m.ContainerPath,
-                            ReadOnly = m.AccessMode == AccessMode.ReadOnly,
-                            Type = "bind"
-                        })
+                    {
+                        Source = m.HostPath,
+                        Target = m.ContainerPath,
+                        ReadOnly = m.AccessMode == AccessMode.ReadOnly,
+                        Type = "bind"
+                    })
                         .ToList(),
                     PublishAllPorts = true,
                     Privileged = IsPrivileged

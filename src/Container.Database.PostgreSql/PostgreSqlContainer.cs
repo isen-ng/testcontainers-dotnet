@@ -18,12 +18,12 @@ namespace TestContainers.Container.Database.PostgreSql
         /// Default image name
         /// </summary>
         public new const string DefaultImage = "postgres";
-        
+
         /// <summary>
         /// Default image tag 
         /// </summary>
         public new const string DefaultTag = "11-alpine";
-        
+
         /// <summary>
         /// Default db port
         /// </summary>

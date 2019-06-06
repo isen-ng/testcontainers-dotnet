@@ -18,7 +18,7 @@ namespace TestContainers.Container.Database.AdoNet.WaitStrategies
 
         /// <inheritdoc />
         protected override IEnumerable<Type> ExceptionTypes { get; } =
-            new[] {typeof(SocketException), typeof(DbException)};
+            new[] { typeof(SocketException), typeof(DbException) };
 
 
         /// <inheritdoc />
