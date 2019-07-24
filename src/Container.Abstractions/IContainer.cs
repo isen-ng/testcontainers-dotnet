@@ -26,7 +26,7 @@ namespace TestContainers.Container.Abstractions
         /// <summary>
         /// List of ports to be exposed on the container
         /// These ports will be automatically mapped to a higher port upon container start
-        /// Use <see cref="GetMappedPort"/> to retrieve the automatically mapped port 
+        /// Use <see cref="GetMappedPort"/> to retrieve the automatically mapped port
         /// </summary>
         [NotNull]
         IList<int> ExposedPorts { get; }
@@ -52,29 +52,29 @@ namespace TestContainers.Container.Abstractions
         Dictionary<string, string> Labels { get; }
 
         /// <summary>
-        /// List of path bindings between host and container 
+        /// List of path bindings between host and container
         /// </summary>
         IList<Bind> BindMounts { get; }
 
         /// <summary>
-        /// Sets the container to use privileged mode when this is set 
+        /// Sets the container to use privileged mode when this is set
         /// </summary>
-        bool IsPrivileged { get; set; }
+        bool IsPrivileged { get; }
 
         /// <summary>
-        /// Sets the working directory after the container started 
+        /// Sets the working directory after the container started
         /// </summary>
-        string WorkingDirectory { get; set; }
+        string WorkingDirectory { get; }
 
         /// <summary>
-        /// Command to run when the container starts 
+        /// Command to run when the container starts
         /// </summary>
-        List<string> Command { get; set; }
+        List<string> Command { get; }
 
         /// <summary>
         /// Option to auto remove the container after use
         /// </summary>
-        bool AutoRemove { get; set; }
+        bool AutoRemove { get; }
 
         /// <summary>
         /// Starts the container
