@@ -59,22 +59,22 @@ namespace TestContainers.Container.Abstractions
         /// <summary>
         /// Sets the container to use privileged mode when this is set
         /// </summary>
-        bool IsPrivileged { get; }
+        bool IsPrivileged { get; set; }
 
         /// <summary>
         /// Sets the working directory after the container started
         /// </summary>
-        string WorkingDirectory { get; }
+        string WorkingDirectory { get; set; }
 
         /// <summary>
         /// Command to run when the container starts
         /// </summary>
-        List<string> Command { get; }
+        List<string> Command { get; set; }
 
         /// <summary>
         /// Option to auto remove the container after use
         /// </summary>
-        bool AutoRemove { get; }
+        bool AutoRemove { get; set; }
 
         /// <summary>
         /// Starts the container
