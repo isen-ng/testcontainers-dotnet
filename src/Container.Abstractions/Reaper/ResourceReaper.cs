@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Docker.DotNet;
 using Docker.DotNet.Models;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using TestContainers.Container.Abstractions.Reaper.Filters;
 
@@ -56,13 +57,15 @@ namespace TestContainers.Container.Abstractions.Reaper
         /// Starts the resource reaper if it is enabled
         /// </summary>
         /// <param name="dockerClient">Docker client to use</param>
+        /// <param name="logger">Optional logger to log progress</param>
         /// <returns>Task that completes when reaper starts successfully</returns>
-        public static async Task StartAsync(IDockerClient dockerClient)
+        public static async Task StartAsync(IDockerClient dockerClient, ILogger logger = null)
         {
             var disabled = Environment.GetEnvironmentVariable("REAPER_DISABLED");
             if (!string.IsNullOrWhiteSpace(disabled) &&
                 (disabled.Equals("1") || disabled.ToLower().Equals("true")))
             {
+                logger?.LogInformation("Reaper is disabled via $REAPER_DISABLED environment variable");
                 return;
             }
 
@@ -74,12 +77,18 @@ namespace TestContainers.Container.Abstractions.Reaper
 
             if (_ryukStartupTaskCompletionSource == null)
             {
+                logger?.LogTrace("Entering reaper init lock ...");
+
                 await InitLock.WaitAsync();
+
+                logger?.LogTrace("Entered reaper init lock");
 
                 try
                 {
                     if (_ryukStartupTaskCompletionSource == null)
                     {
+                        logger?.LogDebug("Starting ryuk container ...");
+
                         _ryukStartupTaskCompletionSource = new TaskCompletionSource<bool>();
                         _ryukContainer = new RyukContainer(ryukImage, dockerClient, NullLoggerFactory.Instance);
 
@@ -88,13 +97,27 @@ namespace TestContainers.Container.Abstractions.Reaper
                         {
                             _ryukContainer.AddToDeathNote(new LabelsFilter(Labels));
                             _ryukStartupTaskCompletionSource.SetResult(true);
+
+                            logger?.LogDebug("Started ryuk container");
                         });
+                    }
+                    else
+                    {
+                        logger?.LogDebug("Reaper is already started");
                     }
                 }
                 finally
                 {
+                    logger?.LogTrace("Releasing reaper init lock ...");
+
                     InitLock.Release();
+
+                    logger?.LogTrace("Released reaper init lock");
                 }
+            }
+            else
+            {
+                logger?.LogDebug("Reaper is already started");
             }
 
             SetupShutdownHook(dockerClient);

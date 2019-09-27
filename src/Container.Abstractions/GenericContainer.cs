@@ -59,7 +59,7 @@ namespace TestContainers.Container.Abstractions
             await base.ContainerStarting();
 
             _logger.LogDebug("Starting reaper ...");
-            await ResourceReaper.StartAsync(DockerClient);
+            await ResourceReaper.StartAsync(DockerClient, _logger);
         }
 
         /// <inheritdoc />
