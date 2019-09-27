@@ -8,6 +8,10 @@ services:
 
 configuration: Release
 
+branches:
+  only:
+    - master
+
 install:
   - dotnet restore
   #- docker pull quay.io/testcontainers/ryuk:0.2.3
@@ -18,10 +22,10 @@ build_script:
 before_test:
   - docker info
   - cmd /c "cd ryuk && docker build -t ryuk:0.2.3-nanoserver-sac2016 ."
-  
+
 test_script:
   - dotnet test
-    
+
 cache:
   - '%USERPROFILE%\.nuget\packages'
   - '%USERPROFILE%\.local/share/NuGet/Cache'
