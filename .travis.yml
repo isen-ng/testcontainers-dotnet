@@ -1,23 +1,27 @@
 dist: bionic
 language: csharp
 mono: none
-dotnet: 2.2.300
+dotnet: 2.2.400
+
+branches:
+  only:
+    - master
 
 solution: testcontainers-dotnet.sln
-      
+
 install:
   - dotnet restore
   - dotnet tool install --global dotnet-sonarscanner
 
 before_script:
   - export PATH="$PATH:$HOME/.dotnet/tools"
-  
+
 script:
   - dotnet sonarscanner begin /k:"testcontainers-dotnet" /o:"isen-ng-github" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.login="$SONAR_TOKEN"
   - dotnet build
   - dotnet sonarscanner end /d:sonar.login="$SONAR_TOKEN"
   - dotnet test /p:CollectCoverage=true /p:CoverletOutputFormat='json%2copencover' /p:CoverletOutput=../bin/coverage/ /p:MergeWith='../bin/coverage/coverage.json'
-    
+
 after_success:
   - curl -s https://codecov.io/bash > codecov
   - chmod +x codecov
