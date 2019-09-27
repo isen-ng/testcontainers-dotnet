@@ -124,7 +124,7 @@ namespace TestContainers.Container.Abstractions
 
             await ContainerStarting();
 
-            await PullImage(ct);
+            await ResolveImage(ct);
 
             ContainerId = await CreateContainer(ct);
 
@@ -268,7 +268,7 @@ namespace TestContainers.Container.Abstractions
             return Task.CompletedTask;
         }
 
-        private async Task PullImage(CancellationToken ct)
+        private async Task ResolveImage(CancellationToken ct)
         {
             if (ct.IsCancellationRequested)
             {
