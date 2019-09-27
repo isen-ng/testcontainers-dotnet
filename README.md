@@ -23,14 +23,22 @@ Windows: [![Build status](https://ci.appveyor.com/api/projects/status/4hcmw8qnlp
 
 * Container management
 * Docker providers
-* Start Container from Dockerfile
+  - Unix socket
+  - Environment
+* Image management
+  - Pulling from public repo
+  - Building from docker file
 * Ryuk resource reaper
 
 ## Windows environment
 
 * Container management
 * Docker providers
-* Start Container from Dockerfile
+  - Npipe
+  - Environment
+* Image management
+  - Pulling from public repo
+  - Building from docker file
 * Todo: Windows version of Ryuk [Help wanted]
 
 ## Built-in containers
