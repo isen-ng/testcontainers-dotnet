@@ -49,7 +49,7 @@ namespace TestContainers.Container.Abstractions.Reaper
 
         private static RyukContainer _ryukContainer;
 
-        private static TaskCompletionSource<bool> _ryukStartupTaskCompletionSource;
+        private static volatile TaskCompletionSource<bool> _ryukStartupTaskCompletionSource;
 
         private static volatile bool _shutdownHookRegistered;
 
