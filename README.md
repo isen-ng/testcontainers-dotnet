@@ -22,13 +22,15 @@ Windows: [![Build status](https://ci.appveyor.com/api/projects/status/4hcmw8qnlp
 ## Linux environment
 
 * Container management
-* Todo: Start Container from Dockerfile
+* Docker providers
+* Start Container from Dockerfile
 * Ryuk resource reaper
 
 ## Windows environment
 
 * Container management
-* Todo: Start Container from Dockerfile
+* Docker providers
+* Start Container from Dockerfile
 * Todo: Windows version of Ryuk [Help wanted]
 
 ## Built-in containers
@@ -44,6 +46,8 @@ Windows: [![Build status](https://ci.appveyor.com/api/projects/status/4hcmw8qnlp
 ## Example code
 
 For more examples, see [integration tests](test/Container.Abstractions.Integration.Tests/Fixtures/GenericContainerFixture.cs)
+
+### Start a container by pulling the image from a remote repository
 
 ```csharp
 var container = new ContainerBuilder<GenericContainer>()
@@ -88,6 +92,37 @@ var container = new ContainerBuilder<GenericContainer>()
     .Build();
 ```
 
+### Start a container by building the image from a Dockerfile
+
+```csharp
+var image = new ImageBuilder<DockerfileImage>()
+    .ConfigureHostConfiguration(builder => builder.AddInMemoryCollection()) // host settings
+    .ConfigureAppConfiguration((context, builder) => builder.AddInMemoryCollection()) // app settings
+    .ConfigureLogging(builder => builder.AddConsole()) // Microsoft extensions logging
+    .ConfigureImage((context, image) =>
+    {
+        image.DockerfilePath = "Dockerfile";
+        image.DeleteOnExit = false;
+
+        // add the Dockerfile into the build context 
+        image.Transferables.Add("Dockerfile", new MountableFile(PlatformSpecific.DockerfileImagePath));
+        // add other files required by the Dockerfile into the build context
+        image.Transferables.Add(".", new MountableFile(PlatformSpecific.DockerfileImageContext));
+    })
+    .Build();
+
+var container = new ContainerBuilder<GenericContainer>()
+    .ConfigureDockerImage(image)
+    .ConfigureHostConfiguration(builder => builder.AddInMemoryCollection()) // host settings
+    .ConfigureAppConfiguration((context, builder) => builder.AddInMemoryCollection()) // app settings
+    .ConfigureLogging(builder => builder.AddConsole()) // Microsoft extensions logging
+    .ConfigureContainer((h, c) =>
+    {
+        c.ExposedPorts.Add(80);
+    })
+    .Build();
+```
+
 ## Configuring TestContainers-dotnet
 
 There are some configurations to testcontainers-dotnet that cannot be performed in code or injected. 
@@ -97,4 +132,3 @@ These configuration can be set in environment variables before the first instanc
  |-------------------|-------------------------------------|------------
  | `REAPER_DISABLED` | (not-set)                           | When set to `1` or `true`, disables starting of the reaper container
  | `REAPER_IMAGE`    | `quay.io/testcontainers/ryuk:0.2.3` | Change which container image to use for reaper
- 
