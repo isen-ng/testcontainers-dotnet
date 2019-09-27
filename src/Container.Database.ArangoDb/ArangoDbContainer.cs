@@ -4,8 +4,10 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using ArangoDB.Client;
 using Docker.DotNet;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using TestContainers.Container.Abstractions;
+using TestContainers.Container.Abstractions.Images;
 using TestContainers.Container.Abstractions.WaitStrategies;
 
 namespace TestContainers.Container.Database.ArangoDb
@@ -33,6 +35,11 @@ namespace TestContainers.Container.Database.ArangoDb
 
         private const string TestQueryString = "RETURN 1";
 
+        private static IImage CreateDefaultImage(IDockerClient dockerClient, ILoggerFactory loggerFactory)
+        {
+            return new GenericImage(dockerClient, loggerFactory) {ImageName = $"{DefaultImage}:{DefaultTag}"};
+        }
+
         /// <inheritdoc />
         public override string Username => "root";
 
@@ -48,6 +55,14 @@ namespace TestContainers.Container.Database.ArangoDb
         /// <inheritdoc />
         public ArangoDbContainer(string dockerImageName, IDockerClient dockerClient, ILoggerFactory loggerFactory)
             : base(dockerImageName, dockerClient, loggerFactory)
+        {
+        }
+
+        /// <inheritdoc />
+        [ActivatorUtilitiesConstructor]
+        public ArangoDbContainer(IImage dockerImage, IDockerClient dockerClient, ILoggerFactory loggerFactory)
+            : base(NullImage.IsNullImage(dockerImage) ? CreateDefaultImage(dockerClient, loggerFactory) : dockerImage,
+                dockerClient, loggerFactory)
         {
         }
 
