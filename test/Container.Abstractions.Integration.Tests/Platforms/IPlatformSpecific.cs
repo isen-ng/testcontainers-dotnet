@@ -4,6 +4,10 @@ namespace Container.Abstractions.Integration.Tests.Platforms
     {
         string TinyDockerImage { get; }
 
+        string DockerfileImagePath { get; }
+
+        string DockerfileImageContext { get; }
+
         string Shell { get; }
 
         string Echo { get; }

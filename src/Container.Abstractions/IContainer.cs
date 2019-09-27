@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using TestContainers.Container.Abstractions.Images;
 using TestContainers.Container.Abstractions.Models;
 
 namespace TestContainers.Container.Abstractions
@@ -17,6 +18,12 @@ namespace TestContainers.Container.Abstractions
         /// </summary>
         [NotNull]
         string DockerImageName { get; }
+
+        /// <summary>
+        /// Gets the docker image
+        /// </summary>
+        [NotNull]
+        IImage DockerImage { get; }
 
         /// <summary>
         /// Gets the container id after it has started

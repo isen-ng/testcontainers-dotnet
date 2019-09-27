@@ -4,7 +4,11 @@ namespace Container.Abstractions.Integration.Tests.Platforms
     {
         public static IPlatformSpecific Instance { get; } = new LinuxPlatformSpecific();
 
-        public string TinyDockerImage { get; } = "alpine:3.5";
+        public string TinyDockerImage { get; } = "alpine:3.10";
+
+        public string DockerfileImagePath { get; } = "Images/Fixtures/Dockerfiles/Dockerfile.linux";
+
+        public string DockerfileImageContext { get; } = "Images/Fixtures/Dockerfiles/Context";
 
         public string Shell { get; } = "/bin/sh";
 
@@ -20,7 +24,7 @@ namespace Container.Abstractions.Integration.Tests.Platforms
 
         public string[] PwdCommand()
         {
-            return new[] { "pwd" };
+            return new[] {"pwd"};
         }
 
         public string[] CatCommand(string file)
@@ -40,7 +44,7 @@ namespace Container.Abstractions.Integration.Tests.Platforms
 
         public string[] ShellCommand(string command)
         {
-            return new[] { $"{Shell}", "-c", command };
+            return new[] {$"{Shell}", "-c", command};
         }
 
         public string EnvVarFormat(string var)

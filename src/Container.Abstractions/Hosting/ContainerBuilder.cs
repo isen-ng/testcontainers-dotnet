@@ -1,39 +1,24 @@
 using System;
 using System.Collections.Generic;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using TestContainers.Container.Abstractions.DockerClient;
+using TestContainers.Container.Abstractions.Images;
 
 namespace TestContainers.Container.Abstractions.Hosting
 {
     /// <summary>
     /// Builder class to consolidate services and inject them into an IContainer implementation
     /// </summary>
-    /// <typeparam name="T"></typeparam>
-    public class ContainerBuilder<T> where T : IContainer
+    /// <typeparam name="T">type of container to build</typeparam>
+    public class ContainerBuilder<T> : AbstractBuilder<ContainerBuilder<T>, T> where T : IContainer
     {
-        private const string ApplicationNameKey = "applicationName";
-        private const string EnvironmentKey = "environment";
-        private const string DefaultEnvironment = "Production";
-
-        private readonly List<Action<HostContext, IServiceCollection>> _configurationActions =
-            new List<Action<HostContext, IServiceCollection>>();
-
-        private readonly List<Action<IConfigurationBuilder>> _configureHostActions =
-            new List<Action<IConfigurationBuilder>>();
-
-        private readonly List<Action<HostContext, IConfigurationBuilder>> _configureAppActions =
-            new List<Action<HostContext, IConfigurationBuilder>>();
-
         private readonly List<Action<HostContext, T>> _configureContainerActions = new List<Action<HostContext, T>>();
-
-        private Func<HostContext, string> _dockerImageNameProvider;
+        private Func<HostContext, IImage> _imageProvider;
 
         /// <summary>
-        /// Sets the docker image name
+        /// Sets the docker image name used to build this container
         /// </summary>
         /// <param name="name">image name and tag</param>
-        /// <returns>builder</returns>
+        /// <returns>self</returns>
         /// <exception cref="ArgumentNullException">when name is null</exception>
         public ContainerBuilder<T> ConfigureDockerImageName(string name)
         {
@@ -46,10 +31,10 @@ namespace TestContainers.Container.Abstractions.Hosting
         }
 
         /// <summary>
-        /// Sets the docker image name
+        /// Sets the docker image name used to build this container
         /// </summary>
         /// <param name="delegate">a delegate to provide a name</param>
-        /// <returns>builder</returns>
+        /// <returns>self</returns>
         /// <exception cref="ArgumentNullException">when @delegate is null</exception>
         public ContainerBuilder<T> ConfigureDockerImageName(Func<HostContext, string> @delegate)
         {
@@ -58,39 +43,50 @@ namespace TestContainers.Container.Abstractions.Hosting
                 throw new ArgumentNullException(nameof(@delegate));
             }
 
-            _dockerImageNameProvider = @delegate;
-            return this;
+            return ConfigureDockerImage(c =>
+            {
+                return new ImageBuilder<GenericImage>()
+                    .ConfigureImage((hostContext, i) =>
+                    {
+                        i.ImageName = @delegate.Invoke(c);
+                    })
+                    .Build();
+            });
         }
 
         /// <summary>
-        /// Allows the configuration of host settings
+        /// Sets the docker image used to build this container
         /// </summary>
-        /// <param name="delegate">a delegate to configure host settings</param>
-        /// <returns>builder</returns>
-        /// <exception cref="ArgumentNullException">when @delegate is null</exception>
-        public ContainerBuilder<T> ConfigureHostConfiguration(Action<IConfigurationBuilder> @delegate)
+        /// <param name="dockerImage">the docker image to use to build this container</param>
+        /// <returns>self</returns>
+        /// <exception cref="ArgumentNullException">when dockerImage is null</exception>
+        public ContainerBuilder<T> ConfigureDockerImage(IImage dockerImage)
         {
-            _configureHostActions.Add(@delegate ?? throw new ArgumentNullException(nameof(@delegate)));
-            return this;
+            if (dockerImage == null)
+            {
+                throw new ArgumentNullException(nameof(dockerImage));
+            }
+
+            return ConfigureDockerImage(c => dockerImage);
         }
 
         /// <summary>
-        /// Allows the configuration of app settings
+        /// Sets the docker image used to build this container
         /// </summary>
-        /// <param name="delegate">a delegate to configure app settings</param>
-        /// <returns>builder</returns>
+        /// <param name="delegate">a delegate to provide the docker image</param>
+        /// <returns>self</returns>
         /// <exception cref="ArgumentNullException">when @delegate is null</exception>
-        public ContainerBuilder<T> ConfigureAppConfiguration(Action<HostContext, IConfigurationBuilder> @delegate)
+        public ContainerBuilder<T> ConfigureDockerImage(Func<HostContext, IImage> @delegate)
         {
-            _configureAppActions.Add(@delegate ?? throw new ArgumentNullException(nameof(@delegate)));
+            _imageProvider = @delegate ?? throw new ArgumentNullException(nameof(@delegate));
             return this;
         }
 
         /// <summary>
-        /// Allows the configuration of container
+        /// Allows the configuration of this container
         /// </summary>
-        /// <param name="delegate">a delegate to configure the container</param>
-        /// <returns>builder</returns>
+        /// <param name="delegate">a delegate to configure this container</param>
+        /// <returns>self</returns>
         /// <exception cref="ArgumentNullException">when @delegate is null</exception>
         public ContainerBuilder<T> ConfigureContainer(Action<HostContext, T> @delegate)
         {
@@ -98,120 +94,24 @@ namespace TestContainers.Container.Abstractions.Hosting
             return this;
         }
 
-        /// <summary>
-        /// Allows the configuration of services
-        /// </summary>
-        /// <param name="delegate">a delegate to configure services</param>
-        /// <returns>builder</returns>
-        /// <exception cref="ArgumentNullException">when @delegate is null</exception>
-        public ContainerBuilder<T> ConfigureServices(Action<HostContext, IServiceCollection> @delegate)
+        /// <inheritdoc />
+        protected override void PreActivateHook(HostContext hostContext)
         {
-            if (@delegate == null)
-            {
-                throw new ArgumentNullException(nameof(@delegate));
-            }
+            var image = _imageProvider != null ? _imageProvider.Invoke(hostContext) : NullImage.Instance;
 
-            _configurationActions.Add(@delegate);
-            return this;
+            ConfigureServices(services =>
+            {
+                services.AddSingleton(image);
+            });
         }
 
-        /// <summary>
-        /// Allows the configuration of services
-        /// </summary>
-        /// <param name="delegate">a delegate to configure services</param>
-        /// <returns>builder</returns>
-        /// <exception cref="ArgumentNullException">when @delegate is null</exception>
-        public ContainerBuilder<T> ConfigureServices(Action<IServiceCollection> @delegate)
+        /// <inheritdoc />
+        protected override void PostActivateHook(HostContext hostContext, T instance)
         {
-            if (@delegate == null)
-            {
-                throw new ArgumentNullException(nameof(@delegate));
-            }
-
-            return ConfigureServices((context, collection) => @delegate(collection));
-        }
-
-        /// <summary>
-        /// Builds the container
-        /// </summary>
-        /// <returns>An implementation of the container with services injected</returns>
-        public T Build()
-        {
-            var hostConfig = BuildHostConfiguration();
-            var hostContext = new HostContext
-            {
-                ApplicationName = hostConfig[ApplicationNameKey],
-                EnvironmentName = hostConfig[EnvironmentKey] ?? DefaultEnvironment,
-                Configuration = hostConfig
-            };
-
-            var appConfig = BuildAppConfiguration(hostContext, hostConfig);
-            hostContext.Configuration = appConfig;
-
-            ConfigureServices(
-                services =>
-                {
-                    services.AddSingleton<IDockerClientProvider, EnvironmentDockerClientProvider>();
-                    services.AddSingleton<IDockerClientProvider, NpipeDockerClientProvider>();
-                    services.AddSingleton<IDockerClientProvider, UnixDockerClientProvider>();
-
-                    services.AddSingleton<DockerClientFactory>();
-                    services.AddScoped(provider =>
-                        provider.GetRequiredService<DockerClientFactory>()
-                            .Create()
-                            .Result);
-
-                    services.AddLogging();
-                });
-
-            var dockerImageName = _dockerImageNameProvider?.Invoke(hostContext);
-            var serviceProvider = BuildServiceProvider(hostContext);
-
-            var container = dockerImageName == null
-                ? ActivatorUtilities.CreateInstance<T>(serviceProvider)
-                : ActivatorUtilities.CreateInstance<T>(serviceProvider, dockerImageName);
-
             foreach (var action in _configureContainerActions)
             {
-                action.Invoke(hostContext, container);
+                action.Invoke(hostContext, instance);
             }
-
-            return container;
-        }
-
-        private IConfiguration BuildHostConfiguration()
-        {
-            var configBuilder = new ConfigurationBuilder();
-            foreach (var buildAction in _configureHostActions)
-            {
-                buildAction(configBuilder);
-            }
-
-            return configBuilder.Build();
-        }
-
-        private IConfiguration BuildAppConfiguration(HostContext hostContext, IConfiguration hostConfiguration)
-        {
-            var configBuilder = new ConfigurationBuilder();
-            configBuilder.AddConfiguration(hostConfiguration);
-
-            foreach (var buildAction in _configureAppActions)
-            {
-                buildAction(hostContext, configBuilder);
-            }
-
-            return configBuilder.Build();
-        }
-
-        private IServiceProvider BuildServiceProvider(HostContext hostContext)
-        {
-            var services = new ServiceCollection();
-            foreach (var configureServices in _configurationActions)
-            {
-                configureServices(hostContext, services);
-            }
-
-            return new DefaultServiceProviderFactory().CreateServiceProvider(services);
         }
     }
 }

@@ -5,4 +5,8 @@
     <IsTestProject>false</IsTestProject>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Docker.DotNet" Version="3.125.2" />
+  </ItemGroup>
+
 </Project>

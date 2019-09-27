@@ -5,6 +5,7 @@ using System.Net.Sockets;
 using System.Threading.Tasks;
 using Container.Abstractions.Integration.Tests.Fixtures;
 using Container.Abstractions.Integration.Tests.Platforms;
+using Container.Test.Utility;
 using Docker.DotNet;
 using TestContainers.Container.Abstractions;
 using TestContainers.Container.Abstractions.Hosting;
@@ -18,13 +19,13 @@ namespace Container.Abstractions.Integration.Tests
     {
         private readonly GenericContainerFixture _fixture;
 
-        protected IContainer Container => _fixture.Container;
+        private IContainer Container => _fixture.Container;
 
-        protected IDockerClient DockerClient => _fixture.DockerClient;
+        private IDockerClient DockerClient => _fixture.DockerClient;
 
-        protected IPlatformSpecific PlatformSpecific => _fixture.PlatformSpecific;
+        private IPlatformSpecific PlatformSpecific => _fixture.PlatformSpecific;
 
-        public GenericContainerTests(GenericContainerFixture fixture)
+        private GenericContainerTests(GenericContainerFixture fixture)
         {
             _fixture = fixture;
         }

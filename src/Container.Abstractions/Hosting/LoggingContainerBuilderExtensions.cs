@@ -14,11 +14,12 @@ namespace TestContainers.Container.Abstractions.Hosting
         /// </summary>
         /// <param name="builder">builder</param>
         /// <param name="configureLogging">delegate to configure logging with</param>
-        /// <typeparam name="T">Container type</typeparam>
-        /// <returns>builder</returns>
-        public static ContainerBuilder<T> ConfigureLogging<T>(this ContainerBuilder<T> builder,
+        /// <typeparam name="TSelf">the builder's type</typeparam>
+        /// <typeparam name="TInstance">the type that you're building</typeparam>
+        /// <returns>self</returns>
+        public static TSelf ConfigureLogging<TSelf, TInstance>(this AbstractBuilder<TSelf, TInstance> builder,
             Action<HostContext, ILoggingBuilder> configureLogging)
-            where T : IContainer
+            where TSelf : AbstractBuilder<TSelf, TInstance>
         {
             return builder.ConfigureServices((context, collection) =>
                 collection.AddLogging(loggingBuilder => configureLogging(context, loggingBuilder)));
@@ -29,11 +30,12 @@ namespace TestContainers.Container.Abstractions.Hosting
         /// </summary>
         /// <param name="builder">builder</param>
         /// <param name="configureLogging">delegate to configure logging with</param>
-        /// <typeparam name="T">Container type</typeparam>
-        /// <returns>builder</returns>
-        public static ContainerBuilder<T> ConfigureLogging<T>(this ContainerBuilder<T> builder,
+        /// <typeparam name="TSelf">the builder's type</typeparam>
+        /// <typeparam name="TInstance">the type that you're building</typeparam>
+        /// <returns>self</returns>
+        public static TSelf ConfigureLogging<TSelf, TInstance>(this AbstractBuilder<TSelf, TInstance> builder,
             Action<ILoggingBuilder> configureLogging)
-            where T : IContainer
+            where TSelf : AbstractBuilder<TSelf, TInstance>
         {
             return builder.ConfigureServices(collection => collection.AddLogging(configureLogging));
         }

@@ -1,6 +1,8 @@
 using System.Threading.Tasks;
 using Docker.DotNet;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using TestContainers.Container.Abstractions.Images;
 using TestContainers.Container.Abstractions.Reaper;
 
 namespace TestContainers.Container.Abstractions
@@ -17,9 +19,14 @@ namespace TestContainers.Container.Abstractions
         public const string DefaultImage = "alpine";
 
         /// <summary>
-        /// Default image tag to use if none is supplied 
+        /// Default image tag to use if none is supplied
         /// </summary>
         public const string DefaultTag = "3.5";
+
+        private static IImage CreateDefaultImage(IDockerClient dockerClient, ILoggerFactory loggerFactory)
+        {
+            return new GenericImage(dockerClient, loggerFactory) {ImageName = $"{DefaultImage}:{DefaultTag}"};
+        }
 
         private readonly ILogger _logger;
 
@@ -33,6 +40,15 @@ namespace TestContainers.Container.Abstractions
         /// <inheritdoc />
         public GenericContainer(string dockerImageName, IDockerClient dockerClient, ILoggerFactory loggerFactory)
             : base(dockerImageName, dockerClient, loggerFactory)
+        {
+            _logger = loggerFactory.CreateLogger(GetType());
+        }
+
+        /// <inheritdoc />
+        [ActivatorUtilitiesConstructor]
+        public GenericContainer(IImage dockerImage, IDockerClient dockerClient, ILoggerFactory loggerFactory)
+            : base(NullImage.IsNullImage(dockerImage) ? CreateDefaultImage(dockerClient, loggerFactory) : dockerImage,
+                dockerClient, loggerFactory)
         {
             _logger = loggerFactory.CreateLogger(GetType());
         }

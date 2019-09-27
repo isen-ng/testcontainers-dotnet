@@ -9,6 +9,10 @@ namespace Container.Abstractions.Integration.Tests.Platforms
         //public string TinyDockerImage { get; } = "mcr.microsoft.com/windows/nanoserver:1809";
         public string TinyDockerImage { get; } = "mcr.microsoft.com/windows/nanoserver:sac2016";
 
+        public string DockerfileImagePath { get; } = "Images/Fixtures/Dockerfiles/Dockerfile.windows";
+
+        public string DockerfileImageContext { get; } = "Images/Fixtures/Dockerfiles/Context";
+
         public string Shell { get; } = "powershell";
 
         public string Echo { get; } = "echo";
@@ -43,7 +47,7 @@ namespace Container.Abstractions.Integration.Tests.Platforms
 
         public string[] ShellCommand(string command)
         {
-            return new[] { $"{Shell}", "-command", command };
+            return new[] {$"{Shell}", "-command", command};
         }
 
         public string EnvVarFormat(string var)

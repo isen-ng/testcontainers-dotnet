@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Docker.DotNet;
+using Docker.DotNet.Models;
 using Microsoft.Extensions.Logging.Abstractions;
 using TestContainers.Container.Abstractions.Reaper.Filters;
 
@@ -35,15 +37,20 @@ namespace TestContainers.Container.Abstractions.Reaper
         /// </summary>
         public static readonly Dictionary<string, string> Labels = new Dictionary<string, string>
         {
-            { TestContainerLabelName, "true" },
-            { TestContainerSessionLabelName, SessionId }
+            {TestContainerLabelName, "true"}, {TestContainerSessionLabelName, SessionId}
         };
 
         private static readonly SemaphoreSlim InitLock = new SemaphoreSlim(1, 1);
 
+        private static readonly HashSet<string> ImagesToDelete = new HashSet<string>();
+
+        private static readonly object ShutdownHookRegisterLock = new object();
+
         private static RyukContainer _ryukContainer;
 
         private static TaskCompletionSource<bool> _ryukStartupTaskCompletionSource;
+
+        private static volatile bool _shutdownHookRegistered;
 
         /// <summary>
         /// Starts the resource reaper if it is enabled
@@ -90,6 +97,8 @@ namespace TestContainers.Container.Abstractions.Reaper
                 }
             }
 
+            SetupShutdownHook(dockerClient);
+
             await _ryukStartupTaskCompletionSource.Task;
         }
 
@@ -100,6 +109,20 @@ namespace TestContainers.Container.Abstractions.Reaper
         public static void RegisterFilterForCleanup(IFilter filter)
         {
             _ryukContainer.AddToDeathNote(filter);
+        }
+
+        /// <summary>
+        /// Registers an image name to be cleaned up when this process exits
+        /// </summary>
+        /// <param name="imageName">image name to be deleted</param>
+        /// <param name="dockerClient">docker client to be used for running the commands in the shutdown hook</param>
+        public static void RegisterImageForCleanup(string imageName, IDockerClient dockerClient)
+        {
+            SetupShutdownHook(dockerClient);
+
+            // todo: update ryuk to support image clean up
+            // issue: https://github.com/testcontainers/moby-ryuk/issues/6
+            ImagesToDelete.Add(imageName);
         }
 
         internal static void KillTcpConnection()
@@ -120,6 +143,48 @@ namespace TestContainers.Container.Abstractions.Reaper
         internal static string GetRyukContainerId()
         {
             return _ryukContainer?.ContainerId;
+        }
+
+        private static void SetupShutdownHook(IDockerClient dockerClient)
+        {
+            if (_shutdownHookRegistered)
+            {
+                return;
+            }
+
+            lock (ShutdownHookRegisterLock)
+            {
+                if (_shutdownHookRegistered)
+                {
+                    return;
+                }
+
+                AppDomain.CurrentDomain.ProcessExit += (sender, eventArgs) => PerformCleanup(dockerClient).Wait();
+                Console.CancelKeyPress += (sender, eventArgs) =>
+                {
+                    PerformCleanup(dockerClient).Wait();
+
+                    // don't terminate the process immediately, wait for the Main thread to exit gracefully.
+                    eventArgs.Cancel = true;
+                };
+
+                _shutdownHookRegistered = true;
+            }
+        }
+
+        private static async Task PerformCleanup(IDockerClient dockerClient)
+        {
+            var imageDeleteParameters = new ImageDeleteParameters
+            {
+                Force = true,
+                // this is actually a badly named variable, it means `noprune` instead of `pleaseprune`
+                // this is fixed in https://github.com/microsoft/Docker.DotNet/pull/316 but there hasn't
+                // been a release for a very long time (issue still exists in 3.125.2).
+                PruneChildren = false
+            };
+
+            await Task.WhenAll(
+                ImagesToDelete.Select(i => dockerClient.Images.DeleteImageAsync(i, imageDeleteParameters)));
         }
     }
 }
