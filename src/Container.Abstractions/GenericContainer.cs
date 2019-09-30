@@ -29,12 +29,14 @@ namespace TestContainers.Container.Abstractions
         }
 
         private readonly ILogger _logger;
+        private readonly ILoggerFactory _loggerFactory;
 
         /// <inheritdoc />
         public GenericContainer(IDockerClient dockerClient, ILoggerFactory loggerFactory)
             : this($"{DefaultImage}:{DefaultTag}", dockerClient, loggerFactory)
         {
             _logger = loggerFactory.CreateLogger(GetType());
+            _loggerFactory = loggerFactory;
         }
 
         /// <inheritdoc />
@@ -59,7 +61,7 @@ namespace TestContainers.Container.Abstractions
             await base.ContainerStarting();
 
             _logger.LogDebug("Starting reaper ...");
-            await ResourceReaper.StartAsync(DockerClient, _logger);
+            await ResourceReaper.StartAsync(DockerClient, _loggerFactory);
         }
 
         /// <inheritdoc />

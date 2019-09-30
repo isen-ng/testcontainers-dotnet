@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using Docker.DotNet;
 using Docker.DotNet.Models;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
 using TestContainers.Container.Abstractions.Reaper.Filters;
 
 namespace TestContainers.Container.Abstractions.Reaper
@@ -57,10 +56,12 @@ namespace TestContainers.Container.Abstractions.Reaper
         /// Starts the resource reaper if it is enabled
         /// </summary>
         /// <param name="dockerClient">Docker client to use</param>
-        /// <param name="logger">Optional logger to log progress</param>
+        /// <param name="loggerFactory">Optional loggerFactory to log progress</param>
         /// <returns>Task that completes when reaper starts successfully</returns>
-        public static async Task StartAsync(IDockerClient dockerClient, ILogger logger = null)
+        public static async Task StartAsync(IDockerClient dockerClient, ILoggerFactory loggerFactory = null)
         {
+            var logger = loggerFactory?.CreateLogger(typeof(ResourceReaper));
+
             var disabled = Environment.GetEnvironmentVariable("REAPER_DISABLED");
             if (!string.IsNullOrWhiteSpace(disabled) &&
                 (disabled.Equals("1") || disabled.ToLower().Equals("true")))
@@ -86,7 +87,7 @@ namespace TestContainers.Container.Abstractions.Reaper
                         logger?.LogDebug("Starting ryuk container ...");
 
                         _ryukStartupTaskCompletionSource = new TaskCompletionSource<bool>();
-                        _ryukContainer = new RyukContainer(ryukImage, dockerClient, NullLoggerFactory.Instance);
+                        _ryukContainer = new RyukContainer(ryukImage, dockerClient, loggerFactory);
 
                         var ryukStartupTask = _ryukContainer.StartAsync();
                         await ryukStartupTask.ContinueWith(_ =>
