@@ -75,21 +75,14 @@ namespace TestContainers.Container.Abstractions.Reaper
                 ryukImage = DefaultRyukImage;
             }
 
-            logger.LogDebug("1. CompletionSource: {}", _ryukStartupTaskCompletionSource);
-
             if (_ryukStartupTaskCompletionSource == null)
             {
-                logger.LogDebug("2. CompletionSource: {}", _ryukStartupTaskCompletionSource);
-
                 await InitLock.WaitAsync();
 
                 try
                 {
-                    logger.LogDebug("3. CompletionSource: {}", _ryukStartupTaskCompletionSource);
-
                     if (_ryukStartupTaskCompletionSource == null)
                     {
-                        logger.LogDebug("4. CompletionSource: {}", _ryukStartupTaskCompletionSource);
                         logger?.LogDebug("Starting ryuk container ...");
 
                         _ryukStartupTaskCompletionSource = new TaskCompletionSource<bool>();

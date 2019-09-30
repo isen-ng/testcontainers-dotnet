@@ -8,21 +8,21 @@ namespace Container.Test.Utility
 {
     public class FileComparer : IEqualityComparer<FileInfo>
     {
-        public bool Equals(FileInfo f1, FileInfo f2)
+        public bool Equals(FileInfo x, FileInfo y)
         {
-            if (f1 == null)
+            if (x == null)
             {
-                throw new ArgumentNullException(nameof(f1));
+                throw new ArgumentNullException(nameof(x));
             }
 
-            if (f2 == null)
+            if (y == null)
             {
-                throw new ArgumentNullException(nameof(f2));
+                throw new ArgumentNullException(nameof(y));
             }
 
-            return f1.Name == f2.Name &&
-                   f1.Length == f2.Length &&
-                   ComputeMd5(f1).SequenceEqual(ComputeMd5(f2));
+            return x.Name == y.Name &&
+                   x.Length == y.Length &&
+                   ComputeMd5(x).SequenceEqual(ComputeMd5(y));
         }
 
         // Return a hash that reflects the comparison criteria. According to the
@@ -30,9 +30,9 @@ namespace Container.Test.Utility
         // also be equal. Because equality as defined here is a simple value equality, not
         // reference identity, it is possible that two or more objects will produce the same
         // hash code.
-        public int GetHashCode(FileInfo fi)
+        public int GetHashCode(FileInfo obj)
         {
-            string s = $"{fi.Name}{fi.Length}{ComputeMd5(fi)}";
+            string s = $"{obj.Name}{obj.Length}{ComputeMd5(obj)}";
             return s.GetHashCode();
         }
 
