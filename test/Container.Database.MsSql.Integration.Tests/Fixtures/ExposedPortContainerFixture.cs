@@ -18,7 +18,8 @@ namespace Container.Database.MsSql.Integration.Tests.Fixtures
         public ExposedPortContainerFixture()
         {
             Container = new ContainerBuilder<MsSqlContainer>()
-                .ConfigureDockerImageName("mcr.microsoft.com/mssql/server:2017-latest-ubuntu")
+                //.ConfigureDockerImageName("mcr.microsoft.com/mssql/server:2017-latest-ubuntu")
+                .ConfigureDockerImageName("justin2004/mssql_server_tiny")
                 .ConfigureDatabaseConfiguration("not-used", Password, "not-used")
                 .ConfigureLogging(builder =>
                 {
