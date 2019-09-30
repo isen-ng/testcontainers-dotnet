@@ -24,7 +24,7 @@ namespace Container.Abstractions.Integration.Tests.Images.Fixtures
             Image = new ImageBuilder<DockerfileImage>()
                 .ConfigureHostConfiguration(builder => builder.AddInMemoryCollection())
                 .ConfigureAppConfiguration((context, builder) => builder.AddInMemoryCollection())
-                .ConfigureLogging(builder =>
+                .ConfigureLogging((hostContext, builder) =>
                 {
                     builder.AddConsole();
                     builder.SetMinimumLevel(LogLevel.Debug);
