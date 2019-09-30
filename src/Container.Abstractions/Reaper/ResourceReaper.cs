@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Docker.DotNet;
 using Docker.DotNet.Models;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using TestContainers.Container.Abstractions.Reaper.Filters;
 
 namespace TestContainers.Container.Abstractions.Reaper
@@ -87,7 +88,8 @@ namespace TestContainers.Container.Abstractions.Reaper
                         logger?.LogDebug("Starting ryuk container ...");
 
                         _ryukStartupTaskCompletionSource = new TaskCompletionSource<bool>();
-                        _ryukContainer = new RyukContainer(ryukImage, dockerClient, loggerFactory);
+                        _ryukContainer = new RyukContainer(ryukImage, dockerClient,
+                            loggerFactory ?? NullLoggerFactory.Instance);
 
                         var ryukStartupTask = _ryukContainer.StartAsync();
                         await ryukStartupTask.ContinueWith(_ =>
