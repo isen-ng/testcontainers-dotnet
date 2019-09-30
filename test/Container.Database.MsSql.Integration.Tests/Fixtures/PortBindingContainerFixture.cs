@@ -21,8 +21,7 @@ namespace Container.Database.MsSql.Integration.Tests.Fixtures
         public PortBindingContainerFixture()
         {
             Container = new ContainerBuilder<MsSqlContainer>()
-                //.ConfigureDockerImageName("mcr.microsoft.com/mssql/server:2017-latest-ubuntu")
-                .ConfigureDockerImageName("postgres:11-alpine")
+                .ConfigureDockerImageName("mcr.microsoft.com/mssql/server:2017-latest-ubuntu")
                 .ConfigureDatabaseConfiguration("not-used", Password, "not-used")
                 .ConfigureContainer((h, c) => { c.PortBindings.Add(MsSqlContainer.DefaultPort, MyPort); })
                 .ConfigureLogging(builder =>

@@ -29,14 +29,12 @@ namespace TestContainers.Container.Database.MsSql
         /// <summary>
         /// Default image name
         /// </summary>
-        //public new const string DefaultImage = "mcr.microsoft.com/mssql/server";
-        public new const string DefaultImage = "postgres";
+        public new const string DefaultImage = "mcr.microsoft.com/mssql/server";
 
         /// <summary>
         /// Default image tag
         /// </summary>
-        //public new const string DefaultTag = "2017-latest-ubuntu";
-        public new const string DefaultTag = "11-alpine";
+        public new const string DefaultTag = "2017-latest-ubuntu";
 
         /// <summary>
         /// Default db port
