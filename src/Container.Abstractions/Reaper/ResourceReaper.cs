@@ -75,18 +75,21 @@ namespace TestContainers.Container.Abstractions.Reaper
                 ryukImage = DefaultRyukImage;
             }
 
+            logger.LogDebug("1. CompletionSource: {}", _ryukStartupTaskCompletionSource);
+
             if (_ryukStartupTaskCompletionSource == null)
             {
-                logger?.LogTrace("Entering reaper init lock ...");
+                logger.LogDebug("2. CompletionSource: {}", _ryukStartupTaskCompletionSource);
 
                 await InitLock.WaitAsync();
 
-                logger?.LogTrace("Entered reaper init lock");
-
                 try
                 {
+                    logger.LogDebug("3. CompletionSource: {}", _ryukStartupTaskCompletionSource);
+
                     if (_ryukStartupTaskCompletionSource == null)
                     {
+                        logger.LogDebug("4. CompletionSource: {}", _ryukStartupTaskCompletionSource);
                         logger?.LogDebug("Starting ryuk container ...");
 
                         _ryukStartupTaskCompletionSource = new TaskCompletionSource<bool>();
@@ -108,11 +111,7 @@ namespace TestContainers.Container.Abstractions.Reaper
                 }
                 finally
                 {
-                    logger?.LogTrace("Releasing reaper init lock ...");
-
                     InitLock.Release();
-
-                    logger?.LogTrace("Released reaper init lock");
                 }
             }
             else
