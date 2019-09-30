@@ -1,8 +1,8 @@
 using System.IO;
 using System.Threading.Tasks;
 using Container.Abstractions.Integration.Tests.Images.Fixtures;
-using Container.Abstractions.Integration.Tests.Platforms;
 using Container.Test.Utility;
+using Container.Test.Utility.Platforms;
 using Docker.DotNet;
 using TestContainers.Container.Abstractions;
 using TestContainers.Container.Abstractions.Hosting;
@@ -46,28 +46,35 @@ namespace Container.Abstractions.Integration.Tests.Images
             }
         }
 
-        [Fact]
-        public async Task ShouldCreateAndStartContainerSuccessfully()
+        public class WithContainer : DockerfileImageTests
         {
-            // arrange
-            var container = new ContainerBuilder<GenericContainer>()
-                .ConfigureDockerImage(Image)
-                .ConfigureContainer((h, c) =>
-                {
-                    c.ExposedPorts.Add(80);
-                })
-                .Build();
+            public WithContainer(DockerfileImageFixture fixture) : base(fixture)
+            {
+            }
 
-            // act
-            await container.StartAsync();
+            [Fact]
+            public async Task ShouldCreateAndStartContainerSuccessfully()
+            {
+                // arrange
+                var container = new ContainerBuilder<GenericContainer>()
+                    .ConfigureDockerImage(Image)
+                    .ConfigureContainer((h, c) =>
+                    {
+                        c.ExposedPorts.Add(80);
+                    })
+                    .Build();
 
-            // assert
-            var mappedPort = container.GetMappedPort(80);
-            var host = $"http://localhost:{mappedPort}";
-            var actual = HttpClientHelper.MakeGetRequest($"{host}/dummy.txt");
-            var expected = File.ReadAllText(PlatformSpecific.DockerfileImageContext + "/dummy.txt");
+                // act
+                await container.StartAsync();
 
-            Assert.Equal(expected, actual);
+                // assert
+                var mappedPort = container.GetMappedPort(80);
+                var host = $"http://localhost:{mappedPort}";
+                var actual = HttpClientHelper.MakeGetRequest($"{host}/dummy.txt");
+                var expected = File.ReadAllText(PlatformSpecific.DockerfileImageContext + "/dummy.txt");
+
+                Assert.Equal(expected, actual);
+            }
         }
     }
 }

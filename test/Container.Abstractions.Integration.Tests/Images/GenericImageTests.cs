@@ -41,20 +41,27 @@ namespace Container.Abstractions.Integration.Tests.Images
             }
         }
 
-        [Fact]
-        public async Task ShouldCreateAndStartContainerSuccessfully()
+        public class WithContainer : GenericImageTests
         {
-            // arrange
-            var container = new ContainerBuilder<GenericContainer>()
-                .ConfigureDockerImage(Image)
-                .Build();
+            public WithContainer(GenericImageFixture fixture) : base(fixture)
+            {
+            }
 
-            // act
-            await container.StartAsync();
+            [Fact]
+            public async Task ShouldCreateAndStartContainerSuccessfully()
+            {
+                // arrange
+                var container = new ContainerBuilder<GenericContainer>()
+                    .ConfigureDockerImage(Image)
+                    .Build();
 
-            // assert
-            Assert.Equal(Image.ImageName, container.DockerImageName);
-            await container.StopAsync();
+                // act
+                await container.StartAsync();
+
+                // assert
+                Assert.Equal(Image.ImageName, container.DockerImageName);
+                await container.StopAsync();
+            }
         }
     }
 }

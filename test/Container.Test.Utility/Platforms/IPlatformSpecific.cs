@@ -1,4 +1,4 @@
-namespace Container.Abstractions.Integration.Tests.Platforms
+namespace Container.Test.Utility.Platforms
 {
     public interface IPlatformSpecific
     {

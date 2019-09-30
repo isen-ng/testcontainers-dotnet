@@ -1,6 +1,6 @@
 using System.Threading.Tasks;
-using Container.Abstractions.Integration.Tests.Platforms;
 using Container.Test.Utility;
+using Container.Test.Utility.Platforms;
 using Docker.DotNet;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
