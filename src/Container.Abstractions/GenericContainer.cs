@@ -44,6 +44,7 @@ namespace TestContainers.Container.Abstractions
             : base(dockerImageName, dockerClient, loggerFactory)
         {
             _logger = loggerFactory.CreateLogger(GetType());
+            _loggerFactory = loggerFactory;
         }
 
         /// <inheritdoc />
@@ -53,6 +54,7 @@ namespace TestContainers.Container.Abstractions
                 dockerClient, loggerFactory)
         {
             _logger = loggerFactory.CreateLogger(GetType());
+            _loggerFactory = loggerFactory;
         }
 
         /// <inheritdoc />
