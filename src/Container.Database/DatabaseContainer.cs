@@ -1,6 +1,8 @@
 ﻿using Docker.DotNet;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using TestContainers.Container.Abstractions;
+using TestContainers.Container.Abstractions.Images;
 using TestContainers.Container.Database.Hosting;
 
 namespace TestContainers.Container.Database
@@ -28,6 +30,13 @@ namespace TestContainers.Container.Database
         /// <inheritdoc />
         public DatabaseContainer(string dockerImageName, IDockerClient dockerClient, ILoggerFactory loggerFactory)
             : base(dockerImageName, dockerClient, loggerFactory)
+        {
+        }
+
+        /// <inheritdoc />
+        [ActivatorUtilitiesConstructor]
+        public DatabaseContainer(IImage dockerImage, IDockerClient dockerClient, ILoggerFactory loggerFactory)
+            : base(dockerImage, dockerClient, loggerFactory)
         {
         }
     }

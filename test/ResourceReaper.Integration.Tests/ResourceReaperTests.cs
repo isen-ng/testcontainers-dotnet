@@ -1,15 +1,14 @@
 using System.Threading.Tasks;
-using Container.Abstractions.Integration.Tests.Platforms;
+using Container.Test.Utility.Platforms;
 using Docker.DotNet;
 using Microsoft.Extensions.Configuration;
 using TestContainers.Container.Abstractions;
 using TestContainers.Container.Abstractions.Hosting;
-using TestContainers.Container.Abstractions.Reaper;
 using TestContainers.Container.Abstractions.Reaper.Filters;
 using Xunit;
 using Xunit.Extensions.Ordering;
 
-namespace Container.Abstractions.Integration.Tests
+namespace ResourceReaper.Integration.Tests
 {
     public class ResourceReaperTests : IAsyncLifetime
     {
@@ -44,7 +43,7 @@ namespace Container.Abstractions.Integration.Tests
         public async Task ShouldReapContainersWhenReaperStops()
         {
             // act
-            ResourceReaper.Dispose();
+            TestContainers.Container.Abstractions.Reaper.ResourceReaper.Dispose();
 
             // assert
             var ryukStopped = false;
@@ -52,7 +51,7 @@ namespace Container.Abstractions.Integration.Tests
             {
                 try
                 {
-                    await _dockerClient.Containers.InspectContainerAsync(ResourceReaper.GetRyukContainerId());
+                    await _dockerClient.Containers.InspectContainerAsync(TestContainers.Container.Abstractions.Reaper.ResourceReaper.GetRyukContainerId());
                 }
                 catch (DockerContainerNotFoundException)
                 {
@@ -70,13 +69,13 @@ namespace Container.Abstractions.Integration.Tests
         public async Task ShouldReconnectIfConnectionDrops()
         {
             // arrange
-            ResourceReaper.KillTcpConnection();
+            TestContainers.Container.Abstractions.Reaper.ResourceReaper.KillTcpConnection();
 
             // act
-            ResourceReaper.RegisterFilterForCleanup(new LabelsFilter("key", "value"));
+            TestContainers.Container.Abstractions.Reaper.ResourceReaper.RegisterFilterForCleanup(new LabelsFilter("key", "value"));
 
             // assert
-            Assert.True(await ResourceReaper.IsConnected());
+            Assert.True(await TestContainers.Container.Abstractions.Reaper.ResourceReaper.IsConnected());
         }
     }
 }

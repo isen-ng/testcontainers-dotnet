@@ -16,10 +16,10 @@ namespace TestContainers.Container.Abstractions.WaitStrategies
         /// <summary>
         /// Ports to test
         /// </summary>
-        public List<int> ExposedPorts { get; }
+        public IList<int> ExposedPorts { get; }
 
         /// <inheritdoc />
-        public ExposedPortsWaitStrategy(List<int> exposedPorts)
+        public ExposedPortsWaitStrategy(IList<int> exposedPorts)
         {
             ExposedPorts = exposedPorts;
         }

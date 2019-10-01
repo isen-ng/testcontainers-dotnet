@@ -2,7 +2,9 @@
 using System.Data.Common;
 using System.Threading.Tasks;
 using Docker.DotNet;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using TestContainers.Container.Abstractions.Images;
 using TestContainers.Container.Database.AdoNet.WaitStrategies;
 
 namespace TestContainers.Container.Database.AdoNet
@@ -21,6 +23,13 @@ namespace TestContainers.Container.Database.AdoNet
         /// <inheritdoc />
         protected AdoNetContainer(string dockerImageName, IDockerClient dockerClient, ILoggerFactory loggerFactory)
             : base(dockerImageName, dockerClient, loggerFactory)
+        {
+        }
+
+        /// <inheritdoc />
+        [ActivatorUtilitiesConstructor]
+        protected AdoNetContainer(IImage dockerImage, IDockerClient dockerClient, ILoggerFactory loggerFactory)
+            : base(dockerImage, dockerClient, loggerFactory)
         {
         }
 

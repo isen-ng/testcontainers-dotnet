@@ -1,6 +1,6 @@
 using System;
 
-namespace Container.Abstractions.Integration.Tests
+namespace Container.Test.Utility
 {
     public static class StringExtensions
     {

@@ -4,7 +4,9 @@ using System.Data.SqlClient;
 using System.Linq;
 using System.Threading.Tasks;
 using Docker.DotNet;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using TestContainers.Container.Abstractions.Images;
 using TestContainers.Container.Database.AdoNet;
 
 namespace TestContainers.Container.Database.MsSql
@@ -39,6 +41,11 @@ namespace TestContainers.Container.Database.MsSql
         /// </summary>
         public const int DefaultPort = 1433;
 
+        private static IImage CreateDefaultImage(IDockerClient dockerClient, ILoggerFactory loggerFactory)
+        {
+            return new GenericImage(dockerClient, loggerFactory) {ImageName = $"{DefaultImage}:{DefaultTag}"};
+        }
+
         private string _connectionString;
 
         /// <inheritdoc />
@@ -56,6 +63,14 @@ namespace TestContainers.Container.Database.MsSql
         /// <inheritdoc />
         public MsSqlContainer(string dockerImageName, IDockerClient dockerClient, ILoggerFactory loggerFactory)
             : base(dockerImageName, dockerClient, loggerFactory)
+        {
+        }
+
+        /// <inheritdoc />
+        [ActivatorUtilitiesConstructor]
+        public MsSqlContainer(IImage dockerImage, IDockerClient dockerClient, ILoggerFactory loggerFactory)
+            : base(NullImage.IsNullImage(dockerImage) ? CreateDefaultImage(dockerClient, loggerFactory) : dockerImage,
+                dockerClient, loggerFactory)
         {
         }
 

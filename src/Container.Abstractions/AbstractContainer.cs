@@ -9,6 +9,7 @@ using Docker.DotNet.Models;
 using JetBrains.Annotations;
 using Microsoft.Extensions.Logging;
 using TestContainers.Container.Abstractions.Exceptions;
+using TestContainers.Container.Abstractions.Images;
 using TestContainers.Container.Abstractions.Models;
 using TestContainers.Container.Abstractions.StartupStrategies;
 using TestContainers.Container.Abstractions.WaitStrategies;
@@ -59,6 +60,9 @@ namespace TestContainers.Container.Abstractions
         public string DockerImageName { get; }
 
         /// <inheritdoc />
+        public IImage DockerImage { get; }
+
+        /// <inheritdoc />
         public string ContainerId { get; private set; }
 
         /// <inheritdoc />
@@ -94,10 +98,22 @@ namespace TestContainers.Container.Abstractions
             DockerImageName = dockerImageName;
             DockerClient = dockerClient;
             _logger = loggerFactory.CreateLogger(GetType());
+
+
+            DockerImage = new GenericImage(dockerClient, loggerFactory) {ImageName = DockerImageName};
         }
 
         /// <inheritdoc />
-        public async Task StartAsync(CancellationToken ct = default(CancellationToken))
+        protected AbstractContainer(IImage dockerImage, IDockerClient dockerClient, ILoggerFactory loggerFactory)
+        {
+            DockerImage = dockerImage;
+            DockerImageName = dockerImage.ImageName;
+            DockerClient = dockerClient;
+            _logger = loggerFactory.CreateLogger(GetType());
+        }
+
+        /// <inheritdoc />
+        public async Task StartAsync(CancellationToken ct = default)
         {
             if (ContainerId != null)
             {
@@ -108,7 +124,7 @@ namespace TestContainers.Container.Abstractions
 
             await ContainerStarting();
 
-            await PullImage(ct);
+            await ResolveImage(ct);
 
             ContainerId = await CreateContainer(ct);
 
@@ -122,7 +138,7 @@ namespace TestContainers.Container.Abstractions
         }
 
         /// <inheritdoc />
-        public async Task StopAsync(CancellationToken ct = default(CancellationToken))
+        public async Task StopAsync(CancellationToken ct = default)
         {
             if (ContainerId == null)
             {
@@ -195,15 +211,13 @@ namespace TestContainers.Container.Abstractions
 
             var parameters = new ContainerExecCreateParameters
             {
-                AttachStderr = true,
-                AttachStdout = true,
-                Cmd = command
+                AttachStderr = true, AttachStdout = true, Cmd = command
             };
 
             var response = await DockerClient.Containers.ExecCreateContainerAsync(ContainerId, parameters);
 
             var stream = await DockerClient.Containers.StartAndAttachContainerExecAsync(response.ID, false);
-            return await stream.ReadOutputToEndAsync(default(CancellationToken));
+            return await stream.ReadOutputToEndAsync(default);
         }
 
         /// <summary>
@@ -254,33 +268,14 @@ namespace TestContainers.Container.Abstractions
             return Task.CompletedTask;
         }
 
-        private async Task PullImage(CancellationToken ct)
+        private async Task ResolveImage(CancellationToken ct)
         {
             if (ct.IsCancellationRequested)
             {
                 return;
             }
 
-            // todo: write a test for this
-            var images = await DockerClient.Images.ListImagesAsync(new ImagesListParameters(), ct);
-            if (images.Any(image => image.RepoTags != null && image.RepoTags.Contains(DockerImageName)))
-            {
-                _logger.LogDebug("Image already exists, not pulling: {}", DockerImageName);
-                return;
-            }
-
-            _logger.LogInformation("Pulling container image: {}", DockerImageName);
-            var createParameters = new ImagesCreateParameters
-            {
-                FromImage = DockerImageName,
-                Tag = DockerImageName.Split(':').Last(),
-            };
-
-            await DockerClient.Images.CreateImageAsync(
-                createParameters,
-                new AuthConfig(),
-                new Progress<JSONMessage>(),
-                ct);
+            await DockerImage.Resolve(ct);
         }
 
         private async Task<string> CreateContainer(CancellationToken ct)
@@ -381,18 +376,15 @@ namespace TestContainers.Container.Abstractions
                         e => string.Format(TcpExposedPortFormat, e.Key),
                         e => (IList<PortBinding>) new List<PortBinding>
                         {
-                            new PortBinding
-                            {
-                                HostPort = e.Value.ToString()
-                            }
+                            new PortBinding {HostPort = e.Value.ToString()}
                         }),
                     Mounts = BindMounts.Select(m => new Mount
-                    {
-                        Source = m.HostPath,
-                        Target = m.ContainerPath,
-                        ReadOnly = m.AccessMode == AccessMode.ReadOnly,
-                        Type = "bind"
-                    })
+                        {
+                            Source = m.HostPath,
+                            Target = m.ContainerPath,
+                            ReadOnly = m.AccessMode == AccessMode.ReadOnly,
+                            Type = "bind"
+                        })
                         .ToList(),
                     PublishAllPorts = true,
                     Privileged = IsPrivileged
@@ -405,11 +397,7 @@ namespace TestContainers.Container.Abstractions
             if (ContainerId != null && _logger.IsEnabled(LogLevel.Error))
             {
                 using (var logStream = await DockerClient.Containers.GetContainerLogsAsync(ContainerId,
-                    new ContainerLogsParameters
-                    {
-                        ShowStderr = true,
-                        ShowStdout = true
-                    },
+                    new ContainerLogsParameters {ShowStderr = true, ShowStdout = true},
                     ct))
                 {
                     using (var reader = new StreamReader(logStream))

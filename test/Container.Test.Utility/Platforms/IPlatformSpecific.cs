@@ -1,8 +1,12 @@
-namespace Container.Abstractions.Integration.Tests.Platforms
+namespace Container.Test.Utility.Platforms
 {
     public interface IPlatformSpecific
     {
         string TinyDockerImage { get; }
+
+        string DockerfileImagePath { get; }
+
+        string DockerfileImageContext { get; }
 
         string Shell { get; }
 

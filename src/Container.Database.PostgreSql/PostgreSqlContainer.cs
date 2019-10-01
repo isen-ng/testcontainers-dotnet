@@ -2,8 +2,10 @@
 using System.Data.Common;
 using System.Threading.Tasks;
 using Docker.DotNet;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Npgsql;
+using TestContainers.Container.Abstractions.Images;
 using TestContainers.Container.Database.AdoNet;
 
 namespace TestContainers.Container.Database.PostgreSql
@@ -29,6 +31,11 @@ namespace TestContainers.Container.Database.PostgreSql
         /// </summary>
         public const int DefaultPort = 5432;
 
+        private static IImage CreateDefaultImage(IDockerClient dockerClient, ILoggerFactory loggerFactory)
+        {
+            return new GenericImage(dockerClient, loggerFactory) {ImageName = $"{DefaultImage}:{DefaultTag}"};
+        }
+
         private string _connectionString;
 
         /// <inheritdoc />
@@ -43,6 +50,14 @@ namespace TestContainers.Container.Database.PostgreSql
         /// <inheritdoc />
         public PostgreSqlContainer(string dockerImageName, IDockerClient dockerClient, ILoggerFactory loggerFactory)
             : base(dockerImageName, dockerClient, loggerFactory)
+        {
+        }
+
+        /// <inheritdoc />
+        [ActivatorUtilitiesConstructor]
+        public PostgreSqlContainer(IImage dockerImage, IDockerClient dockerClient, ILoggerFactory loggerFactory)
+            : base(NullImage.IsNullImage(dockerImage) ? CreateDefaultImage(dockerClient, loggerFactory) : dockerImage,
+                dockerClient, loggerFactory)
         {
         }
 
