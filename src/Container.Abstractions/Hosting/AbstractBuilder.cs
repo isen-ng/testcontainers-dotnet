@@ -27,6 +27,23 @@ namespace TestContainers.Container.Abstractions.Hosting
             new List<Action<HostContext, IConfigurationBuilder>>();
 
         /// <summary>
+        /// Copies the context from another builder
+        /// </summary>
+        /// <param name="builder">builder to copy from</param>
+        /// <typeparam name="T1">builder's type</typeparam>
+        /// <typeparam name="T2">builder's built type</typeparam>
+        /// <returns>self</returns>
+        public TSelf WithContextFrom<T1, T2>(AbstractBuilder<T1, T2> builder)
+            where T1 : AbstractBuilder<T1, T2>
+        {
+            _configurationActions.AddRange(builder._configurationActions);
+            _configureHostActions.AddRange(builder._configureHostActions);
+            _configureAppActions.AddRange(builder._configureAppActions);
+
+            return (TSelf) this;
+        }
+
+        /// <summary>
         /// Allows the configuration of host settings
         /// </summary>
         /// <param name="delegate">a delegate to configure host settings</param>

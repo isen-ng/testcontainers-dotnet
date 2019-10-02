@@ -13,13 +13,13 @@ namespace TestContainers.Container.Abstractions.Images
     /// </summary>
     public class GenericImage : AbstractImage
     {
-        private readonly ILogger _logger;
+        private readonly ILogger<GenericImage> _logger;
 
         /// <inheritdoc />
         public GenericImage(IDockerClient dockerClient, ILoggerFactory loggerFactory)
             : base(dockerClient, loggerFactory)
         {
-            _logger = loggerFactory.CreateLogger(GetType());
+            _logger = loggerFactory.CreateLogger<GenericImage>();
         }
 
         /// <summary>
@@ -51,7 +51,10 @@ namespace TestContainers.Container.Abstractions.Images
             await DockerClient.Images.CreateImageAsync(
                 createParameters,
                 new AuthConfig(),
-                new Progress<JSONMessage>(),
+                new Progress<JSONMessage>(m =>
+                {
+                    _logger.LogTrace(m.ProgressMessage);
+                }),
                 ct);
 
             // we should not catch exceptions thrown by inspect because the image is

@@ -27,7 +27,7 @@ namespace Container.Database.MsSql.Integration.Tests.Fixtures
                 .ConfigureLogging(builder =>
                 {
                     builder.AddConsole();
-                    builder.SetMinimumLevel(LogLevel.Debug);
+                    builder.SetMinimumLevel(LogLevel.Trace);
                 })
                 .Build();
         }
