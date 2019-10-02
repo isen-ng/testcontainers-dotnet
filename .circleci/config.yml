@@ -30,18 +30,17 @@ jobs:
           key: v1-repo-{{ .Environment.CIRCLE_SHA1 }}
           paths:
             - ~/repo
-
   deploy_integration:
     docker:
       - image: jetcipher/circleci-dotnet-core:2.2
 
-      working_directory: ~/repo
+    working_directory: ~/repo
 
-      steps:
-        - restore_cache:
-          key: v1-repo-{{ .Environment.CIRCLE_SHA1 }}
+    steps:
+      - restore_cache:
+        key: v1-repo-{{ .Environment.CIRCLE_SHA1 }}
 
-        - deploy: ./remote-publish.sh $NUGET_API_KEY $NUGET_GALLERY_URL
+      - deploy: ./remote-publish.sh $NUGET_API_KEY $NUGET_GALLERY_URL
 
   deploy_production:
     docker:
