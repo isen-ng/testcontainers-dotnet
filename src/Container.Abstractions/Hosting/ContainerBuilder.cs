@@ -12,7 +12,7 @@ namespace TestContainers.Container.Abstractions.Hosting
     public class ContainerBuilder<T> : AbstractBuilder<ContainerBuilder<T>, T> where T : IContainer
     {
         private readonly List<Action<HostContext, T>> _configureContainerActions = new List<Action<HostContext, T>>();
-        private Func<HostContext, IImage> _imageProvider;
+        private Func<HostContext, ContainerBuilder<T>, IImage> _imageProvider;
 
         /// <summary>
         /// Sets the docker image name used to build this container
@@ -43,10 +43,10 @@ namespace TestContainers.Container.Abstractions.Hosting
                 throw new ArgumentNullException(nameof(@delegate));
             }
 
-            return ConfigureDockerImage(c =>
+            return ConfigureDockerImage((c, b) =>
             {
                 return new ImageBuilder<GenericImage>()
-                    .WithContextFrom(this)
+                    .WithContextFrom(b)
                     .ConfigureImage((hostContext, i) =>
                     {
                         i.ImageName = @delegate.Invoke(c);
@@ -68,7 +68,7 @@ namespace TestContainers.Container.Abstractions.Hosting
                 throw new ArgumentNullException(nameof(dockerImage));
             }
 
-            return ConfigureDockerImage(c => dockerImage);
+            return ConfigureDockerImage((c, b) => dockerImage);
         }
 
         /// <summary>
@@ -77,7 +77,7 @@ namespace TestContainers.Container.Abstractions.Hosting
         /// <param name="delegate">a delegate to provide the docker image</param>
         /// <returns>self</returns>
         /// <exception cref="ArgumentNullException">when @delegate is null</exception>
-        public ContainerBuilder<T> ConfigureDockerImage(Func<HostContext, IImage> @delegate)
+        public ContainerBuilder<T> ConfigureDockerImage(Func<HostContext, ContainerBuilder<T>, IImage> @delegate)
         {
             _imageProvider = @delegate ?? throw new ArgumentNullException(nameof(@delegate));
             return this;
@@ -98,7 +98,7 @@ namespace TestContainers.Container.Abstractions.Hosting
         /// <inheritdoc />
         protected override void PreActivateHook(HostContext hostContext)
         {
-            var image = _imageProvider != null ? _imageProvider.Invoke(hostContext) : NullImage.Instance;
+            var image = _imageProvider != null ? _imageProvider.Invoke(hostContext, this) : NullImage.Instance;
 
             ConfigureServices(services =>
             {

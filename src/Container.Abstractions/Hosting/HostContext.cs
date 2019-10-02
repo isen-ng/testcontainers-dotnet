@@ -8,7 +8,7 @@ namespace TestContainers.Container.Abstractions.Hosting
     public class HostContext
     {
         /// <summary>
-        /// Configuration by host settings
+        /// Configuration by app settings
         /// </summary>
         public IConfiguration Configuration { get; set; }
 

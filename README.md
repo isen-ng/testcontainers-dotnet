@@ -131,6 +131,37 @@ var container = new ContainerBuilder<GenericContainer>()
     .Build();
 ```
 
+or
+
+```csharp
+var container = new ContainerBuilder<GenericContainer>()
+    .ConfigureDockerImage((hostContext, builderContext) => 
+    {
+        return new ImageBuilder<DockerfileImage>()
+            // share the app/host config and service collection from the parent builder context
+            .WithContextFrom(builderContext)
+            .ConfigureImage((context, image) =>
+            {
+                image.DockerfilePath = "Dockerfile";
+                image.DeleteOnExit = false;
+        
+                // add the Dockerfile into the build context 
+                image.Transferables.Add("Dockerfile", new MountableFile(PlatformSpecific.DockerfileImagePath));
+                // add other files required by the Dockerfile into the build context
+                image.Transferables.Add(".", new MountableFile(PlatformSpecific.DockerfileImageContext));
+            })
+            .Build();
+    })
+    .ConfigureHostConfiguration(builder => builder.AddInMemoryCollection()) // host settings
+    .ConfigureAppConfiguration((context, builder) => builder.AddInMemoryCollection()) // app settings
+    .ConfigureLogging(builder => builder.AddConsole()) // Microsoft extensions logging
+    .ConfigureContainer((h, c) =>
+    {
+        c.ExposedPorts.Add(80);
+    })
+    .Build();
+```
+
 ## Configuring TestContainers-dotnet
 
 There are some configurations to testcontainers-dotnet that cannot be performed in code or injected. 
