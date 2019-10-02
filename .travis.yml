@@ -24,7 +24,7 @@ script:
   - dotnet sonarscanner begin /k:"testcontainers-dotnet" /o:"isen-ng-github" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.login="$SONAR_TOKEN"
   - dotnet build
   - dotnet sonarscanner end /d:sonar.login="$SONAR_TOKEN"
-  - dotnet test /p:CollectCoverage=true /p:CoverletOutputFormat='json%2copencover' /p:CoverletOutput=../bin/coverage/ /p:MergeWith='../bin/coverage/coverage.json' -- xunit.maxParallelThreads=-1
+  - dotnet test /p:CollectCoverage=true /p:CoverletOutputFormat='json%2copencover' /p:CoverletOutput=../bin/coverage/ /p:MergeWith='../bin/coverage/coverage.json'
 
 after_success:
   - curl -s https://codecov.io/bash > codecov
