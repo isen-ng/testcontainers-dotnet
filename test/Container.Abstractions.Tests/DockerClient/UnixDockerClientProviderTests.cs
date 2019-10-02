@@ -1,5 +1,6 @@
 using System;
 using System.Runtime.InteropServices;
+using Microsoft.Extensions.Logging.Abstractions;
 using TestContainers.Container.Abstractions.DockerClient;
 using Xunit;
 
@@ -13,7 +14,7 @@ namespace Container.Abstractions.Tests.DockerClient
             public void ShouldReturn200ForPriority()
             {
                 // arrange
-                var provider = new UnixDockerClientProvider();
+                var provider = new UnixDockerClientProvider(NullLogger<UnixDockerClientProvider>.Instance);
 
                 // act
                 var result = provider.GetPriority();
@@ -29,7 +30,7 @@ namespace Container.Abstractions.Tests.DockerClient
             public void ShouldReturnConfigurationWithPresetUnixDockerHost()
             {
                 // arrange
-                var provider = new UnixDockerClientProvider();
+                var provider = new UnixDockerClientProvider(NullLogger<UnixDockerClientProvider>.Instance);
 
                 // act
                 var result = provider.GetConfiguration();
@@ -45,7 +46,7 @@ namespace Container.Abstractions.Tests.DockerClient
             public void ShouldReturnTrueIfEnvironmentIsSetAndOsIsLinuxOrOsx()
             {
                 // arrange
-                var provider = new UnixDockerClientProvider();
+                var provider = new UnixDockerClientProvider(NullLogger<UnixDockerClientProvider>.Instance);
 
                 // act
                 var result = provider.IsApplicable;

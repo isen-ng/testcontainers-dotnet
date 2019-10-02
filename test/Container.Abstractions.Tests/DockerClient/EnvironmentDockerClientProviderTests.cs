@@ -1,6 +1,7 @@
 using System;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging.Abstractions;
 using TestContainers.Container.Abstractions.DockerClient;
 using Xunit;
 
@@ -14,7 +15,7 @@ namespace Container.Abstractions.Tests.DockerClient
             public void ShouldReturn200ForPriority()
             {
                 // arrange
-                var provider = new EnvironmentDockerClientProvider();
+                var provider = new EnvironmentDockerClientProvider(NullLogger<EnvironmentDockerClientProvider>.Instance);
 
                 // act
                 var result = provider.GetPriority();
@@ -31,7 +32,7 @@ namespace Container.Abstractions.Tests.DockerClient
             {
                 // arrange
                 Environment.SetEnvironmentVariable(EnvironmentDockerClientProvider.DockerHostEnvironmentVariable, "");
-                var provider = new EnvironmentDockerClientProvider();
+                var provider = new EnvironmentDockerClientProvider(NullLogger<EnvironmentDockerClientProvider>.Instance);
 
                 // act
                 var result = await provider.TryTest();
@@ -47,7 +48,7 @@ namespace Container.Abstractions.Tests.DockerClient
                 const string mockDockerHostUri = "http://my-mock-docker-host";
                 Environment.SetEnvironmentVariable(EnvironmentDockerClientProvider.DockerHostEnvironmentVariable,
                     mockDockerHostUri);
-                var provider = new EnvironmentDockerClientProvider();
+                var provider = new EnvironmentDockerClientProvider(NullLogger<EnvironmentDockerClientProvider>.Instance);
 
                 // act
                 var result = await provider.TryTest();
@@ -63,7 +64,7 @@ namespace Container.Abstractions.Tests.DockerClient
                 const string mockDockerHostUri = "tcp://my-mock-docker-host";
                 Environment.SetEnvironmentVariable(EnvironmentDockerClientProvider.DockerHostEnvironmentVariable,
                     mockDockerHostUri);
-                var provider = new EnvironmentDockerClientProvider();
+                var provider = new EnvironmentDockerClientProvider(NullLogger<EnvironmentDockerClientProvider>.Instance);
 
                 // act
                 var result = await provider.TryTest();
@@ -82,7 +83,7 @@ namespace Container.Abstractions.Tests.DockerClient
                 const string mockDockerHostUri = "tcp://my-mock-docker-host";
                 Environment.SetEnvironmentVariable(EnvironmentDockerClientProvider.DockerHostEnvironmentVariable,
                     mockDockerHostUri);
-                var provider = new EnvironmentDockerClientProvider();
+                var provider = new EnvironmentDockerClientProvider(NullLogger<EnvironmentDockerClientProvider>.Instance);
 
                 // act
                 var result = provider.GetConfiguration();
@@ -99,7 +100,7 @@ namespace Container.Abstractions.Tests.DockerClient
             {
                 // arrange
                 Environment.SetEnvironmentVariable(EnvironmentDockerClientProvider.DockerHostEnvironmentVariable, "");
-                var provider = new EnvironmentDockerClientProvider();
+                var provider = new EnvironmentDockerClientProvider(NullLogger<EnvironmentDockerClientProvider>.Instance);
 
                 // act
                 var result = provider.IsApplicable;
@@ -114,7 +115,7 @@ namespace Container.Abstractions.Tests.DockerClient
                 // arrange
                 Environment.SetEnvironmentVariable(EnvironmentDockerClientProvider.DockerHostEnvironmentVariable,
                     "my host");
-                var provider = new EnvironmentDockerClientProvider();
+                var provider = new EnvironmentDockerClientProvider(NullLogger<EnvironmentDockerClientProvider>.Instance);
 
                 // act
                 var result = provider.IsApplicable;
@@ -129,7 +130,7 @@ namespace Container.Abstractions.Tests.DockerClient
                 // arrange
                 Environment.SetEnvironmentVariable(EnvironmentDockerClientProvider.DockerHostEnvironmentVariable,
                     "tcp://my host");
-                var provider = new EnvironmentDockerClientProvider();
+                var provider = new EnvironmentDockerClientProvider(NullLogger<EnvironmentDockerClientProvider>.Instance);
 
                 // act
                 var result = provider.IsApplicable;

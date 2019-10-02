@@ -24,14 +24,14 @@ namespace Container.Database.PostgreSql.Integration.Tests.Fixtures
                 .Build();
         }
 
-        public Task InitializeAsync()
+        public async Task InitializeAsync()
         {
-            return Container.StartAsync();
+            await Container.StartAsync();
         }
 
-        public Task DisposeAsync()
+        public async Task DisposeAsync()
         {
-            return Container.StopAsync();
+            await Container.StopAsync();
         }
     }
 }

@@ -3,6 +3,13 @@ language: csharp
 mono: none
 dotnet: 2.2.300
 
+services:
+  - docker
+
+addons:
+  sonarcloud:
+    organization: isen-ng-github
+
 branches:
   only:
     - master

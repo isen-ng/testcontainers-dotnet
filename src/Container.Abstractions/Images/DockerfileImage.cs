@@ -110,7 +110,7 @@ namespace TestContainers.Container.Abstractions.Images
                     {
                         while (!reader.EndOfStream)
                         {
-                            _logger.LogDebug(reader.ReadLine());
+                            _logger.LogTrace(reader.ReadLine());
                         }
                     }
                 }

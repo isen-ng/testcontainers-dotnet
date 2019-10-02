@@ -46,6 +46,7 @@ namespace TestContainers.Container.Abstractions.Hosting
             return ConfigureDockerImage(c =>
             {
                 return new ImageBuilder<GenericImage>()
+                    .WithContextFrom(this)
                     .ConfigureImage((hostContext, i) =>
                     {
                         i.ImageName = @delegate.Invoke(c);

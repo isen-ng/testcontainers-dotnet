@@ -1,6 +1,7 @@
 using System;
 using System.Runtime.InteropServices;
 using Docker.DotNet;
+using Microsoft.Extensions.Logging;
 
 namespace TestContainers.Container.Abstractions.DockerClient
 {
@@ -29,7 +30,8 @@ namespace TestContainers.Container.Abstractions.DockerClient
             (RuntimeInformation.IsOSPlatform(OSPlatform.Linux) || _dockerHost.StartsWith("tcp"));
 
         /// <inheritdoc />
-        public EnvironmentDockerClientProvider()
+        public EnvironmentDockerClientProvider(ILogger<EnvironmentDockerClientProvider> logger)
+            : base(logger)
         {
             _dockerHost = Environment.GetEnvironmentVariable(DockerHostEnvironmentVariable);
         }

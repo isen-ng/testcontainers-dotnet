@@ -2,7 +2,9 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Docker.DotNet;
+using Microsoft.Extensions.Logging;
 using Polly;
+using TestContainers.Container.Abstractions.Hosting;
 
 namespace TestContainers.Container.Abstractions.DockerClient
 {
@@ -37,8 +39,16 @@ namespace TestContainers.Container.Abstractions.DockerClient
         /// <inheritdoc />
         public abstract DockerClientConfiguration GetConfiguration();
 
+        private ILogger _logger;
+
         /// <inheritdoc />
-        public async Task<bool> TryTest(CancellationToken ct = default(CancellationToken))
+        protected AbstractDockerClientProvider(ILogger logger)
+        {
+            _logger = logger;
+        }
+
+        /// <inheritdoc />
+        public async Task<bool> TryTest(CancellationToken ct = default)
         {
             try
             {
@@ -58,8 +68,9 @@ namespace TestContainers.Container.Abstractions.DockerClient
                         });
                 }
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                _logger.LogDebug(e, "Test failed!");
                 return false;
             }
         }
