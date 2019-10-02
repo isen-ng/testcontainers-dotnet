@@ -23,6 +23,8 @@ namespace Container.Database.MsSql.Integration.Tests.Fixtures
                 .ConfigureLogging(builder =>
                 {
                     builder.AddConsole();
+                    // minimum level set to trace to produce enough logs to make travis happy
+                    // because this image is big and takes a long time to download
                     builder.SetMinimumLevel(LogLevel.Trace);
                 })
                 .Build();
