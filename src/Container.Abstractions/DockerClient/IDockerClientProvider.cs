@@ -37,6 +37,6 @@ namespace TestContainers.Container.Abstractions.DockerClient
         /// </summary>
         /// <param name="ct">Cancellation token</param>
         /// <returns>True if this provider could connect to docker</returns>
-        Task<bool> TryTest(CancellationToken ct = default(CancellationToken));
+        Task<bool> TryTest(CancellationToken ct = default);
     }
 }

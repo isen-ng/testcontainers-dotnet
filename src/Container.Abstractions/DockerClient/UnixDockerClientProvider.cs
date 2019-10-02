@@ -1,6 +1,7 @@
 using System;
 using System.Runtime.InteropServices;
 using Docker.DotNet;
+using Microsoft.Extensions.Logging;
 
 namespace TestContainers.Container.Abstractions.DockerClient
 {
@@ -29,7 +30,8 @@ namespace TestContainers.Container.Abstractions.DockerClient
         private readonly DockerClientConfiguration _dockerConfiguration;
 
         /// <inheritdoc />
-        public UnixDockerClientProvider()
+        public UnixDockerClientProvider(ILogger<UnixDockerClientProvider> logger)
+            : base(logger)
         {
             _dockerConfiguration =
                 new DockerClientConfiguration(new Uri(UnixSocket));
