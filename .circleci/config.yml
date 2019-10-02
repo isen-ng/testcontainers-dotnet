@@ -15,6 +15,7 @@ jobs:
       # restore and prepare
       - run: dotnet restore
       - run: dotnet tool install --global dotnet-sonarscanner
+      - run: echo 'export PATH="$PATH:/home/circleci/.dotnet/tools"' >> $BASH_ENV
 
       # build and static analysis
       - run: dotnet sonarscanner begin /k:"testcontainers-dotnet" /o:"isen-ng-github" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.login="$SONAR_TOKEN"
