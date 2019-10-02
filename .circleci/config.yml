@@ -1,0 +1,86 @@
+version: 2
+jobs:
+  build:
+    machine:
+      image: ubuntu-1604:201903-01
+
+    working_directory: ~/repo
+
+    steps:
+      - run: wget -q https://packages.microsoft.com/config/ubuntu/18.04/packages-microsoft-prod.deb -O packages-microsoft-prod.deb
+      - run: sudo dpkg -i packages-microsoft-prod.deb
+      - run: sudo apt-get update
+      - run: sudo apt-get install apt-transport-https
+      - run: sudo apt-get update
+      - run: sudo apt-get install dotnet-sdk-2.2
+      - run: rm packages-microsoft-prod.deb
+
+      - checkout
+
+      # prepare local package source
+      - run: mkdir -p ~/.nuget/packages
+
+      # restore and prepare
+      - run: dotnet restore
+      - run: dotnet tool install --global dotnet-sonarscanner
+      - run: echo 'export PATH="$PATH:/home/circleci/.dotnet/tools"' >> $BASH_ENV
+
+      # build and static analysis
+      #- run: dotnet sonarscanner begin /k:"testcontainers-dotnet" /o:"isen-ng-github" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.login="$SONAR_TOKEN"
+      - run: dotnet build
+      #- run: dotnet sonarscanner end /d:sonar.login="$SONAR_TOKEN"
+
+      # test
+      - run: dotnet test /p:CollectCoverage=true /p:CoverletOutputFormat='json%2copencover' /p:CoverletOutput=../bin/coverage/ /p:MergeWith='../bin/coverage/coverage.json'
+
+      # send report to code coverage
+      - run: curl -s https://codecov.io/bash > codecov
+      - run: chmod +x codecov
+      - run: ./codecov -f "test/bin/coverage/coverage.opencover.xml"
+
+      - save_cache:
+          key: v1-repo-{{ .Environment.CIRCLE_SHA1 }}
+          paths:
+            - ~/repo
+  deploy_integration:
+    docker:
+      - image: jetcipher/circleci-dotnet-core:2.2
+
+    working_directory: ~/repo
+
+    steps:
+      - restore_cache:
+          key: v1-repo-{{ .Environment.CIRCLE_SHA1 }}
+
+      - deploy: ./remote-publish.sh $NUGET_API_KEY $NUGET_GALLERY_URL
+
+  deploy_production:
+    docker:
+      - image: jetcipher/circleci-dotnet-core:2.2
+
+    working_directory: ~/repo
+
+    steps:
+      - restore_cache:
+          key: v1-repo-{{ .Environment.CIRCLE_SHA1 }}
+
+      - deploy: ./remote-publish.sh $INTEGRATION_NUGET_API_KEY $INTEGRATION_NUGET_GALLERY_URL
+
+workflows:
+  version: 2
+  build:
+    jobs:
+      - build
+      - deploy_integration:
+          requires:
+            - build
+          filters:
+            tags:
+              only: /^test\/.+$/
+      - deploy_production:
+          requires:
+            - build
+          filters:
+            tags:
+              only: /^v[0-9]+\.[0-9]+.[0-9]+(-.*)*$/
+
