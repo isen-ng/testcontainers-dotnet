@@ -53,7 +53,7 @@ namespace TestContainers.Container.Abstractions.Images
                 new AuthConfig(),
                 new Progress<JSONMessage>(m =>
                 {
-                    _logger.LogTrace(m.ProgressMessage);
+                    _logger.LogTrace("[{}] {}", m.Status, m.ProgressMessage);
                 }),
                 ct);
 
