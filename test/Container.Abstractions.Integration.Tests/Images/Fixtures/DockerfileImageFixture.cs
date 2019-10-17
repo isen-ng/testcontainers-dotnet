@@ -13,6 +13,10 @@ namespace Container.Abstractions.Integration.Tests.Images.Fixtures
 {
     public class DockerfileImageFixture : IAsyncLifetime
     {
+        public const string DockerfileImageContext = "Images/Fixtures/Dockerfiles/Context";
+        public const string DockerfileImageTransferableFile = "Images/Fixtures/Dockerfiles/Transferables/file1.txt";
+        public const string DockerfileImageTransferableFolder = "Images/Fixtures/Dockerfiles/Transferables/folder1";
+
         public IPlatformSpecific PlatformSpecific { get; } = PlatformHelper.GetPlatform();
 
         public IImage Image { get; }
@@ -31,10 +35,14 @@ namespace Container.Abstractions.Integration.Tests.Images.Fixtures
                 })
                 .ConfigureImage((context, image) =>
                 {
-                    image.DockerfilePath = "MyDockerfile";
                     image.DeleteOnExit = false;
+                    image.BasePath = DockerfileImageContext;
+
+                    image.DockerfilePath = "MyDockerfile";
                     image.Transferables.Add("MyDockerfile", new MountableFile(PlatformSpecific.DockerfileImagePath));
-                    image.Transferables.Add(".", new MountableFile(PlatformSpecific.DockerfileImageContext));
+
+                    image.Transferables.Add("file1.txt", new MountableFile(DockerfileImageTransferableFile));
+                    image.Transferables.Add("folder1", new MountableFile(DockerfileImageTransferableFolder));
                 })
                 .Build();
 

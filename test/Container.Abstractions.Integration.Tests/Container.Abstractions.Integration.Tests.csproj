@@ -20,7 +20,7 @@
 
   <ItemGroup>
     <None Update="Images\Fixtures\dockerfiles\**\*">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
 

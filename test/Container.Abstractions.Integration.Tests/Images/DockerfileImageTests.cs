@@ -1,4 +1,7 @@
+using System;
 using System.IO;
+using System.Net;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Container.Abstractions.Integration.Tests.Images.Fixtures;
 using Container.Test.Utility;
@@ -41,7 +44,6 @@ namespace Container.Abstractions.Integration.Tests.Images
 
                 // assert
                 var actualImage = await DockerClient.Images.InspectImageAsync(Image.ImageName);
-
                 Assert.Equal(actualImage.ID, actualImageId);
             }
         }
@@ -70,10 +72,40 @@ namespace Container.Abstractions.Integration.Tests.Images
                 // assert
                 var mappedPort = container.GetMappedPort(80);
                 var host = $"http://localhost:{mappedPort}";
-                var actual = HttpClientHelper.MakeGetRequest($"{host}/dummy.txt");
-                var expected = File.ReadAllText(PlatformSpecific.DockerfileImageContext + "/dummy.txt");
+
+                AssertFileExists($"{host}/dummy.txt", DockerfileImageFixture.DockerfileImageContext + "/dummy.txt");
+                AssertFileExists($"{host}/file1.txt", DockerfileImageFixture.DockerfileImageTransferableFile);
+                AssertFileExists($"{host}/folder1/file1.txt", DockerfileImageFixture.DockerfileImageTransferableFolder + "/file1.txt");
+
+                // ignored by .dockerignore
+                AssertFileDoesNotExists($"{host}/dummy2.txt");
+            }
+
+            private static void AssertFileExists(string httpPath, string localPath)
+            {
+                var actual = HttpClientHelper.MakeGetRequest(httpPath);
+                var expected = File.ReadAllText(localPath);
 
                 Assert.Equal(expected, actual);
+            }
+
+            private static void AssertFileDoesNotExists(string httpPath)
+            {
+                try
+                {
+                    HttpClientHelper.MakeGetRequest(httpPath);
+                    Assert.True(false);
+                }
+                catch (WebException e)
+                {
+                    if (e.Status != WebExceptionStatus.ProtocolError)
+                    {
+                        throw;
+                    }
+
+                    var status = (e.Response as HttpWebResponse)?.StatusCode;
+                    Assert.Equal(HttpStatusCode.NotFound, status);
+                }
             }
         }
     }

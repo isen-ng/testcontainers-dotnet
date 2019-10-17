@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using TestContainers.Container.Abstractions.Images;
 using TestContainers.Container.Abstractions.Models;
+using TestContainers.Container.Abstractions.Networks;
 
 namespace TestContainers.Container.Abstractions
 {
@@ -64,6 +65,17 @@ namespace TestContainers.Container.Abstractions
         IList<Bind> BindMounts { get; }
 
         /// <summary>
+        /// Gets the docker network if specified
+        /// </summary>
+        INetwork Network { get; set; }
+
+        /// <summary>
+        /// Gets the docker network aliases set to this container
+        /// </summary>
+        [NotNull]
+        IList<string> NetWorkAliases { get; }
+
+        /// <summary>
         /// Sets the container to use privileged mode when this is set
         /// </summary>
         bool IsPrivileged { get; set; }
@@ -88,14 +100,14 @@ namespace TestContainers.Container.Abstractions
         /// </summary>
         /// <param name="ct">Cancellation token</param>
         /// <returns>A task that completes when the container fully started</returns>
-        Task StartAsync(CancellationToken ct = default(CancellationToken));
+        Task StartAsync(CancellationToken ct = default);
 
         /// <summary>
         /// Stops the container
         /// </summary>
         /// <param name="ct">Cancellation token</param>
         /// <returns>A task that completes when the container fully stops</returns>
-        Task StopAsync(CancellationToken ct = default(CancellationToken));
+        Task StopAsync(CancellationToken ct = default);
 
         /// <summary>
         /// Gets a network host address for this docker instance

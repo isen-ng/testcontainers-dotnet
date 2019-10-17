@@ -11,6 +11,7 @@ using Microsoft.Extensions.Logging;
 using TestContainers.Container.Abstractions.Exceptions;
 using TestContainers.Container.Abstractions.Images;
 using TestContainers.Container.Abstractions.Models;
+using TestContainers.Container.Abstractions.Networks;
 using TestContainers.Container.Abstractions.StartupStrategies;
 using TestContainers.Container.Abstractions.WaitStrategies;
 
@@ -81,13 +82,19 @@ namespace TestContainers.Container.Abstractions
         public IList<Bind> BindMounts { get; } = new List<Bind>();
 
         /// <inheritdoc />
+        public INetwork Network { get; set; }
+
+        /// <inheritdoc />
+        public IList<string> NetWorkAliases { get; } = new List<string>();
+
+        /// <inheritdoc />
         public bool IsPrivileged { get; set; }
 
         /// <inheritdoc />
         public string WorkingDirectory { get; set; }
 
         /// <inheritdoc />
-        public List<string> Command { get; set; }
+        public List<string> Command { get; set; } = new List<string>();
 
         /// <inheritdoc />
         public bool AutoRemove { get; set; }
@@ -125,6 +132,8 @@ namespace TestContainers.Container.Abstractions
             await ContainerStarting();
 
             await ResolveImage(ct);
+
+            await ResolveNetwork(ct);
 
             ContainerId = await CreateContainer(ct);
 
@@ -278,6 +287,19 @@ namespace TestContainers.Container.Abstractions
             await DockerImage.Resolve(ct);
         }
 
+        private async Task ResolveNetwork(CancellationToken ct)
+        {
+            if (ct.IsCancellationRequested)
+            {
+                return;
+            }
+
+            if (Network != null)
+            {
+                await Network.Resolve(ct);
+            }
+        }
+
         private async Task<string> CreateContainer(CancellationToken ct)
         {
             if (ct.IsCancellationRequested)
@@ -367,28 +389,49 @@ namespace TestContainers.Container.Abstractions
                 AttachStdout = true,
             };
 
+            var hostConfig = new HostConfig
+            {
+                AutoRemove = AutoRemove,
+                NetworkMode = Network?.NetworkName,
+                PortBindings = PortBindings.ToDictionary(
+                    e => string.Format(TcpExposedPortFormat, e.Key),
+                    e => (IList<PortBinding>) new List<PortBinding>
+                    {
+                        new PortBinding
+                        {
+                            HostPort = e.Value.ToString()
+                        }
+                    }),
+                Mounts = BindMounts.Select(m => new Mount
+                    {
+                        Source = m.HostPath,
+                        Target = m.ContainerPath,
+                        ReadOnly = m.AccessMode == AccessMode.ReadOnly,
+                        Type = "bind"
+                    })
+                    .ToList(),
+                PublishAllPorts = true,
+                Privileged = IsPrivileged
+            };
+
+            var networkConfig = new NetworkingConfig();
+            if (Network is UserDefinedNetwork)
+            {
+                networkConfig.EndpointsConfig = new Dictionary<string, EndpointSettings>
+                {
+                    {
+                        Network.NetworkName, new EndpointSettings
+                        {
+                            Aliases = NetWorkAliases
+                        }
+                    }
+                };
+            }
+
             return new CreateContainerParameters(config)
             {
-                HostConfig = new HostConfig
-                {
-                    AutoRemove = AutoRemove,
-                    PortBindings = PortBindings.ToDictionary(
-                        e => string.Format(TcpExposedPortFormat, e.Key),
-                        e => (IList<PortBinding>) new List<PortBinding>
-                        {
-                            new PortBinding {HostPort = e.Value.ToString()}
-                        }),
-                    Mounts = BindMounts.Select(m => new Mount
-                        {
-                            Source = m.HostPath,
-                            Target = m.ContainerPath,
-                            ReadOnly = m.AccessMode == AccessMode.ReadOnly,
-                            Type = "bind"
-                        })
-                        .ToList(),
-                    PublishAllPorts = true,
-                    Privileged = IsPrivileged
-                }
+                HostConfig = hostConfig,
+                NetworkingConfig = networkConfig
             };
         }
 

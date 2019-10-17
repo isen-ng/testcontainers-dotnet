@@ -36,7 +36,6 @@ namespace Container.Abstractions.Integration.Tests.Images
 
                 // assert
                 var actualImage = await DockerClient.Images.InspectImageAsync(Image.ImageName);
-
                 Assert.Equal(actualImage.ID, actualImageId);
             }
         }

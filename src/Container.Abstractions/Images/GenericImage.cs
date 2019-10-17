@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Docker.DotNet;
 using Docker.DotNet.Models;
 using Microsoft.Extensions.Logging;
+using TestContainers.Container.Abstractions.Utilities;
 
 namespace TestContainers.Container.Abstractions.Images
 {
@@ -13,6 +14,8 @@ namespace TestContainers.Container.Abstractions.Images
     /// </summary>
     public class GenericImage : AbstractImage
     {
+        private static readonly Striped<SemaphoreSlim> ImagePullLocks = Striped<SemaphoreSlim>.ForSemaphoreSlim();
+
         private readonly ILogger<GenericImage> _logger;
 
         /// <inheritdoc />
@@ -33,15 +36,48 @@ namespace TestContainers.Container.Abstractions.Images
                 return null;
             }
 
-            var images = await DockerClient.Images.ListImagesAsync(new ImagesListParameters(), ct);
-            var existingImage = images.FirstOrDefault(i => i.RepoTags != null && i.RepoTags.Contains(ImageName));
-            if (existingImage != null)
+            if (await CheckIfImageExists(ct))
             {
-                _logger.LogDebug("Image already exists, not pulling: {}", ImageName);
-                ImageId = existingImage.ID;
                 return ImageId;
             }
 
+            // we must only pull an image once
+            // the API allows pulling the same image in parallel but suffers from race conditions that produces
+            // unpredictable results or errors
+            await ImagePullLocks.Get(ImageName).WaitAsync(ct);
+
+            try
+            {
+                if (!await CheckIfImageExists(ct))
+                {
+                    await PullImage(ct);
+                }
+            }
+            finally
+            {
+                ImagePullLocks.Get(ImageName).Release();
+            }
+
+            return ImageId;
+        }
+
+        private async Task<bool> CheckIfImageExists(CancellationToken ct)
+        {
+            var images = await DockerClient.Images.ListImagesAsync(new ImagesListParameters(), ct);
+            var existingImage = images.FirstOrDefault(i => i.RepoTags != null && i.RepoTags.Contains(ImageName));
+
+            if (existingImage == null)
+            {
+                return false;
+            }
+
+            _logger.LogDebug("Image already exists, not pulling: {}", ImageName);
+            ImageId = existingImage.ID;
+            return true;
+        }
+
+        private async Task PullImage(CancellationToken ct)
+        {
             _logger.LogInformation("Pulling container image: {}", ImageName);
             var createParameters = new ImagesCreateParameters
             {
@@ -61,8 +97,6 @@ namespace TestContainers.Container.Abstractions.Images
             // expected to be available since we've just pulled it
             var image = await DockerClient.Images.InspectImageAsync(ImageName, ct);
             ImageId = image.ID;
-
-            return ImageId;
         }
     }
 }

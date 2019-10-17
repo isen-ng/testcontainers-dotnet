@@ -4,7 +4,6 @@ using System.Threading.Tasks;
 using Docker.DotNet;
 using Microsoft.Extensions.Logging;
 using Polly;
-using TestContainers.Container.Abstractions.Hosting;
 
 namespace TestContainers.Container.Abstractions.DockerClient
 {
@@ -39,7 +38,7 @@ namespace TestContainers.Container.Abstractions.DockerClient
         /// <inheritdoc />
         public abstract DockerClientConfiguration GetConfiguration();
 
-        private ILogger _logger;
+        private readonly ILogger _logger;
 
         /// <inheritdoc />
         protected AbstractDockerClientProvider(ILogger logger)

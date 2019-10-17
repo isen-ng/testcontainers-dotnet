@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.Extensions.DependencyInjection;
 using TestContainers.Container.Abstractions.Images;
+using TestContainers.Container.Abstractions.Networks;
 
 namespace TestContainers.Container.Abstractions.Hosting
 {
@@ -13,6 +14,7 @@ namespace TestContainers.Container.Abstractions.Hosting
     {
         private readonly List<Action<HostContext, T>> _configureContainerActions = new List<Action<HostContext, T>>();
         private Func<HostContext, ContainerBuilder<T>, IImage> _imageProvider;
+        private Func<HostContext, ContainerBuilder<T>, INetwork> _networkProvider;
 
         /// <summary>
         /// Sets the docker image name used to build this container
@@ -84,6 +86,34 @@ namespace TestContainers.Container.Abstractions.Hosting
         }
 
         /// <summary>
+        /// Sets the docker network that this container will be attached to
+        /// </summary>
+        /// <param name="dockerNetwork">the docker network to attach to</param>
+        /// <returns>self</returns>
+        /// <exception cref="ArgumentNullException">when dockerNetwork is null</exception>
+        public ContainerBuilder<T> ConfigureNetwork(INetwork dockerNetwork)
+        {
+            if (dockerNetwork == null)
+            {
+                throw new ArgumentNullException(nameof(dockerNetwork));
+            }
+
+            return ConfigureNetwork((c, b) => dockerNetwork);
+        }
+
+        /// <summary>
+        /// Sets the docker network that this container will be attached to
+        /// </summary>
+        /// <param name="delegate">a delegate to provide the docker network</param>
+        /// <returns>self</returns>
+        /// <exception cref="ArgumentNullException">when @delegate is null</exception>
+        public ContainerBuilder<T> ConfigureNetwork(Func<HostContext, ContainerBuilder<T>, INetwork> @delegate)
+        {
+            _networkProvider = @delegate ?? throw new ArgumentNullException(nameof(@delegate));
+            return this;
+        }
+
+        /// <summary>
         /// Allows the configuration of this container
         /// </summary>
         /// <param name="delegate">a delegate to configure this container</param>
@@ -109,6 +139,12 @@ namespace TestContainers.Container.Abstractions.Hosting
         /// <inheritdoc />
         protected override void PostActivateHook(HostContext hostContext, T instance)
         {
+            if (_networkProvider != null)
+            {
+                var network = _networkProvider.Invoke(hostContext, this);
+                instance.Network = network;
+            }
+
             foreach (var action in _configureContainerActions)
             {
                 action.Invoke(hostContext, instance);
