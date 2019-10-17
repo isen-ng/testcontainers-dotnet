@@ -12,7 +12,7 @@ namespace TestContainers.Container.Abstractions.Utilities.GoLang
     /// Copied directly from
     /// https://github.com/docker-java/docker-java/blob/master/docker-java-core/src/main/java/com/github/dockerjava/core/GoLangFileMatch.java
     /// </summary>
-    public class GoLangFileMatch
+    public static class GoLangFileMatch
     {
         internal static readonly bool IsWindows = Path.DirectorySeparatorChar == '\\';
         private const string PatternCharsToEscape = "\\.[]{}()*+-?^$|";
@@ -41,10 +41,6 @@ namespace TestContainers.Container.Abstractions.Utilities.GoLang
             // use `Regex.IsMatch` instead of returning a `new Regex` because according to the source code
             // only these static method caches the compiled pattern, while `new Regex` ignores the compiled option
             return Regex.IsMatch(name, BuildPattern(pattern), RegexOptions.Compiled, Regex.InfiniteMatchTimeout);
-        }
-
-        private GoLangFileMatch()
-        {
         }
 
         private static string BuildPattern(string pattern)

@@ -4,7 +4,6 @@ using System.Threading.Tasks;
 using Docker.DotNet;
 using Microsoft.Extensions.Logging;
 using Polly;
-using TestContainers.Container.Abstractions.Hosting;
 
 namespace TestContainers.Container.Abstractions.DockerClient
 {
