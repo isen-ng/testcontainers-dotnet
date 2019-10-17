@@ -85,11 +85,6 @@ namespace TestContainers.Container.Abstractions.Images
 
             _logger.LogDebug("Begin building image: {}", ImageName);
 
-            var buildImageParameters = new ImageBuildParameters
-            {
-                Dockerfile = DockerfilePath, Tags = new List<string> {ImageName}
-            };
-
             var tempTarPath = Path.Combine(Path.GetTempPath(), ImageName.Replace('/', '_') + ".tar");
 
             try
@@ -132,6 +127,13 @@ namespace TestContainers.Container.Abstractions.Images
                 {
                     return null;
                 }
+
+                var buildImageParameters = new ImageBuildParameters
+                {
+                    Dockerfile = DockerfilePath,
+                    Labels = ResourceReaper.Labels,
+                    Tags = new List<string> {ImageName}
+                };
 
                 using (var tempFile = new FileStream(tempTarPath, FileMode.Open))
                 {
@@ -189,22 +191,6 @@ namespace TestContainers.Container.Abstractions.Images
 
             var lastMatchingPattern = matches[matches.Count - 1];
             return !lastMatchingPattern.StartsWith("!");
-        }
-
-        private static IList<string> GetIgnoredFilesInBasePath(string basePath)
-        {
-            var dockerIgnorePath = Path.GetFullPath(Path.Combine(basePath, DefaultDockerIgnorePath));
-            var ignores = File.Exists(dockerIgnorePath)
-                ? File.ReadLines(dockerIgnorePath).ToList()
-                : new List<string>();
-
-            var baseDirectoryInfo = new DirectoryInfo(basePath);
-            return ignores
-                .Select(i => baseDirectoryInfo.GlobFiles(i))
-                .SelectMany(e => e)
-                .Select(f => f.FullName)
-                .Append(dockerIgnorePath)
-                .ToList();
         }
 
         private static IList<string> GetAllFilesInDirectory(string directory)
