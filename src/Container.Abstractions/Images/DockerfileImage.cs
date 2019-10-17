@@ -131,7 +131,7 @@ namespace TestContainers.Container.Abstractions.Images
                 var buildImageParameters = new ImageBuildParameters
                 {
                     Dockerfile = DockerfilePath,
-                    Labels = ResourceReaper.Labels,
+                    Labels = DeleteOnExit ? ResourceReaper.Labels : null,
                     Tags = new List<string> {ImageName}
                 };
 
