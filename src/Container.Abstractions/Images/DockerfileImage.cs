@@ -12,6 +12,7 @@ using Microsoft.Extensions.Logging;
 using TestContainers.Container.Abstractions.Reaper;
 using TestContainers.Container.Abstractions.Transferables;
 using TestContainers.Container.Abstractions.Utilities;
+using TestContainers.Container.Abstractions.Utilities.GoLang;
 
 namespace TestContainers.Container.Abstractions.Images
 {
@@ -94,15 +95,16 @@ namespace TestContainers.Container.Abstractions.Images
                 {
                     if (!string.IsNullOrWhiteSpace(BasePath))
                     {
-                        var ignoredFiles = GetIgnoredFilesInBasePath(BasePath);
+                        var ignores = GetIgnores(BasePath);
                         var allFiles = GetAllFilesInDirectory(BasePath);
 
-                        var filesToBeTransferred = allFiles
-                            .Where(f => !ignoredFiles.Contains(f))
-                            .ToList();
-
-                        foreach (var file in filesToBeTransferred)
+                        foreach (var file in allFiles)
                         {
+                            if (IsFileIgnored(ignores, BasePath, file))
+                            {
+                                continue;
+                            }
+
                             var relativePath = GetRelativePath(BasePath, file);
                             await new MountableFile(file).TransferTo(tarArchive, relativePath, ct);
                         }
@@ -156,6 +158,35 @@ namespace TestContainers.Container.Abstractions.Images
             return ImageId;
         }
 
+        private static IList<string> GetIgnores(string basePath)
+        {
+            var dockerIgnorePath = Path.GetFullPath(Path.Combine(basePath, DefaultDockerIgnorePath));
+            return File.Exists(dockerIgnorePath)
+                ? File.ReadLines(dockerIgnorePath)
+                    .Where(line => !string.IsNullOrWhiteSpace(line))
+                    .Select(line => line.Trim())
+                    .ToList()
+                : new List<string>();
+        }
+
+        private static bool IsFileIgnored(IEnumerable<string> ignores, string basePath, string filePath)
+        {
+            var relativePath = GetRelativePath(basePath, filePath);
+
+            var matches = ignores
+                .Select(i => i.StartsWith("!") ? i.Substring(1) : i)
+                .Where(i => GoLangFileMatch.Match(i, relativePath))
+                .ToList();
+
+            if (matches.Count <= 0)
+            {
+                return false;
+            }
+
+            var lastMatchingPattern = matches[matches.Count - 1];
+            return !lastMatchingPattern.StartsWith("!");
+        }
+
         private static IList<string> GetIgnoredFilesInBasePath(string basePath)
         {
             var dockerIgnorePath = Path.GetFullPath(Path.Combine(basePath, DefaultDockerIgnorePath));
@@ -190,7 +221,9 @@ namespace TestContainers.Container.Abstractions.Images
             var fullRelativeTo = Path.GetFullPath(relativeTo);
             var fullPath = Path.GetFullPath(path);
 
-            return fullPath.StartsWith(fullRelativeTo) ? fullPath.Substring(fullRelativeTo.Length) : path;
+            return fullPath.StartsWith(fullRelativeTo)
+                ? fullPath.Substring(fullRelativeTo.Length).TrimStart('/')
+                : path;
         }
     }
 }
