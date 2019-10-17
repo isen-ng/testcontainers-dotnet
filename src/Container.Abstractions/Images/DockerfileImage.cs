@@ -6,7 +6,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Docker.DotNet;
 using Docker.DotNet.Models;
-using GlobExpressions;
 using ICSharpCode.SharpZipLib.Tar;
 using Microsoft.Extensions.Logging;
 using TestContainers.Container.Abstractions.Reaper;
@@ -99,12 +98,13 @@ namespace TestContainers.Container.Abstractions.Images
 
                         foreach (var file in allFiles)
                         {
-                            if (IsFileIgnored(ignores, BasePath, file))
+                            var relativePath = GetRelativePath(BasePath, file);
+
+                            if (IsFileIgnored(ignores, relativePath))
                             {
                                 continue;
                             }
 
-                            var relativePath = GetRelativePath(BasePath, file);
                             await new MountableFile(file).TransferTo(tarArchive, relativePath, ct);
                         }
 
@@ -175,10 +175,8 @@ namespace TestContainers.Container.Abstractions.Images
                 : new List<string>();
         }
 
-        private static bool IsFileIgnored(IEnumerable<string> ignores, string basePath, string filePath)
+        private static bool IsFileIgnored(IEnumerable<string> ignores, string relativePath)
         {
-            var relativePath = GetRelativePath(basePath, filePath);
-
             var matches = ignores
                 .Select(i => i.StartsWith("!") ? i.Substring(1) : i)
                 .Where(i => GoLangFileMatch.Match(i, relativePath))
