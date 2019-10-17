@@ -35,10 +35,12 @@ namespace Container.Abstractions.Integration.Tests.Images.Fixtures
                 })
                 .ConfigureImage((context, image) =>
                 {
-                    image.DockerfilePath = "MyDockerfile";
                     image.DeleteOnExit = false;
                     image.BasePath = DockerfileImageContext;
+
+                    image.DockerfilePath = "MyDockerfile";
                     image.Transferables.Add("MyDockerfile", new MountableFile(PlatformSpecific.DockerfileImagePath));
+
                     image.Transferables.Add("file1.txt", new MountableFile(DockerfileImageTransferableFile));
                     image.Transferables.Add("folder1", new MountableFile(DockerfileImageTransferableFolder));
                 })

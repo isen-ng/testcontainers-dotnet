@@ -148,13 +148,15 @@ var container = new ContainerBuilder<GenericContainer>()
             .WithContextFrom(builderContext)
             .ConfigureImage((context, image) =>
             {
-                image.DockerfilePath = "Dockerfile";
                 image.DeleteOnExit = false;
+                image.BasePath = PlatformSpecific.DockerfileImageContext;
         
-                // add the Dockerfile into the build context 
+                // add the Dockerfile as like the command line `-f <path to dockerfile`
+                image.DockerfilePath = "Dockerfile"; 
                 image.Transferables.Add("Dockerfile", new MountableFile(PlatformSpecific.DockerfileImagePath));
+
                 // add other files required by the Dockerfile into the build context
-                image.Transferables.Add(".", new MountableFile(PlatformSpecific.DockerfileImageContext));
+                image.Transferables.Add("folder1", new MountableFile(DockerfileImageTransferableFolder));
             })
             .Build();
     })

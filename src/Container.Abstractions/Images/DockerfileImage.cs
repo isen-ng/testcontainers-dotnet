@@ -39,7 +39,10 @@ namespace TestContainers.Container.Abstractions.Images
         public string DockerfilePath { get; set; } = DefaultDockerfilePath;
 
         /// <summary>
-        /// Gets or sets the path to set the base directory for the build context
+        /// Gets or sets the path to set the base directory for the build context.
+        ///
+        /// Files ignored by .dockerignore will not be copied into the context.
+        /// .dockerignore file must be in the root of the base path
         /// </summary>
         public string BasePath { get; set; }
 
@@ -49,7 +52,8 @@ namespace TestContainers.Container.Abstractions.Images
         public bool DeleteOnExit { get; set; } = true;
 
         /// <summary>
-        /// Transferables that will be passed as build context to the image build command
+        /// Transferables that will be passed as build context to the image build command.
+        /// Files added by this method will not be filtered by .dockerignore
         /// </summary>
         public Dictionary<string, ITransferable> Transferables { get; } = new Dictionary<string, ITransferable>();
 
