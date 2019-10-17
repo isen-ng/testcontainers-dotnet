@@ -1,10 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Docker.DotNet;
 using Docker.DotNet.Models;
+using GlobExpressions;
 using ICSharpCode.SharpZipLib.Tar;
 using Microsoft.Extensions.Logging;
 using TestContainers.Container.Abstractions.Reaper;
@@ -23,12 +25,22 @@ namespace TestContainers.Container.Abstractions.Images
         /// </summary>
         public const string DefaultDockerfilePath = "Dockerfile";
 
-        private static readonly Random SRandom = new Random();
+        /// <summary>
+        /// Default .dockerignore path to be used to filter the context from the base path
+        /// </summary>
+        public const string DefaultDockerIgnorePath = ".dockerignore";
+
+        private static readonly Random Random = new Random();
 
         /// <summary>
         /// Gets or sets the path to the Dockerfile in the tar archive to be passed into the image build command
         /// </summary>
         public string DockerfilePath { get; set; } = DefaultDockerfilePath;
+
+        /// <summary>
+        /// Gets or sets the path to set the base directory for the build context
+        /// </summary>
+        public string BasePath { get; set; }
 
         /// <summary>
         /// Indicates whether this image should be deleted after the process ends
@@ -47,11 +59,7 @@ namespace TestContainers.Container.Abstractions.Images
             : base(dockerClient, loggerFactory)
         {
             _logger = loggerFactory.CreateLogger(GetType());
-
-            if (string.IsNullOrWhiteSpace(ImageName))
-            {
-                ImageName = "testcontainers/" + SRandom.NextAlphaNumeric(16).ToLower();
-            }
+            ImageName = "testcontainers/" + Random.NextAlphaNumeric(16).ToLower();
         }
 
         /// <summary>
@@ -84,6 +92,24 @@ namespace TestContainers.Container.Abstractions.Images
                 using (var tempFile = new FileStream(tempTarPath, FileMode.Create))
                 using (var tarArchive = TarArchive.CreateOutputTarArchive(tempFile))
                 {
+                    if (!string.IsNullOrWhiteSpace(BasePath))
+                    {
+                        var ignoredFiles = GetIgnoredFilesInBasePath(BasePath);
+                        var allFiles = GetAllFilesInDirectory(BasePath);
+
+                        var filesToBeTransferred = allFiles
+                            .Where(f => !ignoredFiles.Contains(f))
+                            .ToList();
+
+                        foreach (var file in filesToBeTransferred)
+                        {
+                            var relativePath = GetRelativePath(BasePath, file);
+                            await new MountableFile(file).TransferTo(tarArchive, relativePath, ct);
+                        }
+
+                        _logger.LogDebug("Transferred base path [{}] into tar archive", BasePath);
+                    }
+
                     foreach (var entry in Transferables)
                     {
                         var destinationPath = entry.Key;
@@ -128,6 +154,43 @@ namespace TestContainers.Container.Abstractions.Images
             ImageId = image.ID;
 
             return ImageId;
+        }
+
+        private static IList<string> GetIgnoredFilesInBasePath(string basePath)
+        {
+            var dockerIgnorePath = Path.GetFullPath(Path.Combine(basePath, DefaultDockerIgnorePath));
+            var ignores = File.Exists(dockerIgnorePath)
+                ? File.ReadLines(dockerIgnorePath).ToList()
+                : new List<string>();
+
+            var baseDirectoryInfo = new DirectoryInfo(basePath);
+            return ignores
+                .Select(i => baseDirectoryInfo.GlobFiles(i))
+                .SelectMany(e => e)
+                .Select(f => f.FullName)
+                .Append(dockerIgnorePath)
+                .ToList();
+        }
+
+        private static IList<string> GetAllFilesInDirectory(string directory)
+        {
+            var result = new List<string>();
+            result.AddRange(Directory.GetFiles(directory).Select(Path.GetFullPath));
+
+            foreach (string subDirectory in Directory.GetDirectories(directory))
+            {
+                result.AddRange(GetAllFilesInDirectory(subDirectory));
+            }
+
+            return result;
+        }
+
+        private static string GetRelativePath(string relativeTo, string path)
+        {
+            var fullRelativeTo = Path.GetFullPath(relativeTo);
+            var fullPath = Path.GetFullPath(path);
+
+            return fullPath.StartsWith(fullRelativeTo) ? fullPath.Substring(fullRelativeTo.Length) : path;
         }
     }
 }

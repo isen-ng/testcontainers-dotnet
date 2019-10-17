@@ -71,7 +71,7 @@ namespace TestContainers.Container.Abstractions
         {
             await base.ConfigureAsync();
 
-            _logger.LogDebug("Adding session labels to generic container: " + ResourceReaper.SessionId);
+            _logger.LogDebug("Adding session labels to generic container: {}", ResourceReaper.SessionId);
 
             foreach (var label in ResourceReaper.Labels)
             {

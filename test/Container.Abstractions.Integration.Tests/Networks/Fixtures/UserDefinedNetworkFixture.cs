@@ -5,22 +5,22 @@ using Docker.DotNet;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using TestContainers.Container.Abstractions.Hosting;
-using TestContainers.Container.Abstractions.Images;
+using TestContainers.Container.Abstractions.Networks;
 using Xunit;
 
 namespace Container.Abstractions.Integration.Tests.Networks.Fixtures
 {
-    public class GenericImageFixture : IAsyncLifetime
+    public class UserDefinedNetworkFixture : IAsyncLifetime
     {
         public IPlatformSpecific PlatformSpecific { get; } = PlatformHelper.GetPlatform();
 
-        public IImage Image { get; }
+        public INetwork Network { get; }
 
         public IDockerClient DockerClient { get; }
 
-        public GenericImageFixture()
+        public UserDefinedNetworkFixture()
         {
-            Image = new ImageBuilder<GenericImage>()
+            Network = new NetworkBuilder<UserDefinedNetwork>()
                 .ConfigureHostConfiguration(builder => builder.AddInMemoryCollection())
                 .ConfigureAppConfiguration((context, builder) => builder.AddInMemoryCollection())
                 .ConfigureLogging(builder =>
@@ -28,23 +28,22 @@ namespace Container.Abstractions.Integration.Tests.Networks.Fixtures
                     builder.AddConsole();
                     builder.SetMinimumLevel(LogLevel.Debug);
                 })
-                .ConfigureImage((context, image) =>
+                .ConfigureNetwork((context, network) =>
                 {
-                    image.ImageName = PlatformSpecific.TinyDockerImage;
                 })
                 .Build();
 
-            DockerClient = ((GenericImage) Image).DockerClient;
+            DockerClient = ((UserDefinedNetwork) Network).DockerClient;
         }
 
         public async Task InitializeAsync()
         {
-            await DockerClientHelper.DeleteImage(DockerClient, Image.ImageName);
+            await DockerClientHelper.DeleteNetwork(DockerClient, Network.NetworkName);
         }
 
         public async Task DisposeAsync()
         {
-            await DockerClientHelper.DeleteImage(DockerClient, Image.ImageName);
+            await DockerClientHelper.DeleteNetwork(DockerClient, Network.NetworkName);
         }
     }
 }

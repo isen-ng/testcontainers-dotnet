@@ -39,7 +39,7 @@ namespace TestContainers.Container.Abstractions.DockerClient
         /// <inheritdoc />
         public abstract DockerClientConfiguration GetConfiguration();
 
-        private ILogger _logger;
+        private readonly ILogger _logger;
 
         /// <inheritdoc />
         protected AbstractDockerClientProvider(ILogger logger)

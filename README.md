@@ -28,6 +28,9 @@ Windows: [![Build status](https://ci.appveyor.com/api/projects/status/4hcmw8qnlp
 * Image management
   - Pulling from public repo
   - Building from docker file
+* Network management
+  - User defined networks
+  - Network aliases
 * Ryuk resource reaper
 
 ## Windows environment
@@ -39,6 +42,9 @@ Windows: [![Build status](https://ci.appveyor.com/api/projects/status/4hcmw8qnlp
 * Image management
   - Pulling from public repo
   - Building from docker file
+* Network management
+  - User defined networks
+  - Network aliases
 * Todo: Windows version of Ryuk [Help wanted]
 
 ## Built-in containers
@@ -149,6 +155,34 @@ var container = new ContainerBuilder<GenericContainer>()
                 image.Transferables.Add("Dockerfile", new MountableFile(PlatformSpecific.DockerfileImagePath));
                 // add other files required by the Dockerfile into the build context
                 image.Transferables.Add(".", new MountableFile(PlatformSpecific.DockerfileImageContext));
+            })
+            .Build();
+    })
+    .ConfigureHostConfiguration(builder => builder.AddInMemoryCollection()) // host settings
+    .ConfigureAppConfiguration((context, builder) => builder.AddInMemoryCollection()) // app settings
+    .ConfigureLogging(builder => builder.AddConsole()) // Microsoft extensions logging
+    .ConfigureContainer((h, c) =>
+    {
+        c.ExposedPorts.Add(80);
+    })
+    .Build();
+```
+
+### Start a container with a new network
+
+```csharp
+var container = new ContainerBuilder<GenericContainer>()
+    .ConfigureNetwork((hostContext, builderContext) => 
+    {
+        return new NetworkBuilder<UserDefinedNetwork>()
+            // share the app/host config and service collection from the parent builder context
+            .WithContextFrom(builderContext)
+            .ConfigureNetwork((context, network) =>
+            {
+                // be careful when setting static network names
+                // if they already exists, the existing network will be used
+                // otherwise, the default NetworkName is a random string 
+                network.NetworkName = "my_network"
             })
             .Build();
     })

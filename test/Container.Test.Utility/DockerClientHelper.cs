@@ -18,5 +18,15 @@ namespace Container.Test.Utility
                 await dockerClient.Images.DeleteImageAsync(imageName, parameters);
             }
         }
+
+        public static async Task DeleteNetwork(IDockerClient dockerClient, string networkName)
+        {
+            var networks = await dockerClient.Networks.ListNetworksAsync(new NetworksListParameters());
+            var existingNetwork = networks.FirstOrDefault(i => string.Equals(i.Name, networkName));
+            if (existingNetwork != null)
+            {
+                await dockerClient.Networks.DeleteNetworkAsync(existingNetwork.ID);
+            }
+        }
     }
 }

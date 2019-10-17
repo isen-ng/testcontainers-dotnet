@@ -6,8 +6,6 @@ namespace Container.Test.Utility.Platforms
 
         string DockerfileImagePath { get; }
 
-        string DockerfileImageContext { get; }
-
         string Shell { get; }
 
         string Echo { get; }
