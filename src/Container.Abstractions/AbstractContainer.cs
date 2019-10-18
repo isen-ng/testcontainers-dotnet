@@ -179,9 +179,7 @@ namespace TestContainers.Container.Abstractions
                     return dockerHostUri.Host;
                 case "npipe":
                 case "unix":
-                    return File.Exists("/.dockerenv") && ContainerInfo != null
-                        ? ContainerInfo.NetworkSettings.Gateway
-                        : "localhost";
+                    return GetContainerGateway() ?? "localhost";
                 default:
                     throw new InvalidOperationException("Docker client is using a unsupported transport: " +
                                                         dockerHostUri);
@@ -433,6 +431,33 @@ namespace TestContainers.Container.Abstractions
                 HostConfig = hostConfig,
                 NetworkingConfig = networkConfig
             };
+        }
+
+        private string GetContainerGateway()
+        {
+            if (!File.Exists("/.dockerenv") || ContainerInfo == null)
+            {
+                return null;
+            }
+
+            var gateway = ContainerInfo.NetworkSettings.Gateway;
+            if (!string.IsNullOrWhiteSpace(gateway))
+            {
+                return gateway;
+            }
+
+            var networkMode = ContainerInfo.HostConfig.NetworkMode;
+            if (string.IsNullOrWhiteSpace(networkMode))
+            {
+                return null;
+            }
+
+            if (!ContainerInfo.NetworkSettings.Networks.TryGetValue(networkMode, out var network))
+            {
+                return null;
+            }
+
+            return !string.IsNullOrWhiteSpace(network.Gateway) ? network.Gateway : null;
         }
 
         private async Task PrintContainerLogs(CancellationToken ct)
