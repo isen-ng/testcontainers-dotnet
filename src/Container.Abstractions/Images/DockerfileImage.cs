@@ -171,16 +171,22 @@ namespace TestContainers.Container.Abstractions.Images
                 ? File.ReadLines(dockerIgnorePath)
                     .Where(line => !string.IsNullOrWhiteSpace(line))
                     .Select(line => line.Trim())
+                    .Where(line => !line.StartsWith("#"))
                     .ToList()
                 : new List<string>();
         }
 
         private static bool IsFileIgnored(IEnumerable<string> ignores, string relativePath)
         {
-            var matches = ignores
-                .Select(i => i.StartsWith("!") ? i.Substring(1) : i)
-                .Where(i => GoLangFileMatch.Match(i, relativePath))
-                .ToList();
+            var matches = new List<string>();
+            foreach (var ignore in ignores)
+            {
+                var goLangPattern = ignore.StartsWith("!") ? ignore.Substring(1) : ignore;
+                if (GoLangFileMatch.Match(goLangPattern, relativePath))
+                {
+                    matches.Add(ignore);
+                }
+            }
 
             if (matches.Count <= 0)
             {

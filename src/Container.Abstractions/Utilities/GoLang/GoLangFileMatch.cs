@@ -17,7 +17,7 @@ namespace TestContainers.Container.Abstractions.Utilities.GoLang
         internal static readonly bool IsWindows = Path.DirectorySeparatorChar == '\\';
         private const string PatternCharsToEscape = "\\.[]{}()*+-?^$|";
 
-        private static readonly Dictionary<string, string> PatternCache = new Dictionary<string, string>();
+        private static readonly Dictionary<string, Regex> RegexCache = new Dictionary<string, Regex>();
 
         /// <summary>
         /// Returns the matching patterns for the given string
@@ -38,23 +38,29 @@ namespace TestContainers.Container.Abstractions.Utilities.GoLang
         /// <returns>whether the pattern matches the input</returns>
         public static bool Match(string pattern, string name)
         {
-            // use `Regex.IsMatch` instead of returning a `new Regex` because according to the source code
-            // only these static method caches the compiled pattern, while `new Regex` ignores the compiled option
-            return Regex.IsMatch(name, BuildPattern(pattern), RegexOptions.Compiled, Regex.InfiniteMatchTimeout);
-        }
-
-        private static string BuildPattern(string pattern)
-        {
             if (pattern == null)
             {
                 throw new ArgumentNullException(nameof(pattern));
             }
 
-            if (PatternCache.TryGetValue(pattern, out var goLangPattern))
+            if (name == null)
             {
-                return goLangPattern;
+                throw new ArgumentNullException(nameof(name));
             }
 
+            if (RegexCache.TryGetValue(pattern, out var regex))
+            {
+                return regex.IsMatch(name);
+            }
+
+            regex = new Regex(BuildPattern(pattern), RegexOptions.Compiled);
+            RegexCache[pattern] = regex;
+
+            return regex.IsMatch(name);
+        }
+
+        private static string BuildPattern(string pattern)
+        {
             var patternStringBuilder = new StringBuilder("^");
             while (!string.IsNullOrWhiteSpace(pattern))
             {
@@ -67,10 +73,7 @@ namespace TestContainers.Container.Abstractions.Utilities.GoLang
             }
 
             patternStringBuilder.Append("(").Append(Quote(Path.DirectorySeparatorChar)).Append(".*").Append(")?$");
-            goLangPattern = patternStringBuilder.ToString();
-            PatternCache[pattern] = goLangPattern;
-
-            return goLangPattern;
+            return patternStringBuilder.ToString();
         }
 
         private static string Quote(char separatorChar)
