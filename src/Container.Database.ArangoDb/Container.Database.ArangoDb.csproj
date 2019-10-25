@@ -12,7 +12,7 @@
     <AssemblyName>TestContainers.Container.Database.ArangoDb</AssemblyName>
     <Description>DotNet port of testcontainers.org</Description>
 
-    <Version>1.4.1</Version>
+    <Version>1.4.2</Version>
     <Authors>Isen Ng</Authors>
 
     <PackageProjectUrl>https://github.com/isen-ng/testcontainers-dotnet</PackageProjectUrl>
