@@ -5,7 +5,7 @@ set -e
 eval SOURCE="~/.nuget/packages"
 
 CONFIGURATION="Release"
-VERSION="1.4.2-SNAPSHOT"
+VERSION="1.4.3-SNAPSHOT"
 
 function local_publish() {
     dotnet pack $1 -c ${CONFIGURATION} -property:Version=${VERSION}

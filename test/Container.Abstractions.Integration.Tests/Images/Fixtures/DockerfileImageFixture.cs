@@ -1,12 +1,12 @@
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Container.Test.Utility;
 using Container.Test.Utility.Platforms;
-using Docker.DotNet;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using TestContainers.Container.Abstractions;
 using TestContainers.Container.Abstractions.Hosting;
 using TestContainers.Container.Abstractions.Images;
-using TestContainers.Container.Abstractions.Transferables;
 using Xunit;
 
 namespace Container.Abstractions.Integration.Tests.Images.Fixtures
@@ -19,44 +19,45 @@ namespace Container.Abstractions.Integration.Tests.Images.Fixtures
 
         public IPlatformSpecific PlatformSpecific { get; } = PlatformHelper.GetPlatform();
 
-        public IImage Image { get; }
+        public ImageBuilder<DockerfileImage> ImageBuilder { get; }
 
-        public IDockerClient DockerClient { get; }
+        public List<IContainer> ContainersToStop { get; } = new List<IContainer>();
+
+        public List<IImage> ImagesToReap { get; } = new List<IImage>();
 
         public DockerfileImageFixture()
         {
-            Image = new ImageBuilder<DockerfileImage>()
+            ImageBuilder = new ImageBuilder<DockerfileImage>()
                 .ConfigureHostConfiguration(builder => builder.AddInMemoryCollection())
                 .ConfigureAppConfiguration((context, builder) => builder.AddInMemoryCollection())
                 .ConfigureLogging((hostContext, builder) =>
                 {
                     builder.AddConsole();
                     builder.SetMinimumLevel(LogLevel.Debug);
-                })
-                .ConfigureImage((context, image) =>
-                {
-                    image.DeleteOnExit = false;
-                    image.BasePath = DockerfileImageContext;
-
-                    image.DockerfilePath = "MyDockerfile";
-                    image.Transferables.Add("MyDockerfile", new MountableFile(PlatformSpecific.DockerfileImagePath));
-
-                    image.Transferables.Add("file1.txt", new MountableFile(DockerfileImageTransferableFile));
-                    image.Transferables.Add("folder1", new MountableFile(DockerfileImageTransferableFolder));
-                })
-                .Build();
-
-            DockerClient = ((DockerfileImage) Image).DockerClient;
+                });
         }
 
         public async Task InitializeAsync()
         {
-            await DockerClientHelper.DeleteImage(DockerClient, Image.ImageName);
+            foreach (var image in ImagesToReap)
+            {
+                await image.Reap();
+            }
         }
 
         public async Task DisposeAsync()
         {
-            await DockerClientHelper.DeleteImage(DockerClient, Image.ImageName);
+            // must stop containers before reaping images
+            // otherwise images will fail to reap because it's being used by the running container
+            foreach (var container in ContainersToStop)
+            {
+                await container.StopAsync();
+            }
+
+            foreach (var image in ImagesToReap)
+            {
+                await image.Reap();
+            }
         }
     }
 }

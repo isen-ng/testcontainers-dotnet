@@ -93,19 +93,31 @@ namespace TestContainers.Container.Abstractions.Images
                 {
                     if (!string.IsNullOrWhiteSpace(BasePath))
                     {
-                        var ignores = GetIgnores(BasePath);
-                        var allFiles = GetAllFilesInDirectory(BasePath);
+                        // the algorithm here is carefully crafted to minimise the use of
+                        // Path.GetFullPath. Path.GetFullPath is used very sparingly and
+                        // completely avoided in loops. The reason is because Path.GetFullPath
+                        // is a very expensive call and can reduce CPU time by at least 1 order
+                        // of magnitude if avoided
+                        var fullBasePath = Path.GetFullPath(BasePath);
 
-                        foreach (var file in allFiles)
+                        var ignoreFullPaths = GetIgnores(fullBasePath);
+
+                        // sending a full path will result in entries with full path
+                        var allFullPaths = GetAllFilesInDirectory(fullBasePath);
+
+                        var validFullPaths = allFullPaths
+                            .Where(f => !IsFileIgnored(ignoreFullPaths, f));
+
+                        foreach (var fullPath in validFullPaths)
                         {
-                            var relativePath = GetRelativePath(BasePath, file);
+                            // we can safely perform a substring without expanding the paths
+                            // using Path.GetFullPath because we know fullBasePath has already been
+                            // expanded and the paths in validFullPaths are derived from fullBasePath
+                            var relativePath = fullPath.Substring(fullBasePath.Length);
 
-                            if (IsFileIgnored(ignores, relativePath))
-                            {
-                                continue;
-                            }
-
-                            await new MountableFile(file).TransferTo(tarArchive, relativePath, ct);
+                            await new MountableFile(fullPath)
+                                .TransferTo(tarArchive, relativePath, ct)
+                                .ConfigureAwait(false);
                         }
 
                         _logger.LogDebug("Transferred base path [{}] into tar archive", BasePath);
@@ -115,7 +127,8 @@ namespace TestContainers.Container.Abstractions.Images
                     {
                         var destinationPath = entry.Key;
                         var transferable = entry.Value;
-                        await transferable.TransferTo(tarArchive, destinationPath, ct);
+                        await transferable.TransferTo(tarArchive, destinationPath, ct)
+                            .ConfigureAwait(false);
 
                         _logger.LogDebug("Transferred [{}] into tar archive", destinationPath);
                     }
@@ -164,25 +177,26 @@ namespace TestContainers.Container.Abstractions.Images
             return ImageId;
         }
 
-        private static IList<string> GetIgnores(string basePath)
+        private static IList<string> GetIgnores(string fullBasePath)
         {
-            var dockerIgnorePath = Path.GetFullPath(Path.Combine(basePath, DefaultDockerIgnorePath));
+            var dockerIgnorePath = Path.Combine(fullBasePath, DefaultDockerIgnorePath);
             return File.Exists(dockerIgnorePath)
                 ? File.ReadLines(dockerIgnorePath)
                     .Where(line => !string.IsNullOrWhiteSpace(line))
                     .Select(line => line.Trim())
                     .Where(line => !line.StartsWith("#"))
+                    .Select(line => Path.Combine(fullBasePath, line))
                     .ToList()
                 : new List<string>();
         }
 
-        private static bool IsFileIgnored(IEnumerable<string> ignores, string relativePath)
+        private static bool IsFileIgnored(IEnumerable<string> ignores, string path)
         {
             var matches = new List<string>();
             foreach (var ignore in ignores)
             {
                 var goLangPattern = ignore.StartsWith("!") ? ignore.Substring(1) : ignore;
-                if (GoLangFileMatch.Match(goLangPattern, relativePath))
+                if (GoLangFileMatch.Match(goLangPattern, path))
                 {
                     matches.Add(ignore);
                 }
@@ -197,27 +211,9 @@ namespace TestContainers.Container.Abstractions.Images
             return !lastMatchingPattern.StartsWith("!");
         }
 
-        private static IList<string> GetAllFilesInDirectory(string directory)
+        private static IEnumerable<string> GetAllFilesInDirectory(string directory)
         {
-            var result = new List<string>();
-            result.AddRange(Directory.GetFiles(directory).Select(Path.GetFullPath));
-
-            foreach (string subDirectory in Directory.GetDirectories(directory))
-            {
-                result.AddRange(GetAllFilesInDirectory(subDirectory));
-            }
-
-            return result;
-        }
-
-        private static string GetRelativePath(string relativeTo, string path)
-        {
-            var fullRelativeTo = Path.GetFullPath(relativeTo);
-            var fullPath = Path.GetFullPath(path);
-
-            return fullPath.StartsWith(fullRelativeTo)
-                ? fullPath.Substring(fullRelativeTo.Length).TrimStart('/')
-                : path;
+            return Directory.EnumerateFiles(directory, "*", SearchOption.AllDirectories).ToList();
         }
     }
 }

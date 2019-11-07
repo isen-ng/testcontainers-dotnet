@@ -49,38 +49,40 @@ namespace TestContainers.Container.Abstractions.Transferables
             if (Directory.Exists(_path))
             {
                 await Task.Run(() =>
-                {
-                    var canonicalPath = Path.GetFullPath(_path);
-                    var tarEntry = TarEntry.CreateEntryFromFile(canonicalPath);
-
-                    // this is needed because SharpZipLib has a hack to remove current directory even
-                    // if the path is an absolute path
-                    var rootPath = canonicalPath;
-                    if (canonicalPath.IndexOf(Directory.GetCurrentDirectory(), StringComparison.Ordinal) == 0)
                     {
-                        rootPath = rootPath.Substring(Directory.GetCurrentDirectory().Length);
-                    }
+                        var canonicalPath = Path.GetFullPath(_path);
+                        var tarEntry = TarEntry.CreateEntryFromFile(canonicalPath);
 
-                    // there is an issue in SharpZipLib that trims the starting / from the
-                    // tar entry, thus, any root path that starts with / will not match
-                    tarArchive.RootPath = rootPath.TrimStart('/');
-                    tarArchive.PathPrefix = destinationPath;
+                        // this is needed because SharpZipLib has a hack to remove current directory even
+                        // if the path is an absolute path
+                        var rootPath = canonicalPath;
+                        if (canonicalPath.IndexOf(Directory.GetCurrentDirectory(), StringComparison.Ordinal) == 0)
+                        {
+                            rootPath = rootPath.Substring(Directory.GetCurrentDirectory().Length);
+                        }
 
-                    tarArchive.WriteEntry(tarEntry, true);
+                        // there is an issue in SharpZipLib that trims the starting / from the
+                        // tar entry, thus, any root path that starts with / will not match
+                        tarArchive.RootPath = rootPath.TrimStart('/');
+                        tarArchive.PathPrefix = destinationPath;
 
-                    tarArchive.RootPath = "";
-                    tarArchive.PathPrefix = null;
-                }, ct);
+                        tarArchive.WriteEntry(tarEntry, true);
+
+                        tarArchive.RootPath = "";
+                        tarArchive.PathPrefix = null;
+                    }, ct)
+                    .ConfigureAwait(false);
             }
             else
             {
                 await Task.Run(() =>
-                {
-                    var canonicalPath = Path.GetFullPath(_path);
-                    var tarEntry = TarEntry.CreateEntryFromFile(canonicalPath);
-                    tarEntry.Name = destinationPath;
-                    tarArchive.WriteEntry(tarEntry, true);
-                }, ct);
+                    {
+                        var canonicalPath = Path.GetFullPath(_path);
+                        var tarEntry = TarEntry.CreateEntryFromFile(canonicalPath);
+                        tarEntry.Name = destinationPath;
+                        tarArchive.WriteEntry(tarEntry, true);
+                    }, ct)
+                    .ConfigureAwait(false);
             }
         }
     }

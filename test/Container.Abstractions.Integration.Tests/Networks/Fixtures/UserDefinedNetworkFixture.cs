@@ -38,12 +38,12 @@ namespace Container.Abstractions.Integration.Tests.Networks.Fixtures
 
         public async Task InitializeAsync()
         {
-            await DockerClientHelper.DeleteNetwork(DockerClient, Network.NetworkName);
+            await Network.Reap();
         }
 
         public async Task DisposeAsync()
         {
-            await DockerClientHelper.DeleteNetwork(DockerClient, Network.NetworkName);
+            await Network.Reap();
         }
     }
 }

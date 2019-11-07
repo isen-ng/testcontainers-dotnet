@@ -1,15 +1,13 @@
-using System;
 using System.IO;
 using System.Net;
-using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Container.Abstractions.Integration.Tests.Images.Fixtures;
 using Container.Test.Utility;
 using Container.Test.Utility.Platforms;
-using Docker.DotNet;
 using TestContainers.Container.Abstractions;
 using TestContainers.Container.Abstractions.Hosting;
 using TestContainers.Container.Abstractions.Images;
+using TestContainers.Container.Abstractions.Transferables;
 using Xunit;
 
 namespace Container.Abstractions.Integration.Tests.Images
@@ -19,9 +17,7 @@ namespace Container.Abstractions.Integration.Tests.Images
     {
         private readonly DockerfileImageFixture _fixture;
 
-        private IImage Image => _fixture.Image;
-
-        private IDockerClient DockerClient => _fixture.DockerClient;
+        private ImageBuilder<DockerfileImage> ImageBuilder => _fixture.ImageBuilder;
 
         private IPlatformSpecific PlatformSpecific => _fixture.PlatformSpecific;
 
@@ -39,46 +35,138 @@ namespace Container.Abstractions.Integration.Tests.Images
             [Fact]
             public async Task ShouldResolveImageCorrectly()
             {
+                // arrange
+                var image = ImageBuilder
+                    .ConfigureImage((context, i) =>
+                    {
+                        i.Transferables["Dockerfile"] = new MountableFile(PlatformSpecific.DockerfileImagePath);
+                    })
+                    .Build();
+
+                _fixture.ImagesToReap.Add(image);
+
                 // act
-                var actualImageId = await Image.Resolve();
+                var actualImageId = await image.Resolve();
 
                 // assert
-                var actualImage = await DockerClient.Images.InspectImageAsync(Image.ImageName);
+                var actualImage = await image.DockerClient.Images.InspectImageAsync(image.ImageName);
                 Assert.Equal(actualImage.ID, actualImageId);
             }
         }
 
         public class WithContainer : DockerfileImageTests
         {
+            private readonly ContainerBuilder<GenericContainer> _containerBuilder;
+
             public WithContainer(DockerfileImageFixture fixture) : base(fixture)
             {
-            }
-
-            [Fact]
-            public async Task ShouldCreateAndStartContainerSuccessfully()
-            {
-                // arrange
-                var container = new ContainerBuilder<GenericContainer>()
-                    .ConfigureDockerImage(Image)
+                _containerBuilder = new ContainerBuilder<GenericContainer>()
                     .ConfigureContainer((h, c) =>
                     {
                         c.ExposedPorts.Add(80);
+                    });
+            }
+
+            [Fact]
+            public async Task ShouldCreateAndStartContainerSuccessfullyWithRelativeBasePath()
+            {
+                // arrange
+                var image = ImageBuilder
+                    .ConfigureImage((context, i) =>
+                    {
+                        i.BasePath = DockerfileImageFixture.DockerfileImageContext;
+                        i.Transferables["Dockerfile"] = new MountableFile(PlatformSpecific.DockerfileImagePath);
                     })
                     .Build();
 
                 // act
-                await container.StartAsync();
-
-                // assert
-                var mappedPort = container.GetMappedPort(80);
-                var host = $"http://localhost:{mappedPort}";
-
-                AssertFileExists($"{host}/dummy.txt", DockerfileImageFixture.DockerfileImageContext + "/dummy.txt");
-                AssertFileExists($"{host}/file1.txt", DockerfileImageFixture.DockerfileImageTransferableFile);
-                AssertFileExists($"{host}/folder1/file1.txt", DockerfileImageFixture.DockerfileImageTransferableFolder + "/file1.txt");
+                var host = await StartContainer(image);
 
                 // ignored by .dockerignore
                 AssertFileDoesNotExists($"{host}/dummy2.txt");
+                AssertFileExists($"{host}/dummy.txt", DockerfileImageFixture.DockerfileImageContext + "/dummy.txt");
+            }
+
+            [Fact]
+            public async Task ShouldCreateAndStartContainerSuccessfullyWithAbsoluteBasePath()
+            {
+                // arrange
+                var image = ImageBuilder
+                    .ConfigureImage((context, i) =>
+                    {
+                        i.BasePath = Path.GetFullPath(DockerfileImageFixture.DockerfileImageContext);
+                        i.Transferables["Dockerfile"] = new MountableFile(PlatformSpecific.DockerfileImagePath);
+                    })
+                    .Build();
+
+                // act
+                var host = await StartContainer(image);
+
+                // ignored by .dockerignore
+                AssertFileDoesNotExists($"{host}/dummy2.txt");
+                AssertFileExists($"{host}/dummy.txt", DockerfileImageFixture.DockerfileImageContext + "/dummy.txt");
+            }
+
+            [Fact]
+            public async Task ShouldCreateAndStartContainerSuccessfullyWithCustomDockerfilePath()
+            {
+                // arrange
+                var image = ImageBuilder
+                    .ConfigureImage((context, i) =>
+                    {
+                        i.BasePath = DockerfileImageFixture.DockerfileImageContext;
+                        i.DockerfilePath = "MyDockerfile";
+                        i.Transferables["MyDockerfile"] = new MountableFile(PlatformSpecific.DockerfileImagePath);
+                    })
+                    .Build();
+
+                // act
+                var host = await StartContainer(image);
+
+                // assert
+                // ignored by .dockerignore
+                AssertFileDoesNotExists($"{host}/dummy2.txt");
+                AssertFileExists($"{host}/dummy.txt", DockerfileImageFixture.DockerfileImageContext + "/dummy.txt");
+            }
+
+            [Fact]
+            public async Task ShouldCreateAndStartContainerSuccessfullyWithTransferables()
+            {
+                // arrange
+                var image = ImageBuilder
+                    .ConfigureImage((context, i) =>
+                    {
+                        i.Transferables["Dockerfile"] = new MountableFile(PlatformSpecific.DockerfileImagePath);
+
+                        i.Transferables["file1.txt"] =
+                            new MountableFile(DockerfileImageFixture.DockerfileImageTransferableFile);
+                        i.Transferables["folder1"] =
+                            new MountableFile(DockerfileImageFixture.DockerfileImageTransferableFolder);
+                    })
+                    .Build();
+
+                // act
+                var host = await StartContainer(image);
+
+                // assert
+                AssertFileExists($"{host}/file1.txt", DockerfileImageFixture.DockerfileImageTransferableFile);
+                AssertFileExists($"{host}/folder1/file1.txt",
+                    DockerfileImageFixture.DockerfileImageTransferableFolder + "/file1.txt");
+            }
+
+            private async Task<string> StartContainer(IImage image)
+            {
+                var container = _containerBuilder
+                    .ConfigureDockerImage(image)
+                    .Build();
+
+                _fixture.ContainersToStop.Add(container);
+                _fixture.ImagesToReap.Add(image);
+
+                await container.StartAsync();
+
+                var mappedPort = container.GetMappedPort(80);
+                return $"http://localhost:{mappedPort}";
             }
 
             private static void AssertFileExists(string httpPath, string localPath)
