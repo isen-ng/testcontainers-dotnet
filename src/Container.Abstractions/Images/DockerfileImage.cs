@@ -98,7 +98,7 @@ namespace TestContainers.Container.Abstractions.Images
                         // completely avoided in loops. The reason is because Path.GetFullPath
                         // is a very expensive call and can reduce CPU time by at least 1 order
                         // of magnitude if avoided
-                        var fullBasePath = Path.GetFullPath(BasePath);
+                        var fullBasePath = Path.GetFullPath(OS.NormalizePath(BasePath));
 
                         var ignoreFullPaths = GetIgnores(fullBasePath);
 
@@ -185,6 +185,7 @@ namespace TestContainers.Container.Abstractions.Images
                     .Where(line => !string.IsNullOrWhiteSpace(line))
                     .Select(line => line.Trim())
                     .Where(line => !line.StartsWith("#"))
+                    .Select(OS.NormalizePath)
                     .Select(line => Path.Combine(fullBasePath, line))
                     .ToList()
                 : new List<string>();
