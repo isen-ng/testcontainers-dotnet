@@ -39,12 +39,12 @@ namespace Container.Abstractions.Integration.Tests.Images.Fixtures
 
         public async Task InitializeAsync()
         {
-            await DockerClientHelper.DeleteImage(DockerClient, Image.ImageName);
+            await Image.Reap();
         }
 
         public async Task DisposeAsync()
         {
-            await DockerClientHelper.DeleteImage(DockerClient, Image.ImageName);
+            await Image.Reap();
         }
     }
 }
