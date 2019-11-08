@@ -108,6 +108,7 @@ namespace TestContainers.Container.Abstractions.Images
                         var validFullPaths = allFullPaths
                             .Where(f => !IsFileIgnored(ignoreFullPaths, f));
 
+
                         foreach (var fullPath in validFullPaths)
                         {
                             // we can safely perform a substring without expanding the paths
