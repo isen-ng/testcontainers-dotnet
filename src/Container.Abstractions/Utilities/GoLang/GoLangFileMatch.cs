@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -8,7 +9,7 @@ using System.Text.RegularExpressions;
 namespace TestContainers.Container.Abstractions.Utilities.GoLang
 {
     /// <summary>
-    /// Golang FileMatch method
+    /// GoLang FileMatch method
     /// Copied directly from
     /// https://github.com/docker-java/docker-java/blob/master/docker-java-core/src/main/java/com/github/dockerjava/core/GoLangFileMatch.java
     /// </summary>
@@ -17,7 +18,10 @@ namespace TestContainers.Container.Abstractions.Utilities.GoLang
         internal static readonly bool IsWindows = Path.DirectorySeparatorChar == '\\';
         private const string PatternCharsToEscape = "\\.[]{}()*+-?^$|";
 
-        private static readonly Dictionary<string, Regex> RegexCache = new Dictionary<string, Regex>();
+        // this needs to be thread safe because this will be used in a `AsParallel()` query
+        // in DockerFileImage.cs
+        private static readonly ConcurrentDictionary<string, Regex> RegexCache =
+            new ConcurrentDictionary<string, Regex>();
 
         /// <summary>
         /// Returns the matching patterns for the given string
@@ -48,15 +52,9 @@ namespace TestContainers.Container.Abstractions.Utilities.GoLang
                 throw new ArgumentNullException(nameof(name));
             }
 
-            if (RegexCache.TryGetValue(pattern, out var regex))
-            {
-                return regex.IsMatch(name);
-            }
-
-            regex = new Regex(BuildPattern(pattern), RegexOptions.Compiled);
-            RegexCache[pattern] = regex;
-
-            return regex.IsMatch(name);
+            return RegexCache
+                .GetOrAdd(pattern, k => new Regex(BuildPattern(k), RegexOptions.Compiled))
+                .IsMatch(name);
         }
 
         private static string BuildPattern(string pattern)
@@ -64,7 +62,7 @@ namespace TestContainers.Container.Abstractions.Utilities.GoLang
             var patternStringBuilder = new StringBuilder("^");
             while (!string.IsNullOrWhiteSpace(pattern))
             {
-                pattern = AppendChunkPattern(patternStringBuilder, pattern);
+                pattern = AppendChunkPattern(ref patternStringBuilder, pattern);
 
                 if (!string.IsNullOrWhiteSpace(pattern))
                 {
@@ -86,7 +84,7 @@ namespace TestContainers.Container.Abstractions.Utilities.GoLang
             return separatorChar.ToString();
         }
 
-        private static string AppendChunkPattern(StringBuilder patternStringBuilder, string pattern)
+        private static string AppendChunkPattern(ref StringBuilder patternStringBuilder, string pattern)
         {
             if (pattern.Equals("**") || pattern.StartsWith("**" + Path.DirectorySeparatorChar))
             {
@@ -96,6 +94,7 @@ namespace TestContainers.Container.Abstractions.Utilities.GoLang
                     .Append(Quote(Path.DirectorySeparatorChar)).Append("[^").Append(Quote(Path.DirectorySeparatorChar))
                     .Append("]*")
                     .Append(")*").Append(")?");
+
                 return pattern.Substring(pattern.Length == 2 ? 2 : 3);
             }
 
@@ -313,12 +312,9 @@ namespace TestContainers.Container.Abstractions.Utilities.GoLang
 
         private static RangeParseState NextStateAfterChar(RangeParseState currentState)
         {
-            if (currentState == RangeParseState.CharExpectedAfterDash)
-            {
-                return RangeParseState.CharExpected;
-            }
-
-            return RangeParseState.CharOrDashExpected;
+            return currentState == RangeParseState.CharExpectedAfterDash
+                ? RangeParseState.CharExpected
+                : RangeParseState.CharOrDashExpected;
         }
 
         private enum RangeParseState
