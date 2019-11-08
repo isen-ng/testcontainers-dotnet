@@ -105,7 +105,11 @@ namespace TestContainers.Container.Abstractions.Images
                         // sending a full path will result in entries with full path
                         var allFullPaths = GetAllFilesInDirectory(fullBasePath);
 
+                        // a thread pool that is starved can decrease the performance of
+                        // this method dramatically. Using `AsParallel()` will circumvent such issues.
+                        // as a result, methods and classes used by this needs to be thread safe.
                         var validFullPaths = allFullPaths
+                            .AsParallel()
                             .Where(f => !IsFileIgnored(ignoreFullPaths, f));
 
                         foreach (var fullPath in validFullPaths)
@@ -127,7 +131,8 @@ namespace TestContainers.Container.Abstractions.Images
                     {
                         var destinationPath = entry.Key;
                         var transferable = entry.Value;
-                        await transferable.TransferTo(tarArchive, destinationPath, ct)
+                        await transferable
+                            .TransferTo(tarArchive, destinationPath, ct)
                             .ConfigureAwait(false);
 
                         _logger.LogDebug("Transferred [{}] into tar archive", destinationPath);
@@ -214,7 +219,7 @@ namespace TestContainers.Container.Abstractions.Images
 
         private static IEnumerable<string> GetAllFilesInDirectory(string directory)
         {
-            return Directory.EnumerateFiles(directory, "*", SearchOption.AllDirectories).ToList();
+            return Directory.EnumerateFiles(directory, "*", SearchOption.AllDirectories);
         }
     }
 }
