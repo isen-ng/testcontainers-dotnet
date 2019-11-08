@@ -219,7 +219,7 @@ namespace TestContainers.Container.Abstractions.Images
 
         private static IEnumerable<string> GetAllFilesInDirectory(string directory)
         {
-            return Directory.EnumerateFiles(directory, "*", SearchOption.AllDirectories).ToList();
+            return Directory.EnumerateFiles(directory, "*", SearchOption.AllDirectories);
         }
     }
 }
