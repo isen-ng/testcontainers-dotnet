@@ -119,6 +119,13 @@ namespace TestContainers.Container.Abstractions.Images
                             // expanded and the paths in validFullPaths are derived from fullBasePath
                             var relativePath = fullPath.Substring(fullBasePath.Length);
 
+                            // if fullBasePath does not end with directory separator,
+                            // relativePath will start with directory separator and that should not be the case
+                            if (relativePath.StartsWith(Path.DirectorySeparatorChar.ToString()))
+                            {
+                                relativePath = relativePath.Substring(1);
+                            }
+
                             await new MountableFile(fullPath)
                                 .TransferTo(tarArchive, relativePath, ct)
                                 .ConfigureAwait(false);
