@@ -8,23 +8,41 @@ namespace TestContainers.Container.Abstractions.Utilities
     /// </summary>
     public static class OS
     {
-        private const char WindowsDirectorySeparator = '\\';
-        private const char LinuxDirectorySeparator = '/';
+        /// <summary>
+        /// Windows directory separator char
+        /// </summary>
+        public const char WindowsDirectorySeparator = '\\';
 
         /// <summary>
-        /// Normalizes a path into its OS specific form.
-        ///
-        /// It currently replaces directory separators.
+        /// Linux directory separator char
+        /// </summary>
+        public const char LinuxDirectorySeparator = '/';
+
+        /// <summary>
+        /// Normalizes a path into its OS specific form
+        /// It currently replaces directory separators
         /// </summary>
         /// <param name="path">path to normalize</param>
         /// <returns>normalized path</returns>
         /// <exception cref="NotSupportedException">when OS's directory separator is not supported</exception>
         public static string NormalizePath(string path)
         {
+            return NormalizePath(path, Path.DirectorySeparatorChar);
+        }
+
+        /// <summary>
+        /// Normalizes a path to the desired form
+        /// </summary>
+        /// <param name="path">path to normalize</param>
+        /// <param name="directorySeparator">desired directory separator to convert to</param>
+        /// <returns>normalized path</returns>
+        /// <exception cref="NotSupportedException">when desired directory separator is not supported</exception>
+        public static string NormalizePath(string path, char directorySeparator)
+        {
             char toReplace;
             char replacedTo;
 
-            switch (Path.DirectorySeparatorChar)
+            switch (directorySeparator)
             {
                 case WindowsDirectorySeparator:
                     toReplace = LinuxDirectorySeparator;
@@ -36,7 +54,7 @@ namespace TestContainers.Container.Abstractions.Utilities
                     break;
                 default:
                     throw new NotSupportedException(
-                        $"Directory separator[{Path.DirectorySeparatorChar}] is not a supported type");
+                        $"Directory separator[{directorySeparator}] is not a supported type");
             }
 
             return path.Replace(toReplace, replacedTo);

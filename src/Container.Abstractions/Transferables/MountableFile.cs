@@ -3,6 +3,7 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using ICSharpCode.SharpZipLib.Tar;
+using TestContainers.Container.Abstractions.Utilities;
 
 namespace TestContainers.Container.Abstractions.Transferables
 {
@@ -45,6 +46,9 @@ namespace TestContainers.Container.Abstractions.Transferables
             {
                 return;
             }
+
+            // tar is a linux concept, so all paths should be in linux paths
+            destinationPath = OS.NormalizePath(destinationPath, OS.LinuxDirectorySeparator);
 
             if (Directory.Exists(_path))
             {
