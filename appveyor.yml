@@ -10,13 +10,13 @@ branches:
     - master
 
 install:
+  - dotnet --version
+  - dotnet --list-sdks
+  - docker info
   - dotnet restore
 
 build_script:
   - dotnet build
-
-before_test:
-  - docker info
 
 test_script:
   - dotnet test
