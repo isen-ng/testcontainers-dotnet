@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Container.Test.Utility;
-using Container.Test.Utility.Platforms;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using TestContainers.Container.Abstractions;
@@ -13,11 +12,10 @@ namespace Container.Abstractions.Integration.Tests.Images.Fixtures
 {
     public class DockerfileImageFixture : IAsyncLifetime
     {
-        public const string DockerfileImageContext = "Images/Fixtures/Dockerfiles/Context";
-        public const string DockerfileImageTransferableFile = "Images/Fixtures/Dockerfiles/Transferables/file1.txt";
-        public const string DockerfileImageTransferableFolder = "Images/Fixtures/Dockerfiles/Transferables/folder1";
-
-        public IPlatformSpecific PlatformSpecific { get; } = PlatformHelper.GetPlatform();
+        public const string DockerfilePath = "Images/Fixtures/Dockerfiles/Dockerfile";
+        public const string DockerfileContextPath = "Images/Fixtures/Dockerfiles/Context";
+        public const string DockerfileTransferableFile = "Images/Fixtures/Dockerfiles/Transferables/file1.txt";
+        public const string DockerfileTransferableFolder = "Images/Fixtures/Dockerfiles/Transferables/folder1";
 
         public ImageBuilder<DockerfileImage> ImageBuilder { get; }
 

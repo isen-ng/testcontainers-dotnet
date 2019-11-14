@@ -3,7 +3,6 @@ using System.Net;
 using System.Threading.Tasks;
 using Container.Abstractions.Integration.Tests.Images.Fixtures;
 using Container.Test.Utility;
-using Container.Test.Utility.Platforms;
 using TestContainers.Container.Abstractions;
 using TestContainers.Container.Abstractions.Hosting;
 using TestContainers.Container.Abstractions.Images;
@@ -18,8 +17,6 @@ namespace Container.Abstractions.Integration.Tests.Images
         private readonly DockerfileImageFixture _fixture;
 
         private ImageBuilder<DockerfileImage> ImageBuilder => _fixture.ImageBuilder;
-
-        private IPlatformSpecific PlatformSpecific => _fixture.PlatformSpecific;
 
         public DockerfileImageTests(DockerfileImageFixture fixture)
         {
@@ -39,7 +36,7 @@ namespace Container.Abstractions.Integration.Tests.Images
                 var image = ImageBuilder
                     .ConfigureImage((context, i) =>
                     {
-                        i.Transferables["Dockerfile"] = new MountableFile(PlatformSpecific.DockerfileImagePath);
+                        i.Transferables["Dockerfile"] = new MountableFile(DockerfileImageFixture.DockerfilePath);
                     })
                     .Build();
 
@@ -74,8 +71,8 @@ namespace Container.Abstractions.Integration.Tests.Images
                 var image = ImageBuilder
                     .ConfigureImage((context, i) =>
                     {
-                        i.BasePath = DockerfileImageFixture.DockerfileImageContext;
-                        i.Transferables["Dockerfile"] = new MountableFile(PlatformSpecific.DockerfileImagePath);
+                        i.BasePath = DockerfileImageFixture.DockerfileContextPath;
+                        i.Transferables["Dockerfile"] = new MountableFile(DockerfileImageFixture.DockerfilePath);
                     })
                     .Build();
 
@@ -84,7 +81,7 @@ namespace Container.Abstractions.Integration.Tests.Images
 
                 // ignored by .dockerignore
                 AssertFileDoesNotExists($"{host}/dummy2.txt");
-                AssertFileExists($"{host}/dummy.txt", DockerfileImageFixture.DockerfileImageContext + "/dummy.txt");
+                AssertFileExists($"{host}/dummy.txt", DockerfileImageFixture.DockerfileContextPath + "/dummy.txt");
             }
 
             [Fact]
@@ -94,8 +91,8 @@ namespace Container.Abstractions.Integration.Tests.Images
                 var image = ImageBuilder
                     .ConfigureImage((context, i) =>
                     {
-                        i.BasePath = Path.GetFullPath(DockerfileImageFixture.DockerfileImageContext);
-                        i.Transferables["Dockerfile"] = new MountableFile(PlatformSpecific.DockerfileImagePath);
+                        i.BasePath = Path.GetFullPath(DockerfileImageFixture.DockerfileContextPath);
+                        i.Transferables["Dockerfile"] = new MountableFile(DockerfileImageFixture.DockerfilePath);
                     })
                     .Build();
 
@@ -104,7 +101,7 @@ namespace Container.Abstractions.Integration.Tests.Images
 
                 // ignored by .dockerignore
                 AssertFileDoesNotExists($"{host}/dummy2.txt");
-                AssertFileExists($"{host}/dummy.txt", DockerfileImageFixture.DockerfileImageContext + "/dummy.txt");
+                AssertFileExists($"{host}/dummy.txt", DockerfileImageFixture.DockerfileContextPath + "/dummy.txt");
             }
 
             [Fact]
@@ -114,9 +111,9 @@ namespace Container.Abstractions.Integration.Tests.Images
                 var image = ImageBuilder
                     .ConfigureImage((context, i) =>
                     {
-                        i.BasePath = DockerfileImageFixture.DockerfileImageContext;
+                        i.BasePath = DockerfileImageFixture.DockerfileContextPath;
                         i.DockerfilePath = "MyDockerfile";
-                        i.Transferables["MyDockerfile"] = new MountableFile(PlatformSpecific.DockerfileImagePath);
+                        i.Transferables["MyDockerfile"] = new MountableFile(DockerfileImageFixture.DockerfilePath);
                     })
                     .Build();
 
@@ -126,7 +123,7 @@ namespace Container.Abstractions.Integration.Tests.Images
                 // assert
                 // ignored by .dockerignore
                 AssertFileDoesNotExists($"{host}/dummy2.txt");
-                AssertFileExists($"{host}/dummy.txt", DockerfileImageFixture.DockerfileImageContext + "/dummy.txt");
+                AssertFileExists($"{host}/dummy.txt", DockerfileImageFixture.DockerfileContextPath + "/dummy.txt");
             }
 
             [Fact]
@@ -136,12 +133,12 @@ namespace Container.Abstractions.Integration.Tests.Images
                 var image = ImageBuilder
                     .ConfigureImage((context, i) =>
                     {
-                        i.Transferables["Dockerfile"] = new MountableFile(PlatformSpecific.DockerfileImagePath);
+                        i.Transferables["Dockerfile"] = new MountableFile(DockerfileImageFixture.DockerfilePath);
 
                         i.Transferables["file1.txt"] =
-                            new MountableFile(DockerfileImageFixture.DockerfileImageTransferableFile);
+                            new MountableFile(DockerfileImageFixture.DockerfileTransferableFile);
                         i.Transferables["folder1"] =
-                            new MountableFile(DockerfileImageFixture.DockerfileImageTransferableFolder);
+                            new MountableFile(DockerfileImageFixture.DockerfileTransferableFolder);
                     })
                     .Build();
 
@@ -149,9 +146,9 @@ namespace Container.Abstractions.Integration.Tests.Images
                 var host = await StartContainer(image);
 
                 // assert
-                AssertFileExists($"{host}/file1.txt", DockerfileImageFixture.DockerfileImageTransferableFile);
+                AssertFileExists($"{host}/file1.txt", DockerfileImageFixture.DockerfileTransferableFile);
                 AssertFileExists($"{host}/folder1/file1.txt",
-                    DockerfileImageFixture.DockerfileImageTransferableFolder + "/file1.txt");
+                    DockerfileImageFixture.DockerfileTransferableFolder + "/file1.txt");
             }
 
             private async Task<string> StartContainer(IImage image)

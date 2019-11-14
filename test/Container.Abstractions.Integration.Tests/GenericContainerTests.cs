@@ -5,7 +5,6 @@ using System.Net.Sockets;
 using System.Threading.Tasks;
 using Container.Abstractions.Integration.Tests.Fixtures;
 using Container.Test.Utility;
-using Container.Test.Utility.Platforms;
 using Docker.DotNet;
 using TestContainers.Container.Abstractions;
 using TestContainers.Container.Abstractions.Hosting;
@@ -22,8 +21,6 @@ namespace Container.Abstractions.Integration.Tests
         private IContainer Container => _fixture.Container;
 
         private IDockerClient DockerClient => _fixture.DockerClient;
-
-        private IPlatformSpecific PlatformSpecific => _fixture.PlatformSpecific;
 
         private GenericContainerTests(GenericContainerFixture fixture)
         {
@@ -61,7 +58,7 @@ namespace Container.Abstractions.Integration.Tests
                 const string hello = "hello-world";
 
                 // act
-                var (stdout, stderr) = await Container.ExecuteCommand(PlatformSpecific.EchoCommand(hello));
+                var (stdout, stderr) = await Container.ExecuteCommand("echo", hello);
 
                 // assert
                 Assert.Equal(hello, stdout.TrimEndNewLine());
@@ -72,7 +69,7 @@ namespace Container.Abstractions.Integration.Tests
             public async Task ShouldReturnFailureResponseInStdErr()
             {
                 // act
-                var (stdout, stderr) = await Container.ExecuteCommand(PlatformSpecific.Shell, PlatformSpecific.Echo);
+                var (stdout, stderr) = await Container.ExecuteCommand("/bin/sh", "echo");
 
                 // assert
                 Assert.True(string.IsNullOrEmpty(stdout));
@@ -94,8 +91,7 @@ namespace Container.Abstractions.Integration.Tests
             public async Task ShouldBeAvailableWhenTheyAreSet()
             {
                 // act
-                var (stdout, _) = await Container.ExecuteCommand(
-                    PlatformSpecific.EchoCommand(PlatformSpecific.EnvVarFormat(_injectedEnvVar.Key)));
+                var (stdout, _) = await Container.ExecuteCommand("/bin/sh", "-c", $"echo ${_injectedEnvVar.Key}");
 
                 // assert
                 Assert.Equal(_injectedEnvVar.Value, stdout.TrimEndNewLine());
@@ -181,10 +177,8 @@ namespace Container.Abstractions.Integration.Tests
             public async Task ShouldRunCommandWhenContainerStarts()
             {
                 // act
-                var (stdout, _) = await Container.ExecuteCommand(
-                    PlatformSpecific.ShellCommand(
-                        PlatformSpecific.IfExistsThenFormat($"{_fileTouchedByCommand}",
-                            $"{PlatformSpecific.Echo} 1")));
+                var (stdout, _) = await Container.ExecuteCommand("/bin/sh", "-c",
+                    $"if [ -e {_fileTouchedByCommand} ]; then echo 1; fi");
 
                 // assert
                 Assert.Equal("1", stdout.TrimEndNewLine());
@@ -205,7 +199,7 @@ namespace Container.Abstractions.Integration.Tests
             public async Task ShouldSetWorkingDirectoryWhenContainerStarts()
             {
                 // act
-                var (stdout, _) = await Container.ExecuteCommand(PlatformSpecific.PwdCommand());
+                var (stdout, _) = await Container.ExecuteCommand("pwd");
 
                 // assert
                 Assert.Equal(_workingDirectory, stdout.TrimEndNewLine());
@@ -224,7 +218,7 @@ namespace Container.Abstractions.Integration.Tests
             public async Task ShouldFailToRunPrivilegedOperations()
             {
                 // act
-                var (stdout, stderr) = await Container.ExecuteCommand(PlatformSpecific.PrivilegedCommand());
+                var (stdout, stderr) = await Container.ExecuteCommand("/bin/sh", "-c", "ip link add dummy0 type dummy");
 
                 // assert
                 Assert.NotEmpty(stderr);
@@ -252,9 +246,8 @@ namespace Container.Abstractions.Integration.Tests
                 File.WriteAllText(filepath, content);
 
                 // act
-                var (stdout, stderr) =
-                    await Container.ExecuteCommand(
-                        PlatformSpecific.CatCommand(Path.Combine(_hostPathBinding.Value, filename)));
+                var (stdout, _) =
+                    await Container.ExecuteCommand("cat", Path.Combine(_hostPathBinding.Value, filename));
 
                 // assert
                 Assert.Equal(content, stdout.TrimEndNewLine());

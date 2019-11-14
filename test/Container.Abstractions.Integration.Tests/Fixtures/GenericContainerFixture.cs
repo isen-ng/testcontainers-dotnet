@@ -1,8 +1,6 @@
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
-using Container.Test.Utility.Platforms;
 using Docker.DotNet;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -15,8 +13,6 @@ namespace Container.Abstractions.Integration.Tests.Fixtures
 {
     public class GenericContainerFixture : IAsyncLifetime
     {
-        public IPlatformSpecific PlatformSpecific { get; } = PlatformHelper.GetPlatform();
-
         public IContainer Container { get; }
 
         public IDockerClient DockerClient { get; }
@@ -40,14 +36,14 @@ namespace Container.Abstractions.Integration.Tests.Fixtures
         public GenericContainerFixture()
         {
             HostPathBinding =
-                new KeyValuePair<string, string>(Directory.GetCurrentDirectory(), PlatformSpecific.BindPath);
-            FileTouchedByCommand = PlatformSpecific.TouchedFilePath;
-            WorkingDirectory = PlatformSpecific.WorkingDirectory;
+                new KeyValuePair<string, string>(Directory.GetCurrentDirectory(), "/host");
+            FileTouchedByCommand = "/tmp/touched";
+            WorkingDirectory = "/etc";
 
             Container = new ContainerBuilder<GenericContainer>()
                 .ConfigureHostConfiguration(builder => builder.AddInMemoryCollection())
                 .ConfigureAppConfiguration((context, builder) => builder.AddInMemoryCollection())
-                .ConfigureDockerImageName(PlatformSpecific.TinyDockerImage)
+                .ConfigureDockerImageName($"{GenericContainer.DefaultImage}:{GenericContainer.DefaultTag}")
                 .ConfigureLogging(builder =>
                 {
                     builder.AddConsole();
@@ -72,9 +68,7 @@ namespace Container.Abstractions.Integration.Tests.Fixtures
                         AccessMode = AccessMode.ReadOnly
                     });
                     container.WorkingDirectory = WorkingDirectory;
-                    container.Command = PlatformSpecific.ShellCommand(
-                            $"{PlatformSpecific.Touch} {FileTouchedByCommand}; {PlatformSpecific.Shell}")
-                        .ToList();
+                    container.Command = new List<string> {"/bin/sh", "-c", $"touch {FileTouchedByCommand}; /bin/sh"};
                 })
                 .Build();
 
