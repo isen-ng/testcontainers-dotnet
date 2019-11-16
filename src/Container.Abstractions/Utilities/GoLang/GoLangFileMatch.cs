@@ -27,34 +27,37 @@ namespace TestContainers.Container.Abstractions.Utilities.GoLang
         /// Returns the matching patterns for the given string
         /// </summary>
         /// <param name="patterns">patterns to test for</param>
-        /// <param name="name">input</param>
+        /// <param name="input">input</param>
         /// <returns>list of matched patterns</returns>
-        public static List<string> Match(IEnumerable<string> patterns, string name)
+        public static List<string> Match(IEnumerable<string> patterns, string input)
         {
-            return patterns.Where(pattern => Match(pattern, name)).ToList();
+            return patterns.Where(pattern => Match(pattern, input)).ToList();
         }
 
         /// <summary>
         /// Returns if pattern matches the given string
         /// </summary>
         /// <param name="pattern">patterns to test for</param>
-        /// <param name="name">input</param>
+        /// <param name="input">input</param>
         /// <returns>whether the pattern matches the input</returns>
-        public static bool Match(string pattern, string name)
+        public static bool Match(string pattern, string input)
         {
             if (pattern == null)
             {
                 throw new ArgumentNullException(nameof(pattern));
             }
 
-            if (name == null)
+            if (input == null)
             {
-                throw new ArgumentNullException(nameof(name));
+                throw new ArgumentNullException(nameof(input));
             }
 
+            var normalizedPattern = OS.NormalizePath(pattern);
+            var normalizedInput = OS.NormalizePath(input);
+
             return RegexCache
-                .GetOrAdd(pattern, k => new Regex(BuildPattern(k), RegexOptions.Compiled))
-                .IsMatch(name);
+                .GetOrAdd(normalizedPattern, k => new Regex(BuildPattern(k), RegexOptions.Compiled))
+                .IsMatch(normalizedInput);
         }
 
         private static string BuildPattern(string pattern)
