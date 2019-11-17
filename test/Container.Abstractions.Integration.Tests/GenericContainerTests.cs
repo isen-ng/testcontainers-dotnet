@@ -9,6 +9,7 @@ using Docker.DotNet;
 using TestContainers.Container.Abstractions;
 using TestContainers.Container.Abstractions.Hosting;
 using TestContainers.Container.Abstractions.Reaper;
+using TestContainers.Container.Abstractions.Utilities;
 using Xunit;
 
 namespace Container.Abstractions.Integration.Tests
@@ -246,8 +247,10 @@ namespace Container.Abstractions.Integration.Tests
                 File.WriteAllText(filepath, content);
 
                 // act
+                // always use linux separator because container is linux based
                 var (stdout, _) =
-                    await Container.ExecuteCommand("cat", Path.Combine(_hostPathBinding.Value, filename));
+                    await Container.ExecuteCommand("cat",
+                        OS.NormalizePath(Path.Combine(_hostPathBinding.Value, filename), OS.LinuxDirectorySeparator));
 
                 // assert
                 Assert.Equal(content, stdout.TrimEndNewLine());
