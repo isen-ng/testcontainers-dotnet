@@ -52,12 +52,9 @@ namespace TestContainers.Container.Abstractions.Utilities.GoLang
                 throw new ArgumentNullException(nameof(input));
             }
 
-            var normalizedPattern = OS.NormalizePath(pattern);
-            var normalizedInput = OS.NormalizePath(input);
-
             return RegexCache
-                .GetOrAdd(normalizedPattern, k => new Regex(BuildPattern(k), RegexOptions.Compiled))
-                .IsMatch(normalizedInput);
+                .GetOrAdd(pattern, k => new Regex(BuildPattern(k), RegexOptions.Compiled))
+                .IsMatch(input);
         }
 
         private static string BuildPattern(string pattern)
