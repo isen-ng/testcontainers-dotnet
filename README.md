@@ -4,16 +4,17 @@
 [![Sonarcloud Status](https://sonarcloud.io/api/project_badges/measure?project=testcontainers-dotnet&metric=alert_status)](https://sonarcloud.io/dashboard?id=testcontainers-dotnet)
 [![Donation](https://img.shields.io/badge/Buy-me%20a%20coffee-orange.svg)](https://paypal.me/isenng)
 
-> Testcontainers is a dotnet standard 2.0 library that supports NUnit and XUnit tests, providing lightweight, throwaway 
+> Testcontainers is a dotnet standard 2.0 library that supports NUnit and XUnit tests, providing lightweight, throwaway
 instances of common databases or anything else that can run in a Docker container.
-> 
+>
 > Uses common Microsoft dependency injection patterns, app and host settings, and Microsoft Extensions Logging (MEL).
->  
+>
 > This is a port of [testcontainers-java](https://github.com/testcontainers/testcontainers-java) for dotnet.
 
-Linux: [![Build Status](https://travis-ci.org/isen-ng/testcontainers-dotnet.svg?branch=master)](https://travis-ci.org/isen-ng/testcontainers-dotnet)
+### Build statuses
 
-Windows: [![Build status](https://ci.appveyor.com/api/projects/status/4hcmw8qnlp86vag0/branch/master?svg=true)](https://ci.appveyor.com/project/isen-ng/testcontainers-dotnet/branch/master)
+[![Linux build status](https://img.shields.io/travis/com/isen-ng/testcontainers-dotnet/master?label=linux)](https://travis-ci.org/isen-ng/testcontainers-dotnet)
+[![LCOW build status](https://img.shields.io/appveyor/ci/isen-ng/testcontainers-dotnet/master?label=lcow)](https://ci.appveyor.com/project/isen-ng/testcontainers-dotnet/branch/master)
 
 ---
 
@@ -33,7 +34,7 @@ Windows: [![Build status](https://ci.appveyor.com/api/projects/status/4hcmw8qnlp
   - Network aliases
 * Ryuk resource reaper
 
-## Windows environment
+## Linux containers on Windows (LCOW) environment
 
 * Container management
 * Docker providers
@@ -45,7 +46,7 @@ Windows: [![Build status](https://ci.appveyor.com/api/projects/status/4hcmw8qnlp
 * Network management
   - User defined networks
   - Network aliases
-* Todo: Windows version of Ryuk [Help wanted]
+* Ryuk resource reaper
 
 ## Built-in containers
 
@@ -73,10 +74,10 @@ var container = new ContainerBuilder<GenericContainer>()
     {
         // add labels
         container.Labels.Add(CustomLabel.Key, CustomLabel.Value);
-        
+
         // add environment labels
         container.Env[InjectedEnvVar.Key] = InjectedEnvVar.Value;
-        
+
         // add exposed ports (automatically mapped to higher port
         container.ExposedPorts.Add(ExposedPort);
 
@@ -86,7 +87,7 @@ var container = new ContainerBuilder<GenericContainer>()
          */
         container.ExposedPorts.Add(PortBinding.Key);
         container.PortBindings.Add(PortBinding.Key, PortBinding.Value);
-        
+
         // add bind mounts
         container.BindMounts.Add(new Bind
         {
@@ -94,10 +95,10 @@ var container = new ContainerBuilder<GenericContainer>()
             ContainerPath = HostPathBinding.Value,
             AccessMode = AccessMode.ReadOnly
         });
-        
+
         // set working directory
         container.WorkingDirectory = WorkingDirectory;
-        
+
         // set command to run
         container.Command = PlatformSpecific.ShellCommand(
                 $"{PlatformSpecific.Touch} {FileTouchedByCommand}; {PlatformSpecific.Shell}")
@@ -118,7 +119,7 @@ var image = new ImageBuilder<DockerfileImage>()
         image.DockerfilePath = "Dockerfile";
         image.DeleteOnExit = false;
 
-        // add the Dockerfile into the build context 
+        // add the Dockerfile into the build context
         image.Transferables.Add("Dockerfile", new MountableFile(PlatformSpecific.DockerfileImagePath));
         // add other files required by the Dockerfile into the build context
         image.Transferables.Add(".", new MountableFile(PlatformSpecific.DockerfileImageContext));
@@ -141,7 +142,7 @@ or
 
 ```csharp
 var container = new ContainerBuilder<GenericContainer>()
-    .ConfigureDockerImage((hostContext, builderContext) => 
+    .ConfigureDockerImage((hostContext, builderContext) =>
     {
         return new ImageBuilder<DockerfileImage>()
             // share the app/host config and service collection from the parent builder context
@@ -150,9 +151,9 @@ var container = new ContainerBuilder<GenericContainer>()
             {
                 image.DeleteOnExit = false;
                 image.BasePath = PlatformSpecific.DockerfileImageContext;
-        
+
                 // add the Dockerfile as like the command line `-f <path to dockerfile`
-                image.DockerfilePath = "Dockerfile"; 
+                image.DockerfilePath = "Dockerfile";
                 image.Transferables.Add("Dockerfile", new MountableFile(PlatformSpecific.DockerfileImagePath));
 
                 // add other files required by the Dockerfile into the build context
@@ -174,7 +175,7 @@ var container = new ContainerBuilder<GenericContainer>()
 
 ```csharp
 var container = new ContainerBuilder<GenericContainer>()
-    .ConfigureNetwork((hostContext, builderContext) => 
+    .ConfigureNetwork((hostContext, builderContext) =>
     {
         return new NetworkBuilder<UserDefinedNetwork>()
             // share the app/host config and service collection from the parent builder context
@@ -183,7 +184,7 @@ var container = new ContainerBuilder<GenericContainer>()
             {
                 // be careful when setting static network names
                 // if they already exists, the existing network will be used
-                // otherwise, the default NetworkName is a random string 
+                // otherwise, the default NetworkName is a random string
                 network.NetworkName = "my_network"
             })
             .Build();
@@ -200,7 +201,7 @@ var container = new ContainerBuilder<GenericContainer>()
 
 ## Configuring TestContainers-dotnet
 
-There are some configurations to testcontainers-dotnet that cannot be performed in code or injected. 
+There are some configurations to testcontainers-dotnet that cannot be performed in code or injected.
 These configuration can be set in environment variables before the first instance of your container is built.
 
  | Variable          | Default                             | Description
