@@ -25,9 +25,9 @@ namespace ResourceReaper.Integration.Tests
             _dockerClient = ((GenericContainer) _container).DockerClient;
         }
 
-        public Task InitializeAsync()
+        public async Task InitializeAsync()
         {
-            return _container.StartAsync();
+            await _container.StartAsync();
         }
 
         public Task DisposeAsync()
