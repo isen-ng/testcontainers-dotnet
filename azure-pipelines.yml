@@ -1,6 +1,9 @@
 trigger:
   - master
 
+pool:
+  vmImage: 'vs2017-win2016'
+
 variables:
   buildConfiguration: 'Release'
 
@@ -9,6 +12,10 @@ steps:
     displayName: 'List dotnet sdks'
   - script: docker info
     displayName: 'Show docker info'
+  - powershell: [Environment]::SetEnvironmentVariable("LCOW_SUPPORTED", "1", "Machine")
+    displayName: Setting LCOW environment variable
+  - powershell: Restart-Service Docker
+    displayName: Restart docker
   - script: dotnet build --configuration $(buildConfiguration)
     displayName: 'dotnet build $(buildConfiguration)'
   - script: dotnet test --configuration $(buildConfiguration)
