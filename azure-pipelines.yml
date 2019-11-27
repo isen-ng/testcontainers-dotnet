@@ -12,14 +12,10 @@ steps:
     displayName: 'List dotnet sdks'
   - script: docker info
     displayName: 'Show docker info'
-  - powershell: '[Environment]::SetEnvironmentVariable("LCOW_SUPPORTED", "1", "Machine")'
-    displayName: Setting LCOW environment variable
-  - script: docker info
-    displayName: 'Show docker info after switching to lcow'
-  - powershell: Restart-Service Docker
-    displayName: Restart docker
   - powershell: '.\azure-install-docker-ce.ps1'
     displayName: 'Install docker ce'
+  - powershell: '& $Env:ProgramFiles\Docker\Docker\DockerCli.exe -SwitchLinuxEngine'
+    displayName: Switch linux engine
   - script: docker info
     displayName: 'Show docker info after switching to lcow'
   - script: dotnet build --configuration $(buildConfiguration)
