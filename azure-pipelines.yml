@@ -18,7 +18,7 @@ steps:
     displayName: 'Show docker info after switching to lcow'
   - powershell: Restart-Service Docker
     displayName: Restart docker
-  - powershell: '& azure-install-docker-ce.ps1'
+  - powershell: '.\azure-install-docker-ce.ps1'
     displayName: 'Install docker ce'
   - script: docker info
     displayName: 'Show docker info after switching to lcow'
