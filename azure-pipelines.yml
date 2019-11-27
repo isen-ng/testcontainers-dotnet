@@ -5,5 +5,11 @@ variables:
   buildConfiguration: 'Release'
 
 steps:
+  - script: dotnet --list-sdks
+    displayName: 'List dotnet sdks'
+  - script: docker info
+    displayName: 'Show docker info'
   - script: dotnet build --configuration $(buildConfiguration)
     displayName: 'dotnet build $(buildConfiguration)'
+  - script: dotnet test --configuration $(buildConfiguration)
+    displayName: 'dotnet test $(buildConfiguration)'
