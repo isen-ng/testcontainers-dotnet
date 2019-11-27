@@ -16,6 +16,8 @@ steps:
     displayName: Setting LCOW environment variable
   - powershell: Restart-Service Docker
     displayName: Restart docker
+  - script: docker info
+    displayName: 'Show docker info after switching to lcow'
   - script: dotnet build --configuration $(buildConfiguration)
     displayName: 'dotnet build $(buildConfiguration)'
   - script: dotnet test --configuration $(buildConfiguration)
