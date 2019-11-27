@@ -12,7 +12,7 @@ steps:
     displayName: 'List dotnet sdks'
   - script: docker info
     displayName: 'Show docker info'
-  - powershell: [Environment]::SetEnvironmentVariable("LCOW_SUPPORTED", "1", "Machine")
+  - powershell: '[Environment]::SetEnvironmentVariable("LCOW_SUPPORTED", "1", "Machine")'
     displayName: Setting LCOW environment variable
   - powershell: Restart-Service Docker
     displayName: Restart docker
