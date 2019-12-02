@@ -14,7 +14,7 @@ instances of common databases or anything else that can run in a Docker containe
 ### Build statuses
 
 [![Linux build status](https://img.shields.io/travis/com/isen-ng/testcontainers-dotnet/master?label=linux)](https://travis-ci.org/isen-ng/testcontainers-dotnet)
-[![LCOW build status](https://img.shields.io/appveyor/ci/isen-ng/testcontainers-dotnet/master?label=lcow)](https://ci.appveyor.com/project/isen-ng/testcontainers-dotnet/branch/master)
+<!--[![LCOW build status](https://img.shields.io/appveyor/ci/isen-ng/testcontainers-dotnet/master?label=experimental-lcow)](https://ci.appveyor.com/project/isen-ng/testcontainers-dotnet/branch/master)-->
 
 ---
 
@@ -47,6 +47,14 @@ instances of common databases or anything else that can run in a Docker containe
   - User defined networks
   - Network aliases
 * Ryuk resource reaper
+* [Need help] Classic LCOW CI on Win10 (GUI) environment
+  - Requires the GUI version of Docker Desktop for Windows
+
+## Experimental LCOW on Windows environment
+
+* Not supported
+  - Primarily because this experimental feature does not allow mounting of the docker socket/npipe into a container
+  - [More info](https://docs.microsoft.com/en-us/virtualization/windowscontainers/deploy-containers/linux-containers)
 
 ## Built-in containers
 
