@@ -60,8 +60,11 @@ namespace TestContainers.Container.Abstractions.Reaper
 
             BindMounts.Add(new Bind
             {
-                HostPath = DockerClient.Configuration.EndpointBaseUri.AbsolutePath,
-                ContainerPath = DockerClient.Configuration.EndpointBaseUri.AbsolutePath,
+                // apparently this is the correct way to mount the docker socket on both windows and linux
+                // mounting the npipe will not work
+                HostPath = "//var/run/docker.sock",
+                // ryuk is a linux container, so we have to mount onto the linux socket
+                ContainerPath = "/var/run/docker.sock",
                 AccessMode = AccessMode.ReadOnly
             });
 

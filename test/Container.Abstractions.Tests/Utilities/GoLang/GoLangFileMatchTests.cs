@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using TestContainers.Container.Abstractions.Utilities;
 using TestContainers.Container.Abstractions.Utilities.GoLang;
 using Xunit;
 
@@ -91,6 +92,9 @@ namespace Container.Abstractions.Tests.Utilities.GoLang
                     // no escape allowed on windows.
                     return;
                 }
+
+                pattern = OS.NormalizePath(pattern);
+                s = OS.NormalizePath(s);
             }
 
             try

@@ -9,8 +9,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Container.Abstractions.Test
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Container.Abstractions.Integration.Tests", "test\Container.Abstractions.Integration.Tests\Container.Abstractions.Integration.Tests.csproj", "{15C26CE5-2CE8-4C90-BFE4-880729162370}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ryuk", "ryuk", "{CACF478A-D033-483A-862C-930881F162ED}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Container.Database", "src\Container.Database\Container.Database.csproj", "{060F100E-431F-41AC-8C61-CD88FC1A3369}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Container.Database.AdoNet", "src\Container.Database.AdoNet\Container.Database.AdoNet.csproj", "{9577549B-73BF-40E4-AC27-21A255C1C1AA}"

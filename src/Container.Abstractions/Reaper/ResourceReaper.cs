@@ -91,14 +91,12 @@ namespace TestContainers.Container.Abstractions.Reaper
                         _ryukContainer = new RyukContainer(ryukImage, dockerClient,
                             loggerFactory ?? NullLoggerFactory.Instance);
 
-                        var ryukStartupTask = _ryukContainer.StartAsync();
-                        await ryukStartupTask.ContinueWith(_ =>
-                        {
-                            _ryukContainer.AddToDeathNote(new LabelsFilter(Labels));
-                            _ryukStartupTaskCompletionSource.SetResult(true);
+                        await _ryukContainer.StartAsync();
 
-                            logger?.LogDebug("Started ryuk container");
-                        });
+                        _ryukContainer.AddToDeathNote(new LabelsFilter(Labels));
+                        _ryukStartupTaskCompletionSource.SetResult(true);
+
+                        logger?.LogDebug("Ryuk container started");
                     }
                     else
                     {

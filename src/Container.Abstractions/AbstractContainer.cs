@@ -435,7 +435,7 @@ namespace TestContainers.Container.Abstractions
 
         private string GetContainerGateway()
         {
-            if (!File.Exists("/.dockerenv") || ContainerInfo == null)
+            if (File.Exists("/.dockerenv") || ContainerInfo == null)
             {
                 return null;
             }

@@ -1,6 +1,5 @@
 using System.Threading.Tasks;
 using Container.Test.Utility;
-using Container.Test.Utility.Platforms;
 using Docker.DotNet;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -12,8 +11,6 @@ namespace Container.Abstractions.Integration.Tests.Networks.Fixtures
 {
     public class UserDefinedNetworkFixture : IAsyncLifetime
     {
-        public IPlatformSpecific PlatformSpecific { get; } = PlatformHelper.GetPlatform();
-
         public INetwork Network { get; }
 
         public IDockerClient DockerClient { get; }

@@ -67,7 +67,7 @@ namespace TestContainers.Container.Abstractions.Transferables
 
                         // there is an issue in SharpZipLib that trims the starting / from the
                         // tar entry, thus, any root path that starts with / will not match
-                        tarArchive.RootPath = rootPath.TrimStart('/');
+                        tarArchive.RootPath = rootPath.TrimStart(Path.DirectorySeparatorChar);
                         tarArchive.PathPrefix = destinationPath;
 
                         tarArchive.WriteEntry(tarEntry, true);

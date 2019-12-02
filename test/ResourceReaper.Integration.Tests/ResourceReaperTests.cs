@@ -1,5 +1,4 @@
 using System.Threading.Tasks;
-using Container.Test.Utility.Platforms;
 using Docker.DotNet;
 using Microsoft.Extensions.Configuration;
 using TestContainers.Container.Abstractions;
@@ -20,15 +19,15 @@ namespace ResourceReaper.Integration.Tests
             _container = new ContainerBuilder<GenericContainer>()
                 .ConfigureHostConfiguration(builder => builder.AddInMemoryCollection())
                 .ConfigureAppConfiguration((context, builder) => builder.AddInMemoryCollection())
-                .ConfigureDockerImageName(PlatformHelper.GetPlatform().TinyDockerImage)
+                .ConfigureDockerImageName($"{GenericContainer.DefaultImage}:{GenericContainer.DefaultTag}")
                 .Build();
 
             _dockerClient = ((GenericContainer) _container).DockerClient;
         }
 
-        public Task InitializeAsync()
+        public async Task InitializeAsync()
         {
-            return _container.StartAsync();
+            await _container.StartAsync();
         }
 
         public Task DisposeAsync()
@@ -51,7 +50,8 @@ namespace ResourceReaper.Integration.Tests
             {
                 try
                 {
-                    await _dockerClient.Containers.InspectContainerAsync(TestContainers.Container.Abstractions.Reaper.ResourceReaper.GetRyukContainerId());
+                    await _dockerClient.Containers.InspectContainerAsync(TestContainers.Container.Abstractions.Reaper
+                        .ResourceReaper.GetRyukContainerId());
                 }
                 catch (DockerContainerNotFoundException)
                 {
@@ -72,7 +72,8 @@ namespace ResourceReaper.Integration.Tests
             TestContainers.Container.Abstractions.Reaper.ResourceReaper.KillTcpConnection();
 
             // act
-            TestContainers.Container.Abstractions.Reaper.ResourceReaper.RegisterFilterForCleanup(new LabelsFilter("key", "value"));
+            TestContainers.Container.Abstractions.Reaper.ResourceReaper.RegisterFilterForCleanup(
+                new LabelsFilter("key", "value"));
 
             // assert
             Assert.True(await TestContainers.Container.Abstractions.Reaper.ResourceReaper.IsConnected());
