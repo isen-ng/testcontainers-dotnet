@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.IO;
+using System.Runtime.InteropServices;
 using TestContainers.Container.Abstractions.Utilities;
 using Xunit;
 
@@ -29,6 +30,20 @@ namespace Container.Abstractions.Tests.Utilities
                 new object[] {"C:\\windows\\folder", $"C:{DirectorySeparator}windows{DirectorySeparator}folder"},
                 new object[] {"windows\\relative\\path", $"windows{DirectorySeparator}relative{DirectorySeparator}path"}
             };
+        }
+
+        public class IsWindowsTests : OsTests
+        {
+            [Fact]
+            public void ShouldReturnTrueIsOsIsWindows()
+            {
+                // arrange
+                var expected = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
+                // act
+                var result = OS.IsWindows();
+                // assert
+                Assert.Equal(expected, result);
+            }
         }
     }
 }
