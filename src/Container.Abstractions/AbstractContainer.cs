@@ -436,11 +436,9 @@ namespace TestContainers.Container.Abstractions
 
         private string GetContainerGateway()
         {
-            // if we are in a dind environment, only there is no gateway
-            // if container info is not setup, there is no gateway to get
-            // if we are in a classic windows docker desktop, ContainerInfo gateway cannot be reached
-            // because of the way a Moby VM is setup to run all the docker containers
-            if (File.Exists("/.dockerenv") || OS.IsWindows() || ContainerInfo == null)
+            // if not inside a container, the gateway is simply localhost
+            // if container hasn't started, then there's nothing to inspect
+            if (!IsThisContainerInAContainer() || ContainerInfo == null)
             {
                 return null;
             }
@@ -479,6 +477,11 @@ namespace TestContainers.Container.Abstractions
                     }
                 }
             }
+        }
+
+        private static bool IsThisContainerInAContainer()
+        {
+            return File.Exists("/.dockerenv");
         }
     }
 }
