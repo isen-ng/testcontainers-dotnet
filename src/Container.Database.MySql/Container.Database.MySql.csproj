@@ -13,7 +13,7 @@
     <Description>DotNet port of testcontainers.org</Description>
 
     <Version>1.4.9</Version>
-    <Authors>Isen Ng</Authors>
+    <Authors>Isen Ng,Sylvain Rollinet</Authors>
 
     <PackageProjectUrl>https://github.com/isen-ng/testcontainers-dotnet</PackageProjectUrl>
     <PackageLicenseUrl>https://raw.githubusercontent.com/isen-ng/testcontainers-dotnet/master/LICENSE</PackageLicenseUrl>
