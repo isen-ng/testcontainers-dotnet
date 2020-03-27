@@ -34,14 +34,14 @@ namespace Container.Database.MySql.Integration.Tests.Fixtures
                 .Build();
         }
 
-        public async Task InitializeAsync()
+        public Task InitializeAsync()
         {
-            await Container.StartAsync();
+            return Container.StartAsync();
         }
 
-        public async Task DisposeAsync()
+        public Task DisposeAsync()
         {
-            await Container.StopAsync();
+            return Container.StopAsync();
         }
     }
 
