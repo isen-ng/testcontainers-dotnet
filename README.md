@@ -64,6 +64,7 @@ instances of common databases or anything else that can run in a Docker containe
 | MsSql Container      | [README](src/Container.Database.MsSql/README.md)      | [![MySql](https://img.shields.io/nuget/v/TestContainers.Container.Database.MsSql.svg)](https://www.nuget.org/packages/TestContainers.Container.Database.MsSql/)
 | PostgreSql Container | [README](src/Container.Database.PostgreSql/README.md) | [![PostgreSql](https://img.shields.io/nuget/v/TestContainers.Container.Database.PostgreSql.svg)](https://www.nuget.org/packages/TestContainers.Container.Database.PostgreSql/)
 | ArangoDb Container   | [README](src/Container.Database.ArangoDb/README.md)   | [![ArangoDb](https://img.shields.io/nuget/v/TestContainers.Container.Database.ArangoDb.svg)](https://www.nuget.org/packages/TestContainers.Container.Database.ArangoDb/)
+| Mysql Container      | [README](src/Container.Database.MySql/README.md)      | [![MySql](https://img.shields.io/nuget/v/TestContainers.Container.Database.MySql.svg)](https://www.nuget.org/packages/TestContainers.Container.Database.MySql/)
 
 
 ## Example code

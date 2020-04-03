@@ -46,3 +46,9 @@ CSPROJ="${PROJECT_DIR}/Container.Database.ArangoDb.csproj"
 ASSEMBLY_NAME="TestContainers.Container.Database.ArangoDb"
 
 remote_publish ${CSPROJ} ${ASSEMBLY_NAME} ${PROJECT_DIR}
+
+PROJECT_DIR="src/Container.Database.MySql"
+CSPROJ="${PROJECT_DIR}/Container.Database.MySql.csproj"
+ASSEMBLY_NAME="TestContainers.Container.Database.MySql"
+
+remote_publish ${CSPROJ} ${ASSEMBLY_NAME} ${PROJECT_DIR}
