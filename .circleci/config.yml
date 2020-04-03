@@ -1,0 +1,17 @@
+version: 2
+
+jobs:
+  continuous_integration:
+    docker:
+      - image: mcr.microsoft.com/dotnet/core/sdk:3.1.201-alpine3.11
+
+    branches:
+      only:
+        - master
+
+    steps:
+      - setup_remote_docker
+      - checkout
+      - run: dotnet restore
+      - run: dotnet build
+      - run: dotnet test /p:CollectCoverage=true /p:CoverletOutputFormat='json%2copencover' /p:CoverletOutput=../bin/coverage/ /p:MergeWith='../bin/coverage/coverage.json'
