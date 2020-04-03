@@ -5,9 +5,9 @@
 
  jobs:
    build:
-     executor: win/default     
-    
+     executor: win/default
+
      steps:
-       - setup_remote_docker
+       - docker ps
        - checkout
        - run: dotnet build
