@@ -1,0 +1,21 @@
+version: 2
+
+jobs:
+  build:
+    machine:
+      image: ubuntu-1604:201903-01
+
+    steps:
+      - run: cat /etc/*-release
+      - run: lsb_release -a
+      - run: hostnamectl
+      - run: wget -q https://packages.microsoft.com/config/ubuntu/16.04/packages-microsoft-prod.deb
+      - run: sudo dpkg -i packages-microsoft-prod.deb
+      - run: sudo add-apt-repository universe
+      - run: sudo apt-get install apt-transport-https
+      - run: sudo apt-get update
+      - run: sudo apt-get install dotnet-sdk-2.2
+      - checkout
+      - run: dotnet restore
+      - run: dotnet build
+      - run: dotnet test /p:CollectCoverage=true /p:CoverletOutputFormat='json%2copencover' /p:CoverletOutput=../bin/coverage/ /p:MergeWith='../bin/coverage/coverage.json'
