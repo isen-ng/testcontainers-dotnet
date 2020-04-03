@@ -8,6 +8,6 @@
      executor: win/default
 
      steps:
-       - docker ps
+       - run: docker ps
        - checkout
        - run: dotnet build
