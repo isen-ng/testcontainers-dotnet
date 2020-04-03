@@ -1,14 +1,17 @@
- version: 2.1
+version: 2
 
- orbs:
-  win: circleci/windows@2.2.0
+jobs:
+  continuous_integration:
+    docker:
+      - image: mcr.microsoft.com/dotnet/core/sdk:3.1.201-alpine3.11
 
- jobs:
-   build:
-     executor: win/default
+    branches:
+      only:
+        - master
 
-     steps:
-       - run: docker ps
-       - checkout
-       - run: dotnet build
-       - run: dotnet test /p:CollectCoverage=true /p:CoverletOutputFormat='json%2copencover' /p:CoverletOutput=../bin/coverage/ /p:MergeWith='../bin/coverage/coverage.json'
+    steps:
+      - setup_remote_docker
+      - checkout
+      - run: dotnet restore
+      - run: dotnet build
+      - run: dotnet test /p:CollectCoverage=true /p:CoverletOutputFormat='json%2copencover' /p:CoverletOutput=../bin/coverage/ /p:MergeWith='../bin/coverage/coverage.json'
