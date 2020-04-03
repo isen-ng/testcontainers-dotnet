@@ -11,3 +11,4 @@
        - run: docker ps
        - checkout
        - run: dotnet build
+       - run: dotnet test /p:CollectCoverage=true /p:CoverletOutputFormat='json%2copencover' /p:CoverletOutput=../bin/coverage/ /p:MergeWith='../bin/coverage/coverage.json'
