@@ -217,3 +217,4 @@ These configuration can be set in environment variables before the first instanc
  |-------------------|-------------------------------------|------------
  | `REAPER_DISABLED` | (not-set)                           | When set to `1` or `true`, disables starting of the reaper container
  | `REAPER_IMAGE`    | `quay.io/testcontainers/ryuk:0.2.3` | Change which container image to use for reaper
+ | `REAPER_PORT`     | (not-set)                           | Use the given port for reaper instead of a dynamic port
