@@ -16,9 +16,10 @@ jobs:
       - name: Setup dotnet ${{ matrix.dotnet-version }}
         uses: actions/setup-dotnet@v1
         with:
+          # 2.2.0 is required for running test projects
           dotnet-version: |
             ${{ matrix.dotnet-version }}
-            2.2.0 # for running test projects
+            2.2.0
 
       - name: Install sonar tool
         run: dotnet tool install --global dotnet-sonarscanner
