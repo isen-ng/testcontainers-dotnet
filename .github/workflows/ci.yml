@@ -16,7 +16,9 @@ jobs:
       - name: Setup dotnet ${{ matrix.dotnet-version }}
         uses: actions/setup-dotnet@v1
         with:
-          dotnet-version: ${{ matrix.dotnet-version }}
+          dotnet-version: |
+            ${{ matrix.dotnet-version }}
+            2.2.0 # for running test projects
 
       - name: Install sonar tool
         run: dotnet tool install --global dotnet-sonarscanner
@@ -40,7 +42,7 @@ jobs:
         run: dotnet build
 
       - name: Test with coverage
-        run: dotnet test testcontainers-dotnet.sln /p:CollectCoverage=true /p:CoverletOutputFormat='json%2copencover' /p:CoverletOutput=../bin/coverage/ /p:MergeWith='../bin/coverage/coverage.json'
+        run: dotnet test /p:CollectCoverage=true /p:CoverletOutputFormat='json%2copencover' /p:CoverletOutput=../bin/coverage/ /p:MergeWith='../bin/coverage/coverage.json'
 
       - name: Upload code coverage
         uses: codecov/codecov-action@v2
