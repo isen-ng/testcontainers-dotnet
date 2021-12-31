@@ -29,14 +29,14 @@ jobs:
 
       - name: Begin sonar scan (not available to forks because secrets do not propagate)
         run: dotnet sonarscanner begin /k:"testcontainers-dotnet" /o:"isen-ng-github" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.login=${{ secrets.SONAR_TOKEN }}
-        if: ${{ github.repository_owner == 'isen-ng' }}
+        if: ${{ github.event.pull_request.head.repo.full_name == 'isen-ng/testcontainers-dotnet' }}
 
       - name: Build
         run: dotnet build
 
       - name: End sonar scan (not available to forks because secrets do not propagate)
         run: dotnet sonarscanner end /d:sonar.login=${{ secrets.SONAR_TOKEN }}
-        if: ${{ github.repository_owner == 'isen-ng' }}
+        if: ${{ github.event.pull_request.head.repo.full_name == 'isen-ng/testcontainers-dotnet' }}
 
       - name: Test with coverage
         run: dotnet test /p:CollectCoverage=true /p:CoverletOutputFormat='json%2copencover' /p:CoverletOutput=../bin/coverage/ /p:MergeWith='../bin/coverage/coverage.json'
