@@ -1,13 +1,13 @@
-name: ci
+name: cd
 
 on:
-  pull_request:
+  push:
     branches: 
       - master
 
 jobs:
   test:
-    name: Build and run tests
+    name: Build and run analysis
     runs-on: ubuntu-latest
     steps:
       - name: Setup dotnet
@@ -27,16 +27,14 @@ jobs:
       - name: Install dependencies
         run: dotnet restore
 
-      - name: Begin sonar scan (not available to forks because secrets do not propagate)
+      - name: Begin sonar scan
         run: dotnet sonarscanner begin /k:"testcontainers-dotnet" /o:"isen-ng-github" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.login=${{ secrets.SONAR_TOKEN }}
-        if: ${{ github.repository_owner == 'isen-ng' }}
 
       - name: Build
         run: dotnet build
 
-      - name: End sonar scan (not available to forks because secrets do not propagate)
+      - name: End sonar scan
         run: dotnet sonarscanner end /d:sonar.login=${{ secrets.SONAR_TOKEN }}
-        if: ${{ github.repository_owner == 'isen-ng' }}
 
       - name: Test with coverage
         run: dotnet test /p:CollectCoverage=true /p:CoverletOutputFormat='json%2copencover' /p:CoverletOutput=../bin/coverage/ /p:MergeWith='../bin/coverage/coverage.json'
