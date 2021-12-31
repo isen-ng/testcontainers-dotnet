@@ -19,7 +19,7 @@ jobs:
           # 2.2.0 is required for running test projects
           dotnet-version: |
             ${{ matrix.dotnet-version }}
-            2.2.0
+            2.2.x
 
       - name: Install sonar tool
         run: dotnet tool install --global dotnet-sonarscanner
