@@ -1,0 +1,45 @@
+name: ci
+
+on:
+  pull_request:
+    branches: 
+      - master
+
+jobs:
+  test:
+    name: Build and run tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup dotnet
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: 2.2.x
+
+      - name: Install sonar tool
+        run: dotnet tool install --global dotnet-sonarscanner
+
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Install dependencies
+        run: dotnet restore
+
+      - name: Begin sonar scan
+        run: dotnet sonarscanner begin /k:"testcontainers-dotnet" /o:"isen-ng-github" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.login=${{ secrets.SONAR_TOKEN }}
+
+      - name: Build
+        run: dotnet build
+
+      - name: End sonar scan
+        run: dotnet sonarscanner end /d:sonar.login=${{ secrets.SONAR_TOKEN }}
+
+      - name: Test with coverage
+        run: dotnet test /p:CollectCoverage=true /p:CoverletOutputFormat='json%2copencover' /p:CoverletOutput=../bin/coverage/ /p:MergeWith='../bin/coverage/coverage.json'
+
+      - name: Upload code coverage
+        uses: codecov/codecov-action@v2
+        with:
+          files: test/bin/coverage/coverage.opencover.xml
