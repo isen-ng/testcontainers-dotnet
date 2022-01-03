@@ -91,6 +91,11 @@ namespace TestContainers.Container.Abstractions.Reaper
                         _ryukContainer = new RyukContainer(ryukImage, dockerClient,
                             loggerFactory ?? NullLoggerFactory.Instance);
 
+                        if (int.TryParse(Environment.GetEnvironmentVariable("REAPER_PORT"), out var reaperPort))
+                        {
+                            _ryukContainer.PortBindings.Add(RyukContainer.RyukPort, reaperPort);
+                        }
+
                         await _ryukContainer.StartAsync();
 
                         _ryukContainer.AddToDeathNote(new LabelsFilter(Labels));

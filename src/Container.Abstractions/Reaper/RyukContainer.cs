@@ -21,7 +21,7 @@ namespace TestContainers.Container.Abstractions.Reaper
     {
         private const string RyukAck = "ACK";
 
-        private const int RyukPort = 8080;
+        internal const int RyukPort = 8080;
 
         private readonly ILogger<RyukContainer> _logger;
 
