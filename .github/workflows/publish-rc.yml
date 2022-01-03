@@ -1,0 +1,32 @@
+name: ci
+
+on:
+  push:
+    tags: 
+      - v[0-9].[0-9]+.[0-9]+-RC
+      - test.*
+
+jobs:
+  test:
+    name: Build and publish
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup dotnet
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: 2.2.x
+
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Install dependencies
+        run: dotnet restore
+
+      - name: Build
+        run: dotnet build
+
+      - name: Publish
+        run: ./remote-publish.sh ${{ secrets.INTEGRATION_NUGET_API_KEY }} https://int.nugettest.org/api/v2/package
