@@ -8,7 +8,7 @@ on:
 
 jobs:
   test:
-    name: Build and publish
+    name: Publish to https://int.nugettest.org/api/v2/package
     runs-on: ubuntu-latest
     steps:
       - name: Setup dotnet
