@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Data.Common;
+using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using Docker.DotNet;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using MySql.Data.MySqlClient;
 using TestContainers.Container.Abstractions.Images;
 using TestContainers.Container.Database.AdoNet;
 
@@ -39,8 +40,46 @@ namespace TestContainers.Container.Database.MySql
 
         private string _connectionString;
 
+        /*
+         * NOTE: MySqlConnector made a breaking change in v1.0 by changing the namespace.
+         * We have to try loading multiple types of DbProviderFactory depending on the installed version.
+         * Once found, the DbProviderFactory is cached in this Lazy instance.
+         */
+        private static readonly Lazy<DbProviderFactory> s_lazyDbProviderFactory = new Lazy<DbProviderFactory>(() =>
+        {
+            var providerFactoryTypes = new[]
+            {
+                ("MySql.Data", "MySql.Data.MySqlClient.MySqlClientFactory"),
+                ("MySqlConnector", "MySql.Data.MySqlClient.MySqlClientFactory"),
+                ("MySqlConnector", "MySqlConnector.MySqlConnectorFactory"),
+            };
+            foreach ((string assemblyName, string typeName) in providerFactoryTypes)
+            {
+                try
+                {
+                    var asmName = new AssemblyName(assemblyName);
+                    var asm = Assembly.Load(asmName);
+                    var providerFactoryType = asm.GetType(typeName);
+                    var prop = providerFactoryType.GetFields().FirstOrDefault(p =>
+                        string.Equals(p.Name, "Instance", StringComparison.OrdinalIgnoreCase) && p.IsStatic);
+                    if (prop is null)
+                    {
+                        continue;
+                    }
+                    return (DbProviderFactory)prop.GetValue(null);
+                }
+                catch (Exception)
+                {
+                    // Could not load this factory, try with next one
+                }
+            }
+            throw new TypeLoadException("Could not load any DbProviderFactory type. " +
+                                        "Ensure that a suitable MySQL data provider is installed."
+            );
+        });
+
         /// <inheritdoc />
-        protected override DbProviderFactory DbProviderFactory { get; } = MySqlClientFactory.Instance;
+        protected override DbProviderFactory DbProviderFactory => s_lazyDbProviderFactory.Value;
 
         /// <inheritdoc />
         public MySqlContainer(IDockerClient dockerClient, ILoggerFactory loggerFactory)
