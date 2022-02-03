@@ -4,7 +4,6 @@ using System.Threading.Tasks;
 using Docker.DotNet;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using MySql.Data.MySqlClient;
 using TestContainers.Container.Abstractions.Images;
 using TestContainers.Container.Database.AdoNet;
 
@@ -40,7 +39,7 @@ namespace TestContainers.Container.Database.MySql
         private string _connectionString;
 
         /// <inheritdoc />
-        protected override DbProviderFactory DbProviderFactory { get; } = MySqlClientFactory.Instance;
+        protected override DbProviderFactory DbProviderFactory { get; } = ClientFactoryAccessor.ClientFactoryInstance;
 
         /// <inheritdoc />
         public MySqlContainer(IDockerClient dockerClient, ILoggerFactory loggerFactory)
