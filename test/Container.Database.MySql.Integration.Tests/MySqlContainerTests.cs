@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Container.Database.MySql.Integration.Tests.Fixtures;
 using Microsoft.Extensions.Logging;
@@ -59,6 +60,35 @@ namespace Container.Database.MySql.Integration.Tests
                 Assert.Equal(username, actualUsername);
                 Assert.Equal(password, actualPassword);
                 Assert.Equal(database, actualDatabase);
+            }
+
+            [Fact]
+            public async Task ShouldWaitUpUntilToAMinute()
+            {
+                // arrange
+                const string username = "user";
+                const string password = "my pwd";
+                const string database = "my db 1234";
+                var container = new ContainerBuilder<MySqlContainer>()
+                    .ConfigureDatabaseConfiguration(username, password, database)
+                    .ConfigureContainer((context, sqlContainer) =>
+                    {
+                        sqlContainer.Entrypoint = new List<string>
+                        {
+                            "/bin/bash",
+                            "-c",
+                            "sleep 15 && /usr/local/bin/docker-entrypoint.sh mysqld"
+                        };
+                    })
+                    .ConfigureLogging(builder =>
+                    {
+                        builder.AddConsole();
+                        builder.SetMinimumLevel(LogLevel.Debug);
+                    })
+                    .Build();
+
+                await container.StartAsync();
+                await container.StopAsync();
             }
         }
 

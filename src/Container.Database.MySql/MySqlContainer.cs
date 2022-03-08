@@ -18,7 +18,7 @@ namespace TestContainers.Container.Database.MySql
         /// <summary>
         /// Default image name
         /// </summary>
-        public new const string DefaultImage = "mysql";
+        public new const string DefaultImage = "docker.io/mysql";
 
         /// <summary>
         /// Default image tag
