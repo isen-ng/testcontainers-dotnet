@@ -37,7 +37,15 @@ namespace TestContainers.Container.Abstractions.WaitStrategies
         public async Task WaitUntil(IContainer container)
         {
             var exceptionPolicy = Policy
-                .Handle<Exception>(e => ExceptionTypes.Any(t => t.IsInstanceOfType(e)))
+                .Handle<Exception>(e =>
+                {
+                    if (e is AggregateException ae)
+                    {
+                        return ae.InnerExceptions.Any(ie => ExceptionTypes.Any(t => t.IsInstanceOfType(ie)));
+                    }
+
+                    return ExceptionTypes.Any(t => t.IsInstanceOfType(e));
+                })
                 .WaitAndRetryForeverAsync(_ => RetryInterval);
 
             var result = await Policy
