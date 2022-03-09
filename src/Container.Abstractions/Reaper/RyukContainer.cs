@@ -55,14 +55,24 @@ namespace TestContainers.Container.Abstractions.Reaper
         {
             await base.ConfigureAsync();
 
-            WaitStrategy = new ExposedPortsWaitStrategy(new List<int> { RyukPort });
+            WaitStrategy = new ExposedPortsWaitStrategy(new List<int>
+            {
+                RyukPort
+            });
             ExposedPorts.Add(RyukPort);
+
+            var dockerHostPath = (Environment.GetEnvironmentVariable("DOCKER_HOST"), Environment.GetEnvironmentVariable("TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE")) switch
+            {
+                ({ } s, _) when !string.IsNullOrEmpty(s) => new Uri(s).PathAndQuery,
+                (null, { } s) when !string.IsNullOrEmpty(s) => s,
+                _ => "/var/run/docker.sock"
+            };
 
             BindMounts.Add(new Bind
             {
                 // apparently this is the correct way to mount the docker socket on both windows and linux
                 // mounting the npipe will not work
-                HostPath = "//var/run/docker.sock",
+                HostPath = dockerHostPath,
                 // ryuk is a linux container, so we have to mount onto the linux socket
                 ContainerPath = "/var/run/docker.sock",
                 AccessMode = AccessMode.ReadOnly

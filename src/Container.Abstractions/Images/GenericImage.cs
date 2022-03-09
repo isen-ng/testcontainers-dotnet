@@ -79,9 +79,10 @@ namespace TestContainers.Container.Abstractions.Images
         private async Task PullImage(CancellationToken ct)
         {
             _logger.LogInformation("Pulling container image: {}", ImageName);
+            var tagSplitIdx = ImageName.LastIndexOf(":", StringComparison.InvariantCultureIgnoreCase);
             var createParameters = new ImagesCreateParameters
             {
-                FromImage = ImageName, Tag = ImageName.Split(':').Last(),
+                FromImage = ImageName.Substring(0, tagSplitIdx), Tag = ImageName.Substring(tagSplitIdx+1),
             };
 
             await DockerClient.Images.CreateImageAsync(

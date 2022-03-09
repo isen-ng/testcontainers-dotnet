@@ -86,6 +86,11 @@ namespace TestContainers.Container.Abstractions
         string WorkingDirectory { get; set; }
 
         /// <summary>
+        /// Entrypoint to set when the container starts
+        /// </summary>
+        List<string> Entrypoint { get; set; }
+
+        /// <summary>
         /// Command to run when the container starts
         /// </summary>
         List<string> Command { get; set; }

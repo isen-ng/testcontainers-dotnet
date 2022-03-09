@@ -13,7 +13,6 @@ using TestContainers.Container.Abstractions.Images;
 using TestContainers.Container.Abstractions.Models;
 using TestContainers.Container.Abstractions.Networks;
 using TestContainers.Container.Abstractions.StartupStrategies;
-using TestContainers.Container.Abstractions.Utilities;
 using TestContainers.Container.Abstractions.WaitStrategies;
 
 namespace TestContainers.Container.Abstractions
@@ -93,6 +92,9 @@ namespace TestContainers.Container.Abstractions
 
         /// <inheritdoc />
         public string WorkingDirectory { get; set; }
+
+        /// <inheritdoc />
+        public List<string> Entrypoint { get; set; }
 
         /// <inheritdoc />
         public List<string> Command { get; set; } = new List<string>();
@@ -382,6 +384,7 @@ namespace TestContainers.Container.Abstractions
                     e => default(EmptyStruct)),
                 Labels = Labels,
                 WorkingDir = WorkingDirectory,
+                Entrypoint = Entrypoint,
                 Cmd = Command,
                 Tty = true,
                 AttachStderr = true,
@@ -403,10 +406,7 @@ namespace TestContainers.Container.Abstractions
                     }),
                 Mounts = BindMounts.Select(m => new Mount
                     {
-                        Source = m.HostPath,
-                        Target = m.ContainerPath,
-                        ReadOnly = m.AccessMode == AccessMode.ReadOnly,
-                        Type = "bind"
+                        Source = m.HostPath, Target = m.ContainerPath, ReadOnly = m.AccessMode == AccessMode.ReadOnly, Type = "bind"
                     })
                     .ToList(),
                 PublishAllPorts = true,
@@ -429,8 +429,7 @@ namespace TestContainers.Container.Abstractions
 
             return new CreateContainerParameters(config)
             {
-                HostConfig = hostConfig,
-                NetworkingConfig = networkConfig
+                HostConfig = hostConfig, NetworkingConfig = networkConfig
             };
         }
 
