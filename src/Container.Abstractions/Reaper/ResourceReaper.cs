@@ -198,10 +198,7 @@ namespace TestContainers.Container.Abstractions.Reaper
             var imageDeleteParameters = new ImageDeleteParameters
             {
                 Force = true,
-                // this is actually a badly named variable, it means `noprune` instead of `pleaseprune`
-                // this is fixed in https://github.com/microsoft/Docker.DotNet/pull/316 but there hasn't
-                // been a release for a very long time (issue still exists in 3.125.2).
-                PruneChildren = false
+                NoPrune = false
             };
 
             await Task.WhenAll(

@@ -224,9 +224,9 @@ namespace TestContainers.Container.Abstractions
                 AttachStderr = true, AttachStdout = true, Cmd = command
             };
 
-            var response = await DockerClient.Containers.ExecCreateContainerAsync(ContainerId, parameters);
+            var response = await DockerClient.Exec.ExecCreateContainerAsync(ContainerId, parameters);
 
-            var stream = await DockerClient.Containers.StartAndAttachContainerExecAsync(response.ID, false);
+            var stream = await DockerClient.Exec.StartAndAttachContainerExecAsync(response.ID, false);
             return await stream.ReadOutputToEndAsync(default);
         }
 
