@@ -12,7 +12,7 @@
     <AssemblyName>TestContainers.Container.Database.MySql</AssemblyName>
     <Description>DotNet port of testcontainers.org</Description>
 
-    <Version>1.5.3</Version>
+    <Version>1.5.4</Version>
     <Authors>Isen Ng,Sylvain Rollinet</Authors>
 
     <PackageProjectUrl>https://github.com/isen-ng/testcontainers-dotnet</PackageProjectUrl>
