@@ -1,28 +1,12 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0</TargetFrameworks>
+    <TargetFramework>netstandard2.0</TargetFramework>
     <RootNamespace>TestContainers.Container.Abstractions</RootNamespace>
-    <IncludeSymbols>true</IncludeSymbols>
-    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
-    <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <LangVersion>8</LangVersion>
   </PropertyGroup>
 
   <PropertyGroup>
     <AssemblyName>TestContainers.Container.Abstractions</AssemblyName>
-    <Description>DotNet port of testcontainers.org</Description>
-
-    <Version>1.5.4</Version>
-    <Authors>Isen Ng</Authors>
-
-    <PackageProjectUrl>https://github.com/isen-ng/testcontainers-dotnet</PackageProjectUrl>
-    <PackageLicenseUrl>https://raw.githubusercontent.com/isen-ng/testcontainers-dotnet/master/LICENSE</PackageLicenseUrl>
-
-    <RepositoryUrl>https://github.com/isen-ng/testcontainers-dotnet</RepositoryUrl>
-    <RepositoryType>git</RepositoryType>
-
-    <PackageTags>testcontainers docker test tests testing nunit xunit integration</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>
