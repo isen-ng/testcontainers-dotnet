@@ -6,10 +6,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Docker.DotNet" Version="3.125.5" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\..\src\Container.Abstractions\Container.Abstractions.csproj" />
   </ItemGroup>
 

@@ -1,4 +1,4 @@
-Microsoft Visual Studio Solution File, Format Version 12.00
+﻿Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{1ADD6063-F7A1-4BB6-98CE-A7EC643FD20F}"
 	ProjectSection(SolutionItems) = preProject
 		src\Directory.Build.props = src\Directory.Build.props
@@ -7,6 +7,9 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Container.Abstractions", "src\Container.Abstractions\Container.Abstractions.csproj", "{AEB3BDF2-12AC-4446-8F56-0D1EEBF1F2EF}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{558B7340-0330-4D4A-87D9-680D83CFD1A1}"
+	ProjectSection(SolutionItems) = preProject
+		test\Directory.Build.props = test\Directory.Build.props
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Container.Abstractions.Tests", "test\Container.Abstractions.Tests\Container.Abstractions.Tests.csproj", "{02299ABE-A972-46D1-A1B0-156ABCB6384F}"
 EndProject
