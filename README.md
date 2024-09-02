@@ -1,3 +1,7 @@
+# This repo is no longer supported or updated!
+
+Please use the official repo: https://github.com/testcontainers/testcontainers-dotnet
+
 # TestContainers dotnet
 
 [![codecov](https://codecov.io/gh/isen-ng/testcontainers-dotnet/branch/master/graph/badge.svg)](https://codecov.io/gh/isen-ng/testcontainers-dotnet)
